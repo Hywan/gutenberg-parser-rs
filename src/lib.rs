@@ -7,7 +7,6 @@
 extern crate nom;
 extern crate wasm_bindgen;
 
-use nom::IResult;
 use wasm_bindgen::prelude::*;
 
 /// Test
@@ -21,9 +20,11 @@ pub fn root(input: &str) -> bool {
 }
 
 /// Test
-fn block_list(input: &[u8]) -> IResult<&[u8], &[u8], u32> {
-    tag!(input, "<!-- wp:foo /-->")
-}
+named_attr!(
+    #[doc="Test"],
+    pub block_list,
+    tag!("<!-- wp:foo /-->")
+);
 
 #[cfg(test)]
 mod tests {
