@@ -1,0 +1,11 @@
+[package]
+name = "parser"
+version = "0.1.0"
+authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+nom = {"git" = "https://github.com/Geal/nom", "branch" = "master", "features" = ["regexp", "regexp_macros", "verbose-errors"]}
+wasm-bindgen = "^0.2"

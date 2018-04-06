@@ -1,0 +1,6 @@
+/target/
+/Cargo.lock
+/node_modules/
+/package-lock.json
+/parser.js
+/parser_bg.wasm
