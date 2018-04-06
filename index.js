@@ -1,5 +1,13 @@
 const rust = import("./parser");
 
 rust.then(
-    parser => console.log(parser.root("<!-- wp:foo /-->"))
+    parser => {
+        const data = ["<!-- wp:foo /-->", "hello"];
+
+        for (datum of data) {
+            const output = parser.root(datum);
+
+            console.log(`\`${datum}\`: ${output}`);
+        }
+    }
 );
