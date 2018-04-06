@@ -1,13 +1,18 @@
 // Increase the macro recursion limit.
 #![recursion_limit="128"]
 
-#![feature(proc_macro, wasm_custom_section, wasm_import_module)]
+#![feature(proc_macro, wasm_custom_section, wasm_import_module, global_allocator)]
 
 #[macro_use]
 extern crate nom;
 extern crate wasm_bindgen;
+extern crate wee_alloc;
 
 use wasm_bindgen::prelude::*;
+use wee_alloc::WeeAlloc;
+
+#[global_allocator]
+static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
 /// Test
 #[wasm_bindgen]
