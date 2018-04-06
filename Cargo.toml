@@ -7,5 +7,5 @@ authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
-nom = {"git" = "https://github.com/Geal/nom", "branch" = "master", "features" = ["regexp", "regexp_macros", "verbose-errors"]}
+nom = {"git" = "https://github.com/Geal/nom", "branch" = "master"}
 wasm-bindgen = "^0.2"
