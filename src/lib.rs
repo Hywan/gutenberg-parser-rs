@@ -2,33 +2,31 @@
 
 #[macro_use]
 extern crate nom;
-extern crate wasm_bindgen;
+//extern crate wasm_bindgen;
 extern crate wee_alloc;
 extern crate regex;
-#[macro_use]
-extern crate lazy_static;
-#[macro_use]
-extern crate serde_json;
+#[cfg(test)] #[macro_use] extern crate serde_json;
+#[cfg(not(test))] extern crate serde_json;
 
-use wasm_bindgen::prelude::*;
+//use wasm_bindgen::prelude::*;
 use wee_alloc::WeeAlloc;
 use serde_json as json;
 
 #[global_allocator]
 static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
+fn is_alphanumeric_extended(chr: u8) -> bool {
+    (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
+}
+
 /// Test
-#[wasm_bindgen]
+//#[wasm_bindgen]
 pub fn root(input: &str) -> bool {
     if let Ok(_) = block_list(input.as_bytes()) {
         true
     } else {
         false
     }
-}
-
-fn is_alphanumeric_extended(chr: u8) -> bool {
-    (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
 }
 
 named_attr!(
