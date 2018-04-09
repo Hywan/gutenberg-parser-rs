@@ -27,6 +27,10 @@ pub fn root(input: &str) -> bool {
     }
 }
 
+fn is_alphanumeric_extended(chr: u8) -> bool {
+    (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
+}
+
 named_attr!(
     #[doc="Test"],
     block_list,
@@ -35,24 +39,34 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_name_core,
-    call!(block_name)
-);
-
-named_attr!(
-    #[doc="foo"],
-    block_name,
-    re_bytes_find_static!(r"(?-u)^[a-z][a-z0-9_-]*")
+    core_block_name<&[u8], (&[u8], &[u8])>,
+    map_res!(
+        block_name_part,
+        |block_name_part| -> Result<(&[u8], &[u8]), ()> {
+            Ok((&b"core"[..], block_name_part))
+        }
+    )
 );
 
 named_attr!(
     #[doc="foo"],
     namespaced_block_name<&[u8], (&[u8], &[u8])>,
     tuple!(
-        block_name,
+        block_name_part,
         preceded!(
             tag!("/"),
-            block_name
+            block_name_part
+        )
+    )
+);
+
+named_attr!(
+    #[doc="foo"],
+    block_name_part,
+    recognize!(
+        pair!(
+            is_a!("abcdefghijklmnopqrstuvwxyz"),
+            take_while!(is_alphanumeric_extended)
         )
     )
 );
@@ -90,47 +104,51 @@ mod tests {
     }
 
     #[test]
-    fn test_block_name_shortest() {
+    fn test_core_block_name() {
+        let input = &b"foo x"[..];
+        let output = Ok((&b" x"[..], (&b"core"[..], &b"foo"[..])));
+
+        assert_eq!(core_block_name(input), output);
+    }
+
+    #[test]
+    fn test_namespaced_block_name() {
+        let input = &b"foo_bar/baz42 x"[..];
+        let output = Ok((&b" x"[..], (&b"foo_bar"[..], &b"baz42"[..])));
+
+        assert_eq!(namespaced_block_name(input), output);
+    }
+
+    #[test]
+    fn test_block_name_part_shortest() {
         let input = &b"a x"[..];
         let output = Ok((&b" x"[..], &b"a"[..]));
 
-        assert_eq!(block_name(input), output);
-        assert_eq!(block_name_core(input), output);
+        assert_eq!(block_name_part(input), output);
     }
 
     #[test]
-    fn test_block_name_only_alpha() {
+    fn test_block_name_part_only_alpha() {
         let input = &b"abc xyz"[..];
         let output = Ok((&b" xyz"[..], &b"abc"[..]));
 
-        assert_eq!(block_name(input), output);
-        assert_eq!(block_name_core(input), output);
+        assert_eq!(block_name_part(input), output);
     }
 
     #[test]
-    fn test_block_name_only_alphanumeric() {
+    fn test_block_name_part_only_alphanumeric() {
         let input = &b"a0b1c xyz"[..];
         let output = Ok((&b" xyz"[..], &b"a0b1c"[..]));
 
-        assert_eq!(block_name(input), output);
-        assert_eq!(block_name_core(input), output);
+        assert_eq!(block_name_part(input), output);
     }
 
     #[test]
-    fn test_block_name() {
+    fn test_block_name_part() {
         let input = &b"a0b_1c- xyz"[..];
         let output = Ok((&b" xyz"[..], &b"a0b_1c-"[..]));
 
-        assert_eq!(block_name(input), output);
-        assert_eq!(block_name_core(input), output);
-    }
-
-    #[test]
-    fn test_namespaced_name() {
-        let input = &b"foo_bar/baz42"[..];
-        let output = Ok((&b""[..], (&b"foo_bar"[..], &b"baz42"[..])));
-
-        assert_eq!(namespaced_block_name(input), output);
+        assert_eq!(block_name_part(input), output);
     }
 
     #[test]
