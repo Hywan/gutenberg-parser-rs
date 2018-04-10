@@ -92,7 +92,10 @@ named_attr!(
 named_attr!(
     #[doc="foo"],
     pub block<&[u8], Block>,
-    call!(block_void)
+    alt!(
+        block_balanced |
+        block_void
+    )
 );
 
 named_attr!(
@@ -107,6 +110,9 @@ named_attr!(
         attributes: opt!(block_attributes) >>
         opt!(whitespaces) >>
         tag!("-->") >>
+        inner_blocks: many0!(
+            block
+        ) >>
         tag!("<!--") >>
         opt!(whitespaces) >>
         tag!("/wp:") >>
@@ -114,10 +120,11 @@ named_attr!(
         opt!(whitespaces) >>
         tag!("-->") >>
         (
+            // @todo: Need to check that `closing_name` is equal to `name`.
             Block {
                 name: name,
                 attributes: attributes,
-                inner_blocks: vec![]
+                inner_blocks: inner_blocks
             }
         )
     )
@@ -248,6 +255,7 @@ mod tests {
         ));
 
         assert_eq!(block_balanced(input), output);
+        assert_eq!(block(input), output);
     }
 
     #[test]
@@ -263,6 +271,7 @@ mod tests {
         ));
 
         assert_eq!(block_balanced(input), output);
+        assert_eq!(block(input), output);
     }
 
     #[test]
@@ -278,6 +287,40 @@ mod tests {
         ));
 
         assert_eq!(block_balanced(input), output);
+        assert_eq!(block(input), output);
+    }
+
+    #[test]
+    fn test_block_balanced_with_children() {
+        let input = &b"<!-- wp:foo --><!-- wp:bar {\"abc\": true} /--><!-- wp:baz --><!-- wp:qux /--><!-- /wp:baz --><!-- /wp:foo -->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"core"[..], &b"foo"[..]),
+                attributes: None,
+                inner_blocks: vec![
+                    Block {
+                        name: (&b"core"[..], &b"bar"[..]),
+                        attributes: Some(json!({"abc": true})),
+                        inner_blocks: vec![]
+                    },
+                    Block {
+                        name: (&b"core"[..], &b"baz"[..]),
+                        attributes: None,
+                        inner_blocks: vec![
+                            Block {
+                                name: (&b"core"[..], &b"qux"[..]),
+                                attributes: None,
+                                inner_blocks: vec![]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ));
+
+        assert_eq!(block_balanced(input), output);
+        assert_eq!(block(input), output);
     }
 
     #[test]
@@ -293,6 +336,7 @@ mod tests {
         ));
 
         assert_eq!(block_void(input), output);
+        assert_eq!(block(input), output);
     }
 
     #[test]
@@ -308,6 +352,7 @@ mod tests {
         ));
 
         assert_eq!(block_void(input), output);
+        assert_eq!(block(input), output);
     }
 
     #[test]
@@ -323,6 +368,7 @@ mod tests {
         ));
 
         assert_eq!(block_void(input), output);
+        assert_eq!(block(input), output);
     }
 
     #[test]
