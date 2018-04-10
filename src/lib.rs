@@ -15,6 +15,61 @@ use serde_json as json;
 #[global_allocator]
 static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
+
+
+/// `take_till_terminated(S, C)` is a like `take_till` but with a lookahead
+/// combinator `C`.
+macro_rules! take_till_terminated (
+    ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
+        {
+            use ::nom::{
+                ErrorKind,
+                FindSubstring,
+                IResult,
+                InputLength,
+                Needed,
+                Slice,
+                need_more_err
+            };
+
+            let input = $input;
+            let mut index = 0;
+            let mut result: Option<IResult<_, _>> = None;
+
+            while let Some(next_index) = input.slice(index..).find_substring($substr) {
+                match $submac!(input.slice(index + next_index + 1..), $($args)*) {
+                    Ok(_) => {
+                        result = Some(Ok((input.slice(index + next_index + 1..), input.slice(0..index + next_index + 1))));
+
+                        break;
+                    },
+
+                    _ => {
+                        index += next_index + 1;
+                    }
+                }
+            }
+
+            if let Some(result) = result {
+                result
+            } else {
+                need_more_err(input, Needed::Unknown, ErrorKind::Custom(42u32))
+            }
+        }
+    );
+
+    ($input:expr, $substr:expr, $f:expr) => {
+        take_till_terminated!($input, $substr, call!($f));
+    }
+);
+
+#[derive(Debug, PartialEq)]
+struct Block<'a> {
+    name: (&'a [u8], &'a [u8]),
+    attributes: Option<json::Value>,
+    inner_blocks: Vec<Block<'a>>
+}
+
 fn is_alphanumeric_extended(chr: u8) -> bool {
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
 }
@@ -35,14 +90,42 @@ named_attr!(
     tag!("<!-- wp:foo /-->")
 );
 
+/*
 named_attr!(
     #[doc="foo"],
-    core_block_name<&[u8], (&[u8], &[u8])>,
-    map_res!(
-        block_name_part,
-        |block_name_part| -> Result<(&[u8], &[u8]), ()> {
-            Ok((&b"core"[..], block_name_part))
-        }
+    block,
+    call!(block_auto_closed)
+);
+*/
+
+named_attr!(
+    #[doc="foo"],
+    block_auto_closed<&[u8], Block>,
+    do_parse!(
+        tag!("<!--") >>
+        opt!(whitespaces) >>
+        tag!("wp:") >>
+        name: block_name >>
+        whitespaces >>
+        attributes: opt!(block_attributes) >>
+        opt!(whitespaces) >>
+        tag!("/-->") >>
+        (
+            Block {
+                name: name,
+                attributes: attributes,
+                inner_blocks: vec![]
+            }
+        )
+    )
+);
+
+named_attr!(
+    #[doc="foo"],
+    block_name<&[u8], (&[u8], &[u8])>,
+    alt!(
+        namespaced_block_name |
+        core_block_name
     )
 );
 
@@ -55,6 +138,17 @@ named_attr!(
             tag!("/"),
             block_name_part
         )
+    )
+);
+
+named_attr!(
+    #[doc="foo"],
+    core_block_name<&[u8], (&[u8], &[u8])>,
+    map_res!(
+        block_name_part,
+        |block_name_part| -> Result<(&[u8], &[u8]), ()> {
+            Ok((&b"core"[..], block_name_part))
+        }
     )
 );
 
@@ -75,12 +169,27 @@ named_attr!(
     map_res!(
         preceded!(
             peek!(tag!("{")),
-            take_until!("-->")
+            take_till_terminated!(
+                "}",
+                preceded!(
+                    opt!(whitespaces),
+                    alt_complete!(
+                        tag!("/-->") |
+                        tag!("-->")
+                    )
+                )
+            )
         ),
         |json| {
             json::de::from_slice(json)
         }
     )
+);
+
+named_attr!(
+    #[doc="foo"],
+    whitespaces,
+    is_a!(" \n\r\t")
 );
 
 
@@ -102,11 +211,48 @@ mod tests {
     }
 
     #[test]
-    fn test_core_block_name() {
-        let input = &b"foo x"[..];
-        let output = Ok((&b" x"[..], (&b"core"[..], &b"foo"[..])));
+    fn test_block_auto_closed_default_namespace_without_attributes() {
+        let input = &b"<!-- wp:foo /-->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"core"[..], &b"foo"[..]),
+                attributes: None,
+                inner_blocks: vec![]
+            }
+        ));
 
-        assert_eq!(core_block_name(input), output);
+        assert_eq!(block_auto_closed(input), output);
+    }
+
+    #[test]
+    fn test_block_auto_closed_coerce_namespace_without_attributes() {
+        let input = &b"<!-- wp:ns/foo /-->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"ns"[..], &b"foo"[..]),
+                attributes: None,
+                inner_blocks: vec![]
+            }
+        ));
+
+        assert_eq!(block_auto_closed(input), output);
+    }
+
+    #[test]
+    fn test_block_auto_closed_default_namespace_with_attributes() {
+        let input = &b"<!-- wp:ns/foo {\"abc\": \"xyz\"} /-->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"ns"[..], &b"foo"[..]),
+                attributes: Some(json!({"abc": "xyz"})),
+                inner_blocks: vec![]
+            }
+        ));
+
+        assert_eq!(block_auto_closed(input), output);
     }
 
     #[test]
@@ -115,6 +261,16 @@ mod tests {
         let output = Ok((&b" x"[..], (&b"foo_bar"[..], &b"baz42"[..])));
 
         assert_eq!(namespaced_block_name(input), output);
+        assert_eq!(block_name(input), output);
+    }
+
+    #[test]
+    fn test_core_block_name() {
+        let input = &b"foo x"[..];
+        let output = Ok((&b" x"[..], (&b"core"[..], &b"foo"[..])));
+
+        assert_eq!(core_block_name(input), output);
+        assert_eq!(block_name(input), output);
     }
 
     #[test]
@@ -176,8 +332,106 @@ mod tests {
     #[test]
     fn test_block_attributes_surrounded_by_spaces() {
         let input = &b"{\"foo\": true} \t\r\n-->"[..];
-        let output = Ok((&b"-->"[..], json!({"foo": true})));
+        let output = Ok((&b" \t\r\n-->"[..], json!({"foo": true})));
 
         assert_eq!(block_attributes(input), output);
+    }
+
+    #[test]
+    fn test_block_attributes_object_with_auto_close() {
+        let input = &b"{\"foo\": \"bar\", \"baz\": [1, 2]}/-->"[..];
+        let output = Ok((&b"/-->"[..], json!({"foo": "bar", "baz": [1, 2]})));
+
+        assert_eq!(block_attributes(input), output);
+    }
+
+    #[test]
+    fn test_whitespaces() {
+        let input = &b" \n\r\t xyz"[..];
+        let output = Ok((&b"xyz"[..], &b" \n\r\t "[..]));
+
+        assert_eq!(whitespaces(input), output);
+    }
+
+    #[test]
+    fn test_take_till_terminated_ok() {
+        named!(
+            parser,
+            take_till_terminated!(
+                "d",
+                tag!("c")
+            )
+        );
+
+        let input = &b"abcdcba"[..];
+        let output: ::nom::IResult<_, _> = Ok((&b"cba"[..], &b"abcd"[..]));
+
+        assert_eq!(parser(input), output);
+    }
+
+    #[test]
+    fn test_take_till_terminated_ok_at_position_0() {
+        named!(
+            parser,
+            take_till_terminated!(
+                "a",
+                tag!("b")
+            )
+        );
+
+        let input = &b"abcdcba"[..];
+        let output = Ok((&b"bcdcba"[..], &b"a"[..]));
+
+        assert_eq!(parser(input), output);
+    }
+
+    #[test]
+    fn test_take_till_terminated_ok_at_position_eof_minus_one() {
+        named!(
+            parser,
+            take_till_terminated!(
+                "b",
+                tag!("a")
+            )
+        );
+
+        let input = &b"abcdcba"[..];
+        let output = Ok((&b"a"[..], &b"abcdcb"[..]));
+
+        assert_eq!(parser(input), output);
+    }
+
+    #[test]
+    fn test_take_till_terminated_ok_with_multiple_substring() {
+        named!(
+            parser,
+            take_till_terminated!(
+                "c",
+                tag!("b")
+            )
+        );
+
+        let input = &b"abcdcba"[..];
+        let output = Ok((&b"ba"[..], &b"abcdc"[..]));
+
+        assert_eq!(parser(input), output);
+    }
+
+    #[test]
+    fn test_take_till_terminated_error() {
+        named!(
+            parser,
+            take_till_terminated!(
+                "a",
+                tag!("z")
+            )
+        );
+
+        use ::nom::{ErrorKind, Needed, need_more_err};
+
+        let input = &b"abcdcba"[..];
+        let output = need_more_err(input, Needed::Unknown, ErrorKind::Custom(42u32));
+
+        assert_eq!(parser(input), output);
     }
 }
