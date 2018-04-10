@@ -26,7 +26,6 @@ macro_rules! take_till_terminated (
                 ErrorKind,
                 FindSubstring,
                 IResult,
-                InputLength,
                 Needed,
                 Slice,
                 need_more_err
@@ -64,7 +63,7 @@ macro_rules! take_till_terminated (
 );
 
 #[derive(Debug, PartialEq)]
-struct Block<'a> {
+pub struct Block<'a> {
     name: (&'a [u8], &'a [u8]),
     attributes: Option<json::Value>,
     inner_blocks: Vec<Block<'a>>
@@ -90,17 +89,43 @@ named_attr!(
     tag!("<!-- wp:foo /-->")
 );
 
-/*
 named_attr!(
     #[doc="foo"],
-    block,
-    call!(block_auto_closed)
+    pub block<&[u8], Block>,
+    call!(block_void)
 );
-*/
 
 named_attr!(
     #[doc="foo"],
-    block_auto_closed<&[u8], Block>,
+    block_balanced<&[u8], Block>,
+    do_parse!(
+        tag!("<!--") >>
+        opt!(whitespaces) >>
+        tag!("wp:") >>
+        name: block_name >>
+        whitespaces >>
+        attributes: opt!(block_attributes) >>
+        opt!(whitespaces) >>
+        tag!("-->") >>
+        tag!("<!--") >>
+        opt!(whitespaces) >>
+        tag!("/wp:") >>
+        closing_name: block_name >>
+        opt!(whitespaces) >>
+        tag!("-->") >>
+        (
+            Block {
+                name: name,
+                attributes: attributes,
+                inner_blocks: vec![]
+            }
+        )
+    )
+);
+
+named_attr!(
+    #[doc="foo"],
+    block_void<&[u8], Block>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -211,7 +236,52 @@ mod tests {
     }
 
     #[test]
-    fn test_block_auto_closed_default_namespace_without_attributes() {
+    fn test_block_balanced_default_namespace_without_attributes() {
+        let input = &b"<!-- wp:foo --><!-- /wp:foo -->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"core"[..], &b"foo"[..]),
+                attributes: None,
+                inner_blocks: vec![]
+            }
+        ));
+
+        assert_eq!(block_balanced(input), output);
+    }
+
+    #[test]
+    fn test_block_balanced_coerce_namespace_without_attributes() {
+        let input = &b"<!-- wp:ns/foo --><!-- /wp:ns/foo -->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"ns"[..], &b"foo"[..]),
+                attributes: None,
+                inner_blocks: vec![]
+            }
+        ));
+
+        assert_eq!(block_balanced(input), output);
+    }
+
+    #[test]
+    fn test_block_balanced_coerce_namespace_with_attributes() {
+        let input = &b"<!-- wp:ns/foo {\"abc\": \"xyz\"} --><!-- /wp:ns/foo -->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"ns"[..], &b"foo"[..]),
+                attributes: Some(json!({"abc": "xyz"})),
+                inner_blocks: vec![]
+            }
+        ));
+
+        assert_eq!(block_balanced(input), output);
+    }
+
+    #[test]
+    fn test_block_void_default_namespace_without_attributes() {
         let input = &b"<!-- wp:foo /-->"[..];
         let output = Ok((
             &b""[..],
@@ -222,11 +292,11 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_auto_closed(input), output);
+        assert_eq!(block_void(input), output);
     }
 
     #[test]
-    fn test_block_auto_closed_coerce_namespace_without_attributes() {
+    fn test_block_void_coerce_namespace_without_attributes() {
         let input = &b"<!-- wp:ns/foo /-->"[..];
         let output = Ok((
             &b""[..],
@@ -237,11 +307,11 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_auto_closed(input), output);
+        assert_eq!(block_void(input), output);
     }
 
     #[test]
-    fn test_block_auto_closed_default_namespace_with_attributes() {
+    fn test_block_void_coerce_namespace_with_attributes() {
         let input = &b"<!-- wp:ns/foo {\"abc\": \"xyz\"} /-->"[..];
         let output = Ok((
             &b""[..],
@@ -252,7 +322,7 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_auto_closed(input), output);
+        assert_eq!(block_void(input), output);
     }
 
     #[test]
