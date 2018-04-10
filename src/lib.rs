@@ -85,17 +85,27 @@ pub fn root(input: &str) -> bool {
 
 named_attr!(
     #[doc="Test"],
-    block_list,
-    tag!("<!-- wp:foo /-->")
+    block_list<&[u8], Vec<Block>>,
+    many0!(
+        preceded!(
+            anything_but_block,
+            block
+        )
+    )
 );
 
 named_attr!(
     #[doc="foo"],
     pub block<&[u8], Block>,
-    alt!(
+    alt_complete!(
         block_balanced |
         block_void
     )
+);
+
+named!(
+    anything_but_block,
+    complete!(take_until!("<!--"))
 );
 
 named_attr!(
@@ -111,9 +121,15 @@ named_attr!(
         opt!(whitespaces) >>
         tag!("-->") >>
         inner_blocks: many0!(
-            block
+            preceded!(
+                anything_but_block,
+                block
+            )
         ) >>
-        tag!("<!--") >>
+        preceded!(
+            anything_but_block,
+            tag!("<!--")
+        ) >>
         opt!(whitespaces) >>
         tag!("/wp:") >>
         closing_name: block_name >>
@@ -236,8 +252,25 @@ mod tests {
 
     #[test]
     fn test_block_list() {
-        let input = &b"<!-- wp:foo /-->"[..];
-        let output = Ok((&b""[..], input));
+        let input = &b"abc <!-- wp:foo --><!-- wp:bar /--> def <!-- /wp:foo --> ghi"[..];
+        let output = Ok(
+            (
+                &b" ghi"[..],
+                vec![
+                    Block {
+                        name: (&b"core"[..], &b"foo"[..]),
+                        attributes: None,
+                        inner_blocks: vec![
+                            Block {
+                                name: (&b"core"[..], &b"bar"[..]),
+                                attributes: None,
+                                inner_blocks: vec![]
+                            }
+                        ]
+                    }
+                ]
+            )
+        );
 
         assert_eq!(block_list(input), output);
     }
@@ -293,6 +326,39 @@ mod tests {
     #[test]
     fn test_block_balanced_with_children() {
         let input = &b"<!-- wp:foo --><!-- wp:bar {\"abc\": true} /--><!-- wp:baz --><!-- wp:qux /--><!-- /wp:baz --><!-- /wp:foo -->"[..];
+        let output = Ok((
+            &b""[..],
+            Block {
+                name: (&b"core"[..], &b"foo"[..]),
+                attributes: None,
+                inner_blocks: vec![
+                    Block {
+                        name: (&b"core"[..], &b"bar"[..]),
+                        attributes: Some(json!({"abc": true})),
+                        inner_blocks: vec![]
+                    },
+                    Block {
+                        name: (&b"core"[..], &b"baz"[..]),
+                        attributes: None,
+                        inner_blocks: vec![
+                            Block {
+                                name: (&b"core"[..], &b"qux"[..]),
+                                attributes: None,
+                                inner_blocks: vec![]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ));
+
+        assert_eq!(block_balanced(input), output);
+        assert_eq!(block(input), output);
+    }
+
+    #[test]
+    fn test_block_balanced_with_phrasing_children() {
+        let input = &b"<!-- wp:foo --> abc <!-- wp:bar {\"abc\": true} /--> def <!-- wp:baz --> ghi <!-- wp:qux /--> jkl <!-- /wp:baz --> mno <!-- /wp:foo -->"[..];
         let output = Ok((
             &b""[..],
             Block {
@@ -547,6 +613,26 @@ mod tests {
 
         let input = &b"abcdcba"[..];
         let output = need_more_err(input, Needed::Unknown, ErrorKind::Custom(42u32));
+
+        assert_eq!(parser(input), output);
+    }
+
+    #[test]
+    fn test_take_till_terminated_optional() {
+        named!(
+            parser<&[u8], Option<&[u8]>>,
+            opt!(
+                complete!(
+                    take_till_terminated!(
+                        "a",
+                        tag!("z")
+                    )
+                )
+            )
+        );
+
+        let input = &b"abcdcba"[..];
+        let output = Ok((input, None));
 
         assert_eq!(parser(input), output);
     }
