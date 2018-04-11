@@ -3,6 +3,8 @@
 #[macro_use] extern crate nom;
 #[cfg(feature = "wasm")] extern crate wasm_bindgen;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
+extern crate serde;
+#[macro_use] extern crate serde_derive;
 #[cfg_attr(test, macro_use)] extern crate serde_json;
 
 pub mod ast;
@@ -10,12 +12,9 @@ pub mod ast;
 pub mod parser;
 #[cfg(feature = "wasm")] pub mod wasm;
 
-
-#[cfg(feature = "wasm")] use wee_alloc::WeeAlloc;
-
 #[cfg(feature = "wasm")]
 #[global_allocator]
-static ALLOC: WeeAlloc = WeeAlloc::INIT;
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 
 /// Represent the type of the input elements.

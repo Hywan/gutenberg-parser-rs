@@ -1,8 +1,9 @@
+use super::Input;
 use serde_json as json;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Serialize)]
 pub struct Block<'a> {
-    pub name: (&'a [u8], &'a [u8]),
+    pub name: (Input<'a>, Input<'a>),
     pub attributes: Option<json::Value>,
     pub inner_blocks: Vec<Block<'a>>
 }
