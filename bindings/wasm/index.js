@@ -5,9 +5,7 @@ rust.then(
         const data = ["<!-- wp:foo /-->", "hello"];
 
         for (datum of data) {
-            const output = parser.root(datum);
-
-            console.log(`\`${datum}\`: ${output}`);
+            console.log(datum, JSON.parse(parser.root(datum)));
         }
     }
 );
