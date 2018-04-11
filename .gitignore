@@ -1,6 +1,6 @@
 /target/
 /Cargo.lock
-/node_modules/
-/package-lock.json
-/parser.js
-/parser_bg.wasm
+/bindings/wasm/node_modules/
+/bindings/wasm/package-lock.json
+/bindings/wasm/parser.js
+/bindings/wasm/parser_bg.wasm
