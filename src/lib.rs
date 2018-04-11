@@ -12,65 +12,20 @@ extern crate regex;
 use wee_alloc::WeeAlloc;
 use serde_json as json;
 
+#[macro_use]
+mod combinators;
+
 #[global_allocator]
 static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
 
 
-/// `take_till_terminated(S, C)` is a like `take_till` but with a lookahead
-/// combinator `C`.
-macro_rules! take_till_terminated (
-    ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
-        {
-            use ::nom::{
-                ErrorKind,
-                FindSubstring,
-                IResult,
-                Needed,
-                Slice,
-                need_more_err
-            };
-
-            let input = $input;
-            let mut index = 0;
-            let mut result: Option<IResult<_, _>> = None;
-
-            while let Some(next_index) = input.slice(index..).find_substring($substr) {
-                match $submac!(input.slice(index + next_index + 1..), $($args)*) {
-                    Ok(_) => {
-                        result = Some(Ok((input.slice(index + next_index + 1..), input.slice(0..index + next_index + 1))));
-
-                        break;
-                    },
-
-                    _ => {
-                        index += next_index + 1;
-                    }
-                }
-            }
-
-            if let Some(result) = result {
-                result
-            } else {
-                need_more_err(input, Needed::Unknown, ErrorKind::Custom(42u32))
-            }
-        }
-    );
-
-    ($input:expr, $substr:expr, $f:expr) => {
-        take_till_terminated!($input, $substr, call!($f));
-    }
-);
 
 #[derive(Debug, PartialEq)]
 pub struct Block<'a> {
     name: (&'a [u8], &'a [u8]),
     attributes: Option<json::Value>,
     inner_blocks: Vec<Block<'a>>
-}
-
-fn is_alphanumeric_extended(chr: u8) -> bool {
-    (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
 }
 
 /// Test
@@ -85,7 +40,7 @@ pub fn root(input: &str) -> bool {
 
 named_attr!(
     #[doc="Test"],
-    block_list<&[u8], Vec<Block>>,
+    pub block_list<&[u8], Vec<Block>>,
     many0!(
         preceded!(
             anything_but_block,
@@ -96,7 +51,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    pub block<&[u8], Block>,
+    block<&[u8], Block>,
     alt_complete!(
         block_balanced |
         block_void
@@ -132,7 +87,7 @@ named_attr!(
         ) >>
         opt!(whitespaces) >>
         tag!("/wp:") >>
-        closing_name: block_name >>
+        _closing_name: block_name >>
         opt!(whitespaces) >>
         tag!("-->") >>
         (
@@ -206,7 +161,7 @@ named_attr!(
     recognize!(
         pair!(
             is_a!("abcdefghijklmnopqrstuvwxyz"),
-            take_while!(is_alphanumeric_extended)
+            take_while!(combinators::is_alphanumeric_extended)
         )
     )
 );
