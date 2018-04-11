@@ -1,6 +1,7 @@
 #[allow(unused_imports)]
 use super::Input;
 use serde_json as json;
+use wasm_bindgen::prelude::*;
 
 #[cfg(not(feature = "wasm"))]
 #[derive(Debug, PartialEq, Serialize)]
@@ -12,6 +13,7 @@ pub struct Block<'a> {
 
 #[cfg(feature = "wasm")]
 #[derive(Debug, PartialEq, Serialize)]
+#[wasm_bindgen]
 pub struct Block {
     pub name: (String, String),
     pub attributes: Option<json::Value>,
