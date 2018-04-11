@@ -16,6 +16,12 @@ mod ast;
 mod combinators;
 mod parser;
 
+/// Represent the type of the input elements.
+pub type InputElement = u8;
+
+/// Represent the type of the input.
+pub type Input<'a> = &'a [InputElement];
+
 #[global_allocator]
 static ALLOC: WeeAlloc = WeeAlloc::INIT;
 

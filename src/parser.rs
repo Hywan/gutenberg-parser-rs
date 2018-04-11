@@ -1,10 +1,11 @@
+use super::Input;
 use super::ast::Block;
 use super::combinators;
 use serde_json as json;
 
 named_attr!(
     #[doc="Test"],
-    pub block_list<&[u8], Vec<Block>>,
+    pub block_list<Input, Vec<Block>>,
     many0!(
         preceded!(
             anything_but_block,
@@ -15,7 +16,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block<&[u8], Block>,
+    block<Input, Block>,
     alt_complete!(
         block_balanced |
         block_void
@@ -29,7 +30,7 @@ named!(
 
 named_attr!(
     #[doc="foo"],
-    block_balanced<&[u8], Block>,
+    block_balanced<Input, Block>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -67,7 +68,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_void<&[u8], Block>,
+    block_void<Input, Block>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -89,7 +90,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_name<&[u8], (&[u8], &[u8])>,
+    block_name<Input, (Input, Input)>,
     alt!(
         namespaced_block_name |
         core_block_name
@@ -98,7 +99,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    namespaced_block_name<&[u8], (&[u8], &[u8])>,
+    namespaced_block_name<Input, (Input, Input)>,
     tuple!(
         block_name_part,
         preceded!(
@@ -110,10 +111,10 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    core_block_name<&[u8], (&[u8], &[u8])>,
+    core_block_name<Input, (Input, Input)>,
     map_res!(
         block_name_part,
-        |block_name_part| -> Result<(&[u8], &[u8]), ()> {
+        |block_name_part| -> Result<(Input, Input), ()> {
             Ok((&b"core"[..], block_name_part))
         }
     )
@@ -132,7 +133,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_attributes<&[u8], json::Value>,
+    block_attributes<Input, json::Value>,
     map_res!(
         preceded!(
             peek!(tag!("{")),
@@ -535,7 +536,7 @@ mod tests {
     #[test]
     fn test_take_till_terminated_optional() {
         named!(
-            parser<&[u8], Option<&[u8]>>,
+            parser<Input, Option<Input>>,
             opt!(
                 complete!(
                     take_till_terminated!(
