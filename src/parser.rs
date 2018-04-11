@@ -2,6 +2,7 @@ use super::Input;
 use super::ast::Block;
 use super::combinators;
 use serde_json as json;
+use alloc::Vec;
 
 named_attr!(
     #[doc="Test"],

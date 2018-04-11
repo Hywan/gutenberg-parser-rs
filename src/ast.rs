@@ -1,4 +1,5 @@
 use serde_json as json;
+use alloc::Vec;
 
 #[derive(Debug, PartialEq)]
 pub struct Block<'a> {
