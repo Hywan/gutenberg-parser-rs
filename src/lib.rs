@@ -1,20 +1,24 @@
 #![feature(proc_macro, wasm_custom_section, wasm_import_module, global_allocator)]
 
-#[macro_use]
-extern crate nom;
-//extern crate wasm_bindgen;
-extern crate wee_alloc;
-extern crate regex;
+#[macro_use] extern crate nom;
+#[cfg(feature = "wasm")] extern crate wasm_bindgen;
+#[cfg(feature = "wasm")] extern crate wee_alloc;
 #[cfg(test)] #[macro_use] extern crate serde_json;
 #[cfg(not(test))] extern crate serde_json;
 
-//use wasm_bindgen::prelude::*;
-use wee_alloc::WeeAlloc;
-
 mod ast;
-#[macro_use]
-mod combinators;
+#[macro_use] mod combinators;
 mod parser;
+#[cfg(feature = "wasm")] pub mod wasm;
+
+
+#[cfg(feature = "wasm")] use wee_alloc::WeeAlloc;
+
+
+#[cfg(feature = "wasm")]
+#[global_allocator]
+static ALLOC: WeeAlloc = WeeAlloc::INIT;
+
 
 /// Represent the type of the input elements.
 pub type InputElement = u8;
@@ -22,27 +26,7 @@ pub type InputElement = u8;
 /// Represent the type of the input.
 pub type Input<'a> = &'a [InputElement];
 
-#[global_allocator]
-static ALLOC: WeeAlloc = WeeAlloc::INIT;
-
-
 /// Test
-//#[wasm_bindgen]
-pub fn root(input: &str) -> bool {
-    if let Ok(_) = parser::block_list(input.as_bytes()) {
-        true
-    } else {
-        false
-    }
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_root() {
-        assert_eq!(root("<!-- wp:foo /-->"), true);
-    }
+pub fn root(input: Input) -> Result<(Input, Vec<ast::Block>), nom::Err<Input>> {
+    parser::block_list(input)
 }

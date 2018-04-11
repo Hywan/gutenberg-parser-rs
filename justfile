@@ -1,10 +1,13 @@
 wasm_directory = "bindings/wasm"
 
+build-library:
+	cargo +nightly build --release
+
 test-library:
 	cargo +nightly test
 
 build-wasm:
-	cargo +nightly build --release --target wasm32-unknown-unknown
+	cargo +nightly build --release --features "wasm" --target wasm32-unknown-unknown
 	wasm-bindgen target/wasm32-unknown-unknown/release/parser.wasm --out-dir {{wasm_directory}}
 	cd {{wasm_directory}} && \
 		wasm-gc parser_bg.wasm && \
