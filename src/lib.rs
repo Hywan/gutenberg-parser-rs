@@ -1,9 +1,5 @@
-#![feature(alloc)]
 #![cfg_attr(feature = "wasm", feature(proc_macro, wasm_custom_section, wasm_import_module, global_allocator))]
 
-#![no_std]
-#[macro_use]
-extern crate alloc;
 #[macro_use] extern crate nom;
 #[cfg(feature = "wasm")] extern crate wasm_bindgen;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
@@ -16,7 +12,6 @@ pub mod parser;
 
 
 #[cfg(feature = "wasm")] use wee_alloc::WeeAlloc;
-use alloc::Vec;
 
 #[cfg(feature = "wasm")]
 #[global_allocator]
