@@ -6,9 +6,9 @@
 #[cfg(test)] #[macro_use] extern crate serde_json;
 #[cfg(not(test))] extern crate serde_json;
 
-mod ast;
-#[macro_use] mod combinators;
-mod parser;
+pub mod ast;
+#[macro_use] pub mod combinators;
+pub mod parser;
 #[cfg(feature = "wasm")] pub mod wasm;
 
 

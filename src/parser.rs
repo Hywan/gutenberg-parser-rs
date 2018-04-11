@@ -16,7 +16,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block<Input, Block>,
+    pub block<Input, Block>,
     alt_complete!(
         block_balanced |
         block_void
@@ -30,7 +30,7 @@ named!(
 
 named_attr!(
     #[doc="foo"],
-    block_balanced<Input, Block>,
+    pub block_balanced<Input, Block>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -68,7 +68,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_void<Input, Block>,
+    pub block_void<Input, Block>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -90,7 +90,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_name<Input, (Input, Input)>,
+    pub block_name<Input, (Input, Input)>,
     alt!(
         namespaced_block_name |
         core_block_name
@@ -99,7 +99,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    namespaced_block_name<Input, (Input, Input)>,
+    pub namespaced_block_name<Input, (Input, Input)>,
     tuple!(
         block_name_part,
         preceded!(
@@ -111,7 +111,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    core_block_name<Input, (Input, Input)>,
+    pub core_block_name<Input, (Input, Input)>,
     map_res!(
         block_name_part,
         |block_name_part| -> Result<(Input, Input), ()> {
@@ -122,7 +122,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_name_part,
+    pub block_name_part,
     recognize!(
         pair!(
             is_a!("abcdefghijklmnopqrstuvwxyz"),
@@ -133,7 +133,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    block_attributes<Input, json::Value>,
+    pub block_attributes<Input, json::Value>,
     map_res!(
         preceded!(
             peek!(tag!("{")),
@@ -156,7 +156,7 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    whitespaces,
+    pub whitespaces,
     is_a!(" \n\r\t")
 );
 

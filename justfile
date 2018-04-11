@@ -6,6 +6,9 @@ build-library:
 test-library:
 	cargo +nightly test
 
+build-doc:
+	cargo +nightly doc --release --all-features
+
 build-wasm:
 	cargo +nightly build --release --features "wasm" --target wasm32-unknown-unknown
 	wasm-bindgen target/wasm32-unknown-unknown/release/parser.wasm --out-dir {{wasm_directory}}
