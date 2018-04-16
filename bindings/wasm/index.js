@@ -6,7 +6,10 @@ export function accumulate_block(block) {
 
 export class Block {
     constructor(block_as_json) {
-        console.log(JSON.parse(block_as_json));
+        const block = JSON.parse(block_as_json);
+        this.name = block.name;
+        this.attributes = block.attributes;
+        this.inner_blocks = block.inner_blocks;
     }
 }
 
