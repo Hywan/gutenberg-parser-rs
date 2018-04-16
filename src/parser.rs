@@ -58,10 +58,7 @@ named_attr!(
         (
             // @todo: Need to check that `closing_name` is equal to `name`.
             Block {
-                #[cfg(not(feature = "wasm"))]
                 name: name,
-                #[cfg(feature = "wasm")]
-                name: (String::from_utf8_lossy(name.0).into_owned(), String::from_utf8_lossy(name.1).into_owned()),
                 attributes: attributes,
                 inner_blocks: inner_blocks
             }
@@ -83,10 +80,7 @@ named_attr!(
         tag!("/-->") >>
         (
             Block {
-                #[cfg(not(feature = "wasm"))]
                 name: name,
-                #[cfg(feature = "wasm")]
-                name: (String::from_utf8_lossy(name.0).into_owned(), String::from_utf8_lossy(name.1).into_owned()),
                 attributes: attributes,
                 inner_blocks: vec![]
             }
