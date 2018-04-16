@@ -4,7 +4,7 @@ use serde_json as json;
 use std::str;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen(module = "./index")]
+#[wasm_bindgen(module = "./parser_definitions")]
 extern {
     fn accumulate_block(block: Block);
 
