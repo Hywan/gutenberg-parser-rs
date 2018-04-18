@@ -19,7 +19,8 @@ build-wasm:
 	cd {{wasm_directory}} && \
 		wasm-gc parser_bg.wasm && \
 		wasm-opt -Oz -o parser_bg_opt.wasm parser_bg.wasm && \
-		mv parser_bg_opt.wasm parser_bg.wasm
+		mv parser_bg_opt.wasm parser_bg.wasm && \
+		gzip --best --stdout parser_bg.wasm > parser_bg.wasm.gz
 
 # Pack the WASM binding and run an HTTP server to try it.
 run-wasm: build-wasm
