@@ -13,15 +13,6 @@ named_attr!(
     )
 );
 
-named_attr!(
-    #[doc="foo"],
-    pub block<Input, Block>,
-    alt_complete!(
-        block_balanced |
-        block_void
-    )
-);
-
 named!(
     anything_but_block,
     complete!(take_until!("<!--"))
@@ -29,7 +20,7 @@ named!(
 
 named_attr!(
     #[doc="foo"],
-    pub block_balanced<Input, Block>,
+    pub block<Input, Block>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -38,52 +29,47 @@ named_attr!(
         whitespaces >>
         attributes: opt!(block_attributes) >>
         opt!(whitespaces) >>
-        tag!("-->") >>
-        inner_blocks: many0!(
-            preceded!(
-                anything_but_block,
-                block
+        result: alt!(
+            // Balanced block.
+            do_parse!(
+                tag!("-->") >>
+                inner_blocks: many0!(
+                    preceded!(
+                        anything_but_block,
+                        block
+                    )
+                ) >>
+                preceded!(
+                    anything_but_block,
+                    tag!("<!--")
+                ) >>
+                opt!(whitespaces) >>
+                tag!("/wp:") >>
+                _closing_name: block_name >>
+                opt!(whitespaces) >>
+                tag!("-->") >>
+                (
+                    // @todo: Need to check that `closing_name` is equal to `name`.
+                    Block {
+                        name: name,
+                        attributes: attributes,
+                        inner_blocks: inner_blocks
+                    }
+                )
+            )
+            // Void block.
+          | do_parse!(
+                tag!("/-->") >>
+                (
+                    Block {
+                        name: name,
+                        attributes: attributes,
+                        inner_blocks: vec![]
+                    }
+                )
             )
         ) >>
-        preceded!(
-            anything_but_block,
-            tag!("<!--")
-        ) >>
-        opt!(whitespaces) >>
-        tag!("/wp:") >>
-        _closing_name: block_name >>
-        opt!(whitespaces) >>
-        tag!("-->") >>
-        (
-            // @todo: Need to check that `closing_name` is equal to `name`.
-            Block {
-                name: name,
-                attributes: attributes,
-                inner_blocks: inner_blocks
-            }
-        )
-    )
-);
-
-named_attr!(
-    #[doc="foo"],
-    pub block_void<Input, Block>,
-    do_parse!(
-        tag!("<!--") >>
-        opt!(whitespaces) >>
-        tag!("wp:") >>
-        name: block_name >>
-        whitespaces >>
-        attributes: opt!(block_attributes) >>
-        opt!(whitespaces) >>
-        tag!("/-->") >>
-        (
-            Block {
-                name: name,
-                attributes: attributes,
-                inner_blocks: vec![]
-            }
-        )
+        (result)
     )
 );
 
@@ -197,7 +183,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_balanced(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -213,7 +198,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_balanced(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -229,7 +213,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_balanced(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -262,7 +245,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_balanced(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -295,7 +277,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_balanced(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -311,7 +292,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_void(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -327,7 +307,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_void(input), output);
         assert_eq!(block(input), output);
     }
 
@@ -343,7 +322,6 @@ mod tests {
             }
         ));
 
-        assert_eq!(block_void(input), output);
         assert_eq!(block(input), output);
     }
 
