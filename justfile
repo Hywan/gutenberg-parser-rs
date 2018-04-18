@@ -15,7 +15,7 @@ build-doc:
 # Build the parser and the WASM binding.
 build-wasm:
 	cargo +nightly build --release --features "wasm" --target wasm32-unknown-unknown
-	wasm-bindgen target/wasm32-unknown-unknown/release/parser.wasm --out-dir {{wasm_directory}}
+	cp target/wasm32-unknown-unknown/release/parser.wasm {{wasm_directory}}/parser_bg.wasm
 	cd {{wasm_directory}} && \
 		wasm-gc parser_bg.wasm && \
 		wasm-opt -Oz -o parser_bg_opt.wasm parser_bg.wasm && \

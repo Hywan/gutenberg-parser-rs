@@ -1,13 +1,11 @@
 #![cfg_attr(feature = "wasm", feature(proc_macro, wasm_custom_section, wasm_import_module, global_allocator))]
 
 #[macro_use] extern crate nom;
-#[cfg(feature = "wasm")] extern crate wasm_bindgen;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
 
 pub mod ast;
 #[macro_use] pub mod combinators;
 pub mod parser;
-#[cfg(feature = "wasm")] pub mod wasm;
 
 #[cfg(feature = "wasm")]
 #[global_allocator]

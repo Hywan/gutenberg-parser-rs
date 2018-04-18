@@ -1,28 +1,56 @@
 use super::ast;
-use std::str;
-use wasm_bindgen::prelude::*;
+use std::{mem, str};
+use std::ffi::{CString, CStr};
+use std::os::raw::{c_char, c_void};
 
-#[wasm_bindgen(module = "./parser_definitions")]
 extern {
     fn accumulate_block(block: Block);
-
-    type Block;
-    #[wasm_bindgen(constructor)]
-    fn new(block_as_json: Vec<u8>) -> Block;
 }
 
-#[wasm_bindgen]
-pub fn root(input: &str) {
-    if let Ok((_remaining, blocks)) = super::root(input.as_bytes()) {
-        for block in blocks {
-            accumulate_block(
-                Block::new(
-                    block.into_bytes()
-                )
-            );
-        }
+#[no_mangle]
+pub extern "C" fn alloc(size: usize) -> *mut c_void {
+    let mut buffer = Vec::with_capacity(size);
+    let pointer = buffer.as_mut_ptr();
+    mem::forget(buffer);
+
+    return pointer as *mut c_void;
+}
+
+#[no_mangle]
+pub extern "C" fn dealloc(pointer: *mut c_void, capacity: usize) {
+    unsafe {
+        let _buffer = Vec::from_raw_parts(pointer, 0, capacity);
     }
 }
+
+#[no_mangle]
+pub extern "C" fn root(data: *mut c_char) -> *mut c_char {
+    unsafe {
+        let input = CStr::from_ptr(data);
+        let out = vec![];
+
+        if let Ok((_remaining, blocks)) = super::root(input.to_bytes()) {
+            for block in blocks {
+                out.expend(block.into_bytes());
+            }
+        }
+
+        CString::from_vec_unchecked(out).into_raw()
+    }
+}
+
+//#[wasm_bindgen]
+//pub fn root(input: &str) {
+//    if let Ok((_remaining, blocks)) = super::root(input.as_bytes()) {
+//        for block in blocks {
+//            accumulate_block(
+//                Block::new(
+//                    block.into_bytes()
+//                )
+//            );
+//        }
+//    }
+//}
 
 impl<'a> ast::Block<'a> {
     fn into_bytes(&self) -> Vec<u8> {
