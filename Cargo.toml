@@ -16,7 +16,5 @@ default = []
 
 [dependencies]
 nom = "4.0.0-beta3"
-serde = "^1.0"
-serde_json = "^1.0"
 wasm-bindgen = { version = "^0.2", optional = true }
 wee_alloc = { version = "^0.2", optional = true }

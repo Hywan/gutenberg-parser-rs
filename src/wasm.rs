@@ -1,6 +1,4 @@
 use super::ast;
-use serde::ser::{Serialize, Serializer, SerializeStruct};
-use serde_json as json;
 use std::str;
 use wasm_bindgen::prelude::*;
 
@@ -10,7 +8,7 @@ extern {
 
     type Block;
     #[wasm_bindgen(constructor)]
-    fn new(block_as_json: String) -> Block;
+    fn new(block_as_json: Vec<u8>) -> Block;
 }
 
 #[wasm_bindgen]
@@ -18,36 +16,51 @@ pub fn root(input: &str) {
     if let Ok((_remaining, blocks)) = super::root(input.as_bytes()) {
         for block in blocks {
             accumulate_block(
-                block.into_js_block()
+                Block::new(
+                    block.into_bytes()
+                )
             );
         }
     }
 }
 
-impl<'a> Serialize for ast::Block<'a> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where S: Serializer
-    {
-        let mut state = serializer.serialize_struct("Block", 3)?;
-
-        state.serialize_field(
-            "name",
-            &(
-                unsafe { str::from_utf8_unchecked(&self.name.0) },
-                unsafe { str::from_utf8_unchecked(&self.name.1) }
-            )
-        )?;
-        state.serialize_field("attributes", &self.attributes)?;
-        state.serialize_field("inner_blocks", &self.inner_blocks)?;
-
-        state.end()
-    }
-}
-
 impl<'a> ast::Block<'a> {
-    fn into_js_block(&self) -> Block {
-        Block::new(
-            json::to_string(self).unwrap_or(String::from("null"))
-        )
+    fn into_bytes(&self) -> Vec<u8> {
+        let mut result = vec![];
+
+        let name = self.name;
+        let attributes = self.attributes;
+        let inner_blocks: Vec<u8> =
+            self.inner_blocks
+                .iter()
+                .flat_map(
+                    |ref block| {
+                        block.into_bytes()
+                    }
+                )
+                .collect();
+
+        result.push((name.0.len() + name.1.len() + 1) as u8);
+        result.push(
+            match attributes {
+                Some(attributes) => attributes.len() as u8,
+                None             => 2u8
+            }
+        );
+        result.push(inner_blocks.len() as u8);
+
+        result.extend(name.0);
+        result.push('/' as u8);
+        result.extend(name.1);
+
+        if let Some(attributes) = attributes {
+            result.extend(attributes);
+        } else {
+            result.extend(&b"{}"[..]);
+        }
+
+        result.extend(inner_blocks);
+
+        result
     }
 }
