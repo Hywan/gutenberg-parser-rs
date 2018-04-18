@@ -1,7 +1,6 @@
 use super::Input;
 use super::ast::Block;
 use super::combinators;
-use serde_json as json;
 
 named_attr!(
     #[doc="Test"],
@@ -133,24 +132,19 @@ named_attr!(
 
 named_attr!(
     #[doc="foo"],
-    pub block_attributes<Input, json::Value>,
-    map_res!(
-        preceded!(
-            peek!(tag!("{")),
-            take_till_terminated!(
-                "}",
-                preceded!(
-                    opt!(whitespaces),
-                    alt_complete!(
-                        tag!("/-->") |
-                        tag!("-->")
-                    )
+    pub block_attributes,
+    preceded!(
+        peek!(tag!("{")),
+        take_till_terminated!(
+            "}",
+            preceded!(
+                opt!(whitespaces),
+                alt_complete!(
+                    tag!("/-->") |
+                    tag!("-->")
                 )
             )
-        ),
-        |json| {
-            json::de::from_slice(json)
-        }
+        )
     )
 );
 
@@ -230,7 +224,7 @@ mod tests {
             &b""[..],
             Block {
                 name: (&b"ns"[..], &b"foo"[..]),
-                attributes: Some(json!({"abc": "xyz"})),
+                attributes: Some(&b"{\"abc\": \"xyz\"}"[..]),
                 inner_blocks: vec![]
             }
         ));
@@ -250,7 +244,7 @@ mod tests {
                 inner_blocks: vec![
                     Block {
                         name: (&b"core"[..], &b"bar"[..]),
-                        attributes: Some(json!({"abc": true})),
+                        attributes: Some(&b"{\"abc\": true}"[..]),
                         inner_blocks: vec![]
                     },
                     Block {
@@ -283,7 +277,7 @@ mod tests {
                 inner_blocks: vec![
                     Block {
                         name: (&b"core"[..], &b"bar"[..]),
-                        attributes: Some(json!({"abc": true})),
+                        attributes: Some(&b"{\"abc\": true}"[..]),
                         inner_blocks: vec![]
                     },
                     Block {
@@ -344,7 +338,7 @@ mod tests {
             &b""[..],
             Block {
                 name: (&b"ns"[..], &b"foo"[..]),
-                attributes: Some(json!({"abc": "xyz"})),
+                attributes: Some(&b"{\"abc\": \"xyz\"}"[..]),
                 inner_blocks: vec![]
             }
         ));
@@ -406,7 +400,7 @@ mod tests {
     #[test]
     fn test_block_attributes_simple_object() {
         let input = &b"{\"foo\": \"bar\"}-->"[..];
-        let output = Ok((&b"-->"[..], json!({"foo": "bar"})));
+        let output = Ok((&b"-->"[..], &b"{\"foo\": \"bar\"}"[..]));
 
         assert_eq!(block_attributes(input), output);
     }
@@ -414,7 +408,7 @@ mod tests {
     #[test]
     fn test_block_attributes_object() {
         let input = &b"{\"foo\": \"bar\", \"baz\": [1, 2]}-->"[..];
-        let output = Ok((&b"-->"[..], json!({"foo": "bar", "baz": [1, 2]})));
+        let output = Ok((&b"-->"[..], &b"{\"foo\": \"bar\", \"baz\": [1, 2]}"[..]));
 
         assert_eq!(block_attributes(input), output);
     }
@@ -422,7 +416,7 @@ mod tests {
     #[test]
     fn test_block_attributes_nested_objects() {
         let input = &b"{\"foo\": {\"bar\": \"baz\"} }-->"[..];
-        let output = Ok((&b"-->"[..], json!({"foo": {"bar": "baz"}})));
+        let output = Ok((&b"-->"[..], &b"{\"foo\": {\"bar\": \"baz\"} }"[..]));
 
         assert_eq!(block_attributes(input), output);
     }
@@ -430,7 +424,7 @@ mod tests {
     #[test]
     fn test_block_attributes_surrounded_by_spaces() {
         let input = &b"{\"foo\": true} \t\r\n-->"[..];
-        let output = Ok((&b" \t\r\n-->"[..], json!({"foo": true})));
+        let output = Ok((&b" \t\r\n-->"[..], &b"{\"foo\": true}"[..]));
 
         assert_eq!(block_attributes(input), output);
     }
@@ -438,7 +432,7 @@ mod tests {
     #[test]
     fn test_block_attributes_object_with_auto_close() {
         let input = &b"{\"foo\": \"bar\", \"baz\": [1, 2]}/-->"[..];
-        let output = Ok((&b"/-->"[..], json!({"foo": "bar", "baz": [1, 2]})));
+        let output = Ok((&b"/-->"[..], &b"{\"foo\": \"bar\", \"baz\": [1, 2]}"[..]));
 
         assert_eq!(block_attributes(input), output);
     }

@@ -4,7 +4,7 @@
 #[cfg(feature = "wasm")] extern crate wasm_bindgen;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
 extern crate serde;
-#[cfg_attr(test, macro_use)] extern crate serde_json;
+extern crate serde_json;
 
 pub mod ast;
 #[macro_use] pub mod combinators;
