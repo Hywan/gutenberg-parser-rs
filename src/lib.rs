@@ -3,8 +3,6 @@
 #[macro_use] extern crate nom;
 #[cfg(feature = "wasm")] extern crate wasm_bindgen;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
-extern crate serde;
-extern crate serde_json;
 
 pub mod ast;
 #[macro_use] pub mod combinators;

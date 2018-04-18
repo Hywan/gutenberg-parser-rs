@@ -17,4 +17,4 @@ default = []
 [dependencies]
 nom = "4.0.0-beta3"
 wasm-bindgen = { version = "^0.2", optional = true }
-wee_alloc = { version = "^0.2", optional = true }
+wee_alloc = { git = "https://github.com/rustwasm/wee_alloc/", branch = "master", optional = true }
