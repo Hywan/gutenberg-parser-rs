@@ -6,6 +6,10 @@ authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
 [lib]
 crate-type = ["lib", "cdylib"]
 
+[profile.release]
+debug = false
+lto = true
+
 [features]
 wasm = ["wasm-bindgen", "wee_alloc"]
 default = []

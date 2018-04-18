@@ -47,7 +47,7 @@ impl<'a> Serialize for ast::Block<'a> {
 impl<'a> ast::Block<'a> {
     fn into_js_block(&self) -> Block {
         Block::new(
-            json::to_string(self).unwrap()
+            json::to_string(self).unwrap_or(String::from("null"))
         )
     }
 }
