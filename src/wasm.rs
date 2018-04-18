@@ -26,10 +26,15 @@ pub fn root(input: &str) {
 
 impl<'a> ast::Block<'a> {
     fn into_bytes(&self) -> Vec<u8> {
-        let mut result = vec![];
-
         let name = self.name;
+        let name_length = name.0.len() + name.1.len() + 1;
+
         let attributes = self.attributes;
+        let attributes_length = match attributes {
+            Some(attributes) => attributes.len(),
+            None             => 2
+        };
+
         let inner_blocks: Vec<u8> =
             self.inner_blocks
                 .iter()
@@ -39,15 +44,13 @@ impl<'a> ast::Block<'a> {
                     }
                 )
                 .collect();
+        let inner_blocks_length = inner_blocks.len();
 
-        result.push((name.0.len() + name.1.len() + 1) as u8);
-        result.push(
-            match attributes {
-                Some(attributes) => attributes.len() as u8,
-                None             => 2u8
-            }
-        );
-        result.push(inner_blocks.len() as u8);
+        let mut result = Vec::with_capacity(3 + name_length + attributes_length + inner_blocks_length);
+
+        result.push(name_length as u8);
+        result.push(attributes_length as u8);
+        result.push(inner_blocks_length as u8);
 
         result.extend(name.0);
         result.push('/' as u8);
