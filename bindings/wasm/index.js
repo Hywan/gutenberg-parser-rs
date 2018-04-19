@@ -29,7 +29,6 @@ function writeString(module, string) {
 }
 
 function readBlock(module, pointer) {
-
     const buffer = module.memory.buffer;
     const [name_length, attributes_length, inner_blocks_length] = new Uint8Array(buffer.slice(pointer, pointer + 3));
     const payload = buffer.slice(pointer + 3);
