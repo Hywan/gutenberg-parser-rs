@@ -6,6 +6,7 @@
 pub mod ast;
 #[macro_use] pub mod combinators;
 pub mod parser;
+#[cfg(feature = "wasm")] pub mod wasm;
 
 #[cfg(feature = "wasm")]
 #[global_allocator]
