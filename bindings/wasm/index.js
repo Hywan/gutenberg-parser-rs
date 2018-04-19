@@ -57,6 +57,8 @@ function readBlock(module, pointer) {
 
     const inner_blocks = decoder(payload.slice(offset, next_offset));
 
+    module.dealloc_str(pointer + next_offset + 3);
+
     return new Block(name, attributes, inner_blocks);
 }
 
