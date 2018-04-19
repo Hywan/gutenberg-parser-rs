@@ -81,7 +81,7 @@ let Parser = {
     }
 };
 
-fetchAndInstantiate("./parser_bg.wasm", {})
+fetchAndInstantiate("./parser.wasm", {})
     .then(
         (module) => {
             Module.alloc = module.exports.alloc;

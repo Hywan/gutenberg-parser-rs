@@ -15,12 +15,12 @@ build-doc:
 # Build the parser and the WASM binding.
 build-wasm:
 	cargo +nightly build --release --features "wasm" --target wasm32-unknown-unknown
-	cp target/wasm32-unknown-unknown/release/parser.wasm {{wasm_directory}}/parser_bg.wasm
+	cp target/wasm32-unknown-unknown/release/parser.wasm {{wasm_directory}}
 	cd {{wasm_directory}} && \
-		wasm-gc parser_bg.wasm && \
-		wasm-opt -Oz -o parser_bg_opt.wasm parser_bg.wasm && \
-		mv parser_bg_opt.wasm parser_bg.wasm && \
-		gzip --best --stdout parser_bg.wasm > parser_bg.wasm.gz
+		wasm-gc parser.wasm && \
+		wasm-opt -Oz -o parser_opt.wasm parser.wasm && \
+		mv parser_opt.wasm parser.wasm && \
+		gzip --best --stdout parser.wasm > parser.wasm.gz
 
 # Pack the WASM binding and run an HTTP server to try it.
 run-wasm: build-wasm
