@@ -1,4 +1,5 @@
 use super::Input;
+#[cfg(feature = "wasm")] use alloc::Vec;
 
 #[derive(Debug, PartialEq)]
 pub struct Block<'a> {

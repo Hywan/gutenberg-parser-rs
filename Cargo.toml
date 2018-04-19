@@ -15,5 +15,5 @@ wasm = ["wee_alloc"]
 default = []
 
 [dependencies]
-nom = "4.0.0-beta3"
+nom = { version = "4.0.0-beta3", default-features = false, features = ["alloc"] }
 wee_alloc = { git = "https://github.com/rustwasm/wee_alloc/", branch = "master", optional = true }

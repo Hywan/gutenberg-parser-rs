@@ -1,46 +1,58 @@
 use super::ast;
-use std::mem;
-use std::ffi::{CString, CStr};
-use std::os::raw::{c_char, c_void};
+#[cfg(feature = "wasm")] use alloc::Vec;
+use core::{self, mem, slice};
 
-#[no_mangle]
-pub extern "C" fn alloc(size: usize) -> *mut c_void {
-    let mut buf = Vec::with_capacity(size);
-    let ptr = buf.as_mut_ptr();
-    mem::forget(buf);
+// This is required by `wee_alloc` and `no_std`.
+#[lang = "panic_fmt"]
+extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line: u32) -> ! {
+    unsafe {
+        core::intrinsics::abort();
+    }
+}
 
-    return ptr as *mut c_void;
+// This is the definition of `std::ffi::c_void`, but wasm runs without std.
+#[repr(u8)]
+#[allow(non_camel_case_types)]
+pub enum c_void {
+    #[doc(hidden)] 
+    __variant1,
+
+    #[doc(hidden)] 
+    __variant2
 }
 
 #[no_mangle]
-pub extern "C" fn dealloc(ptr: *mut c_void, cap: usize) {
+pub extern "C" fn alloc(capacity: usize) -> *mut c_void {
+    let mut buffer = Vec::with_capacity(capacity);
+    let pointer = buffer.as_mut_ptr();
+    mem::forget(buffer);
+
+    return pointer as *mut c_void;
+}
+
+#[no_mangle]
+pub extern "C" fn dealloc(pointer: *mut c_void, capacity: usize) {
     unsafe {
-        let _ = Vec::from_raw_parts(ptr, 0, cap);
+        let _ = Vec::from_raw_parts(pointer, 0, capacity);
     }
 }
 
 #[no_mangle]
-pub extern "C" fn dealloc_str(ptr: *mut c_char) {
+pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     unsafe {
-        let _ = CString::from_raw(ptr);
-    }
-}
+        let input = slice::from_raw_parts(pointer, length);
+        let mut output = vec![];
 
-#[no_mangle]
-pub extern "C" fn root(data: *mut c_char) -> *mut c_char {
-    unsafe {
-        let input = CStr::from_ptr(data);
-        let mut out = vec![];
-
-        if let Ok((_remaining, blocks)) = super::root(input.to_bytes()) {
+        if let Ok((_remaining, blocks)) = super::root(input) {
             for block in blocks {
-                out.extend(block.into_bytes());
+                output.extend(block.into_bytes());
             }
         }
 
-        out.push(b'\0');
+        let pointer = output.as_mut_ptr();
+        mem::forget(output);
 
-        CString::from_vec_unchecked(out).into_raw()
+        pointer
     }
 }
 

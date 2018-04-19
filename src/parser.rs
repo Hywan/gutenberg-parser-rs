@@ -1,6 +1,7 @@
 use super::Input;
 use super::ast::Block;
 use super::combinators;
+#[cfg(feature = "wasm")] use alloc::Vec;
 
 named_attr!(
     #[doc="Test"],
