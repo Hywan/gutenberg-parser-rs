@@ -56,7 +56,7 @@ function readBlock(module, pointer) {
 
     const inner_blocks = decoder(payload.slice(offset, next_offset));
 
-    //module.dealloc_str(pointer + next_offset + 3);
+    module.dealloc(pointer, 3 + next_offset);
 
     return new Block(name, attributes, inner_blocks);
 }
@@ -75,7 +75,7 @@ let Parser = {
         let string_pointer = writeString(Module, datum);
         let output_pointer = Module.root(string_pointer, datum.length);
         let result = readBlock(Module, output_pointer);
-        //Module.dealloc_str(string_pointer);
+        Module.dealloc(string_pointer, datum.length + 1);
 
         return result;
     }
@@ -86,7 +86,6 @@ fetchAndInstantiate("./parser.wasm", {})
         (module) => {
             Module.alloc = module.exports.alloc;
             Module.dealloc = module.exports.dealloc;
-            //Module.dealloc_str = module.exports.dealloc_str;
             Module.root = module.exports.root;
             Module.memory = module.exports.memory;
 

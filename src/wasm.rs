@@ -1,5 +1,5 @@
 use super::ast;
-#[cfg(feature = "wasm")] use alloc::Vec;
+use alloc::Vec;
 use core::{self, mem, slice};
 
 // This is required by `wee_alloc` and `no_std`.
