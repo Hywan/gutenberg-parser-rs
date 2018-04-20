@@ -9,6 +9,7 @@ crate-type = ["lib", "cdylib"]
 [profile.release]
 debug = false
 lto = true
+opt-level = 3
 
 [features]
 wasm = ["wee_alloc"]
