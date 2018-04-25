@@ -4,7 +4,7 @@ WebAssembly bindings.
 
 */
 
-use super::ast;
+use super::ast::Block;
 use alloc::Vec;
 use core::{self, mem, slice};
 
@@ -62,7 +62,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     }
 }
 
-impl<'a> ast::Block<'a> {
+impl<'a> Block<'a> {
     fn into_bytes(&self) -> Vec<u8> {
         let name = self.name;
         let name_length = name.0.len() + name.1.len() + 1;
@@ -84,24 +84,24 @@ impl<'a> ast::Block<'a> {
                 .collect();
         let inner_blocks_length = inner_blocks.len();
 
-        let mut result = Vec::with_capacity(3 + name_length + attributes_length + inner_blocks_length);
+        let mut output = Vec::with_capacity(3 + name_length + attributes_length + inner_blocks_length);
 
-        result.push(name_length as u8);
-        result.push(attributes_length as u8);
-        result.push(inner_blocks_length as u8);
+        output.push(name_length as u8);
+        output.push(attributes_length as u8);
+        output.push(inner_blocks_length as u8);
 
-        result.extend(name.0);
-        result.push(b'/');
-        result.extend(name.1);
+        output.extend(name.0);
+        output.push(b'/');
+        output.extend(name.1);
 
         if let Some(attributes) = attributes {
-            result.extend(attributes);
+            output.extend(attributes);
         } else {
-            result.extend(&b"{}"[..]);
+            output.extend(&b"{}"[..]);
         }
 
-        result.extend(inner_blocks);
+        output.extend(inner_blocks);
 
-        result
+        output
     }
 }

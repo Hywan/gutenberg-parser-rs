@@ -1,3 +1,3 @@
 var parser = require('../native');
 
-console.log(parser.hello(41));
+console.log(parser.root("<!-- wp:foo {\"abc\": \"xyz\"} /-->"));
