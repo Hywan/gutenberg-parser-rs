@@ -1,10 +1,28 @@
+/*!
+
+The Gutenberg post parser.
+
+The Gutenberg post parser is a parser combinator. Thus it provides
+mulitple parsers, aka combinators. They are based on the [nom]
+project.
+
+The writing of combiantors heavily relies on Rust macros. Don't be
+surprise! To learn more, consult the [documentation].
+
+[nom]: https://github.com/Geal/nom/
+[documentation]: https://docs.rs/nom/%2A/nom/
+
+*/
+
 use super::Input;
 use super::ast::Block;
 use super::combinators;
 #[cfg(feature = "wasm")] use alloc::Vec;
 
 named_attr!(
-    #[doc="Test"],
+    #[doc="
+        Axiom of the grammar: Recognize a list of blocks.
+    "],
     pub block_list<Input, Vec<Block>>,
     many0!(
         preceded!(
@@ -20,7 +38,34 @@ named!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize a block.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::{ast::Block, parser::block};
+
+        let input = &b\"<!-- wp:ns/foo {\\\"abc\\\": \\\"xyz\\\"} --><!-- /wp:ns/foo -->\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\"\"[..],
+
+                // The Abstract Syntax Tree.
+                Block {
+                    name: (&b\"ns\"[..], &b\"foo\"[..]),
+                    attributes: Some(&b\"{\\\"abc\\\": \\\"xyz\\\"}\"[..]),
+                    inner_blocks: vec![]
+                }
+            )
+        );
+
+        assert_eq!(block(input), output);
+        ```
+    "],
     pub block<Input, Block>,
     do_parse!(
         tag!("<!--") >>
@@ -75,7 +120,30 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize a fully-qualified block name.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::parser::block_name;
+
+        let input = &b\"foo/bar baz\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\" baz\"[..],
+
+                // The Abstract Syntax Tree.
+                (&b\"foo\"[..], &b\"bar\"[..])
+            )
+        );
+
+        assert_eq!(block_name(input), output);
+        ```
+    "],
     pub block_name<Input, (Input, Input)>,
     alt!(
         namespaced_block_name |
@@ -84,7 +152,30 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize a namespaced block name.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::parser::namespaced_block_name;
+
+        let input = &b\"foo/bar baz\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\" baz\"[..],
+
+                // The Abstract Syntax Tree.
+                (&b\"foo\"[..], &b\"bar\"[..])
+            )
+        );
+
+        assert_eq!(namespaced_block_name(input), output);
+        ```
+    "],
     pub namespaced_block_name<Input, (Input, Input)>,
     tuple!(
         block_name_part,
@@ -96,7 +187,30 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize a globally-namespaced block name.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::parser::core_block_name;
+
+        let input = &b\"foo bar\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\" bar\"[..],
+
+                // The Abstract Syntax Tree.
+                (&b\"core\"[..], &b\"foo\"[..])
+            )
+        );
+
+        assert_eq!(core_block_name(input), output);
+        ```
+    "],
     pub core_block_name<Input, (Input, Input)>,
     map_res!(
         block_name_part,
@@ -107,7 +221,30 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize a block name part.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::parser::block_name_part;
+
+        let input = &b\"foo bar\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\" bar\"[..],
+
+                // The parsed data.
+                &b\"foo\"[..]
+            )
+        );
+
+        assert_eq!(block_name_part(input), output);
+        ```
+    "],
     pub block_name_part,
     recognize!(
         pair!(
@@ -118,7 +255,30 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize block attributes.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::parser::block_attributes;
+
+        let input = &b\"{\\\"foo\\\": \\\"bar\\\"}-->\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\"-->\"[..],
+
+                // The parsed data.
+                &b\"{\\\"foo\\\": \\\"bar\\\"}\"[..]
+            )
+        );
+
+        assert_eq!(block_attributes(input), output);
+        ```
+    "],
     pub block_attributes,
     preceded!(
         peek!(tag!("{")),
@@ -136,7 +296,30 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc="foo"],
+    #[doc="
+        Recognize whitespaces.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::parser::whitespaces;
+
+        let input = &b\" \\n\\r\\t xyz\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\"xyz\"[..],
+
+                // The parsed data.
+                &b\" \\n\\r\\t \"[..]
+            )
+        );
+
+        assert_eq!(whitespaces(input), output);
+        ```
+    "],
     pub whitespaces,
     is_a!(" \n\r\t")
 );

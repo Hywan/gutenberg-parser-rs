@@ -1,6 +1,4 @@
-/*!
-
-# The Gutenberg post parser.
+## The Gutenberg post parser.
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
@@ -17,7 +15,7 @@ lorem ipsum
 
 The parser analyses a post and generates an Abstract Syntax Tree (AST) of it.
 
-## Platforms and bindings
+### Platforms and bindings
 
 The parser aims at being used on different platforms, such as: Web
 within multiple browsers, Web applications like [Electron], native
@@ -30,7 +28,7 @@ This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
 
-### Static library
+#### Static library
 
 To compile the parser to a static library, run:
 
@@ -39,7 +37,7 @@ $ just build-library
 $ ls target/release/
 ```
 
-### WebAssembly
+#### WebAssembly
 
 To compile the parser to a [WebAssembly] file, run:
 
@@ -48,12 +46,12 @@ $ just build-wasm
 $ open bindings/wasm/index.html # for a demonstration
 ```
 
-## Performance and guarantee
+### Performance and guarantee
 
 The parser guarantees to never copy the data in memory, which makes it
 fast and memory efficient.
 
-## License
+### License
 
 The license is a classic `BSD-3-Clause`:
 
@@ -93,102 +91,3 @@ The license is a classic `BSD-3-Clause`:
 [Justfile]: https://github.com/casey/just/
 [WebAssembly]: http://webassembly.org/
 
-*/
-
-
-#![cfg_attr(feature = "wasm", no_std)]
-#![
-    cfg_attr(
-        feature = "wasm",
-        feature(
-            proc_macro,
-            wasm_custom_section,
-            wasm_import_module,
-            global_allocator,
-            alloc,
-            core_intrinsics,
-            lang_items
-        )
-    )
-]
-
-
-#[cfg(feature = "wasm")] #[macro_use] extern crate alloc;
-#[macro_use] extern crate nom;
-#[cfg(feature = "wasm")] extern crate wee_alloc;
-
-
-#[cfg(feature = "wasm")]
-use alloc::Vec;
-
-
-// Export modules.
-pub mod ast;
-#[macro_use] pub mod combinators;
-pub mod parser;
-#[cfg(feature = "wasm")] pub mod wasm;
-
-
-// Configure `wee_alloc`.
-#[cfg(feature = "wasm")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-
-/// Represent the type of a parser input element. See
-/// [`Input`](./type.Input.html) for more information.
-pub type InputElement = u8;
-
-/// Represent the type of a parser input.
-///
-
-/// The parser does not analyse a `String` nor a `&str`, but a slice
-/// of bytes `&[u8]`. One of the consequence is that there is no UTF-8
-/// validation (Rust guarantees that all strings are valid UTF-8
-/// data). There is many arguments for this decision, one of them is
-/// that the post format are likely to contain JSON encoded data, and
-/// JSON has a weird encoding format for strings (e.g. surrogate
-/// pairs), which might not be compatible with UTF-8. Other arguments
-/// are mostly related to memory efficiency.
-pub type Input<'a> = &'a [InputElement];
-
-/// The `root` function represents the axiom of the grammar, i.e. the top rule.
-///
-/// This is the main function to call to parse a traditional post.
-///
-/// # Examples
-///
-/// In this example, one might notice that the output is a pair, where
-/// the left side contains the remaining data (i.e. data that have not
-/// been parsed, because the parser has stopped), and the right side
-/// contains the Abstract Syntax Tree (AST).
-///
-/// The left side should ideally always be empty.
-///
-/// ```
-/// extern crate gutenberg_post_parser;
-///
-/// use gutenberg_post_parser::{root, ast::Block};
-///
-/// let input = &b"<!-- wp:foo {\"bar\": true} /-->"[..];
-/// let output = Ok(
-///     (
-///         // The remaining data.
-///         &b""[..],
-///
-///         // The Abstract Syntax Tree.
-///         vec![
-///             Block {
-///                 name: (&b"core"[..], &b"foo"[..]),
-///                 attributes: Some(&b"{\"bar\": true}"[..]),
-///                 inner_blocks: vec![]
-///             }
-///         ]
-///     )
-/// );
-///
-/// assert_eq!(root(input), output);
-/// ```
-pub fn root(input: Input) -> Result<(Input, Vec<ast::Block>), nom::Err<Input>> {
-    parser::block_list(input)
-}

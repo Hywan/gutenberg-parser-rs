@@ -1,5 +1,15 @@
+/*!
+
+Additional combinators specifically tailored for this parser.
+ 
+Warning: It's likely the combinators are public to the crate only, and
+thus can be absent from the public documentation.
+
+*/
+
 /// `take_till_terminated(S, C)` is a like `take_till` but with a lookahead
 /// combinator `C`.
+#[macro_export]
 macro_rules! take_till_terminated (
     ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
         {

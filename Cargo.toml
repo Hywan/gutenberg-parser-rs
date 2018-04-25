@@ -1,10 +1,15 @@
 [package]
-name = "parser"
+name = "gutenberg_post_parser"
 version = "0.1.0"
 authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+license = "BSD-3-Clause"
+readme = "./README.md"
+repository = "https://github.com/Hywan/gutenberg-parser-rs"
 
 [lib]
+name = "gutenberg_post_parser"
 crate-type = ["lib", "cdylib"]
+path = "src/lib.rs"
 
 [profile.release]
 debug = false

@@ -2,5 +2,5 @@
 /Cargo.lock
 /bindings/wasm/node_modules/
 /bindings/wasm/package-lock.json
-/bindings/wasm/parser.wasm
-/bindings/wasm/parser.wasm.gz
+/bindings/wasm/gutenberg_post_parser.wasm
+/bindings/wasm/gutenberg_post_parser.wasm.gz

@@ -4,23 +4,23 @@ wasm_directory = "bindings/wasm"
 build-library:
 	cargo +nightly build --release
 
-# Test the parser only (i.e. not the bindings to external languages).
+# Test the parser only (i.e. not the bindings to external languages) and its documentation.
 test-library:
 	cargo +nightly test
 
 # Build the documentation.
 build-doc:
-	cargo +nightly doc --release --all-features
+	cargo +nightly doc --release --package gutenberg_post_parser
 
 # Build the parser and the WASM binding.
 build-wasm:
 	cargo +nightly build --release --features "wasm" --target wasm32-unknown-unknown
-	cp target/wasm32-unknown-unknown/release/parser.wasm {{wasm_directory}}
+	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser.wasm {{wasm_directory}}
 	cd {{wasm_directory}} && \
-		wasm-gc parser.wasm && \
-		wasm-opt -Oz -o parser_opt.wasm parser.wasm && \
-		mv parser_opt.wasm parser.wasm && \
-		gzip --best --stdout parser.wasm > parser.wasm.gz
+		wasm-gc gutenberg_post_parser.wasm && \
+		wasm-opt -Oz -o gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
+		mv gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
+		gzip --best --stdout gutenberg_post_parser.wasm > gutenberg_post_parser.wasm.gz
 
 # Pack the WASM binding and run an HTTP server to try it.
 run-wasm: build-wasm

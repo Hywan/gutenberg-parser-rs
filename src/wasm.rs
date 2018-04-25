@@ -1,3 +1,9 @@
+/*!
+
+WebAssembly bindings.
+
+*/
+
 use super::ast;
 use alloc::Vec;
 use core::{self, mem, slice};
