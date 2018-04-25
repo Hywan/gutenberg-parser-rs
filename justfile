@@ -1,3 +1,4 @@
+nodejs_directory = "bindings/nodejs"
 wasm_directory = "bindings/wasm"
 
 # Build a regular build.
@@ -24,13 +25,11 @@ build-wasm:
 
 # Pack the WASM binding and run an HTTP server to try it.
 run-wasm: build-wasm
-	cd {{wasm_directory}} && \
-		npm install && \
-		npm run serve
+	open {{wasm_directory}}/index.html
 
 # Build the parser and the NodeJS binding.
 build-nodejs:
-	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path bindings/nodejs/
+	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/
 
 # Local Variables:
 # mode: makefile

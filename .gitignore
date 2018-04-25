@@ -5,6 +5,4 @@
 /bindings/nodejs/native/target/
 /bindings/wasm/gutenberg_post_parser.wasm
 /bindings/wasm/gutenberg_post_parser.wasm.gz
-/bindings/wasm/node_modules/
-/bindings/wasm/package-lock.json
 /target/
