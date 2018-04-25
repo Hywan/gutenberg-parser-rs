@@ -24,7 +24,7 @@ nodejs = ["neon", "neon-build"]
 
 [dependencies]
 nom = { version = "4.0.0-beta3", default-features = false, features = ["alloc"] }
-wee_alloc = { git = "https://github.com/rustwasm/wee_alloc/", branch = "master", optional = true }
+wee_alloc = { version = "0.3.0", optional = true }
 neon = { version = "0.1.22", optional = true }
 
 [build-dependencies]
