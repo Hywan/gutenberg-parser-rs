@@ -8,7 +8,12 @@ use neon::vm::{Call, JsResult};
 use neon::js::JsNumber;
 
 fn hello(call: Call) -> JsResult<JsNumber> {
-    Ok(JsNumber::new(call.scope, 43f64))
+    let scope = call.scope;
+    let arguments = call.arguments;
+
+    let x = arguments.require(scope, 0)?.check::<JsNumber>()?.value();
+
+    Ok(JsNumber::new(scope, x + 1f64))
 }
 
 register_module!(
