@@ -81,7 +81,7 @@ let Parser = {
     }
 };
 
-fetchAndInstantiate("./parser.wasm", {})
+fetchAndInstantiate("./gutenberg_post_parser.wasm", {})
     .then(
         (module) => {
             Module.alloc = module.exports.alloc;
