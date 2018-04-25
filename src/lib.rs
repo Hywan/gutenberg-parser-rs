@@ -48,6 +48,15 @@ $ just build-wasm
 $ open bindings/wasm/index.html # for a demonstration
 ```
 
+### NodeJS
+
+To compile the parser to a [NodeJS] native module, run:
+
+```sh
+$ just build-nodejs
+$ node bindings/nodejs/lib/index.js
+```
+
 ## Performance and guarantee
 
 The parser guarantees to never copy the data in memory, which makes it
@@ -92,6 +101,7 @@ The license is a classic `BSD-3-Clause`:
 [Electron]: https://github.com/electron/
 [Justfile]: https://github.com/casey/just/
 [WebAssembly]: http://webassembly.org/
+[NodeJS]: https://nodejs.org/
 
 */
 
