@@ -2,19 +2,19 @@ wasm_directory = "bindings/wasm"
 
 # Build a regular build.
 build-library:
-	cargo +nightly build --release
+	cargo +nightly build --no-default-features --release
 
 # Test the parser only (i.e. not the bindings to external languages) and its documentation.
 test-library:
-	cargo +nightly test
+	cargo +nightly test --no-default-features
 
 # Build the documentation.
 build-doc:
-	cargo +nightly doc --release --package gutenberg_post_parser
+	cargo +nightly doc --release --no-default-features --package gutenberg_post_parser
 
 # Build the parser and the WASM binding.
 build-wasm:
-	cargo +nightly build --release --features "wasm" --target wasm32-unknown-unknown
+	cargo +nightly build --release --no-default-features --features "wasm" --target wasm32-unknown-unknown
 	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser.wasm {{wasm_directory}}
 	cd {{wasm_directory}} && \
 		wasm-gc gutenberg_post_parser.wasm && \
@@ -27,6 +27,10 @@ run-wasm: build-wasm
 	cd {{wasm_directory}} && \
 		npm install && \
 		npm run serve
+
+# Build the parser and the NodeJS binding.
+build-nodejs:
+	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path bindings/nodejs/
 
 # Local Variables:
 # mode: makefile

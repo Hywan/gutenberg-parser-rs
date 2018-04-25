@@ -1,6 +1,10 @@
-/target/
 /Cargo.lock
-/bindings/wasm/node_modules/
-/bindings/wasm/package-lock.json
+/bindings/nodejs/native/Cargo.lock
+/bindings/nodejs/native/artifacts.json
+/bindings/nodejs/native/index.node
+/bindings/nodejs/native/target/
 /bindings/wasm/gutenberg_post_parser.wasm
 /bindings/wasm/gutenberg_post_parser.wasm.gz
+/bindings/wasm/node_modules/
+/bindings/wasm/package-lock.json
+/target/

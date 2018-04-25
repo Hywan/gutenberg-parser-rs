@@ -116,6 +116,7 @@ The license is a classic `BSD-3-Clause`:
 #[cfg(feature = "wasm")] #[macro_use] extern crate alloc;
 #[macro_use] extern crate nom;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
+#[cfg(feature = "nodejs")] #[macro_use] extern crate neon;
 
 
 #[cfg(feature = "wasm")]
@@ -127,6 +128,7 @@ pub mod ast;
 #[macro_use] pub mod combinators;
 pub mod parser;
 #[cfg(feature = "wasm")] pub mod wasm;
+#[cfg(feature = "nodejs")] pub mod nodejs;
 
 
 // Configure `wee_alloc`.

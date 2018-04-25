@@ -5,10 +5,11 @@ authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
 license = "BSD-3-Clause"
 readme = "./README.md"
 repository = "https://github.com/Hywan/gutenberg-parser-rs"
+build = "build.rs"
 
 [lib]
 name = "gutenberg_post_parser"
-crate-type = ["lib", "cdylib"]
+crate-type = ["lib", "cdylib", "dylib"]
 path = "src/lib.rs"
 
 [profile.release]
@@ -17,9 +18,14 @@ lto = true
 opt-level = 3
 
 [features]
+default = ["nodejs"] # Because of a strange behavior, `nodejs` must be in `default`. Use `just` to compile correctly.
 wasm = ["wee_alloc"]
-default = []
+nodejs = ["neon", "neon-build"]
 
 [dependencies]
 nom = { version = "4.0.0-beta3", default-features = false, features = ["alloc"] }
 wee_alloc = { git = "https://github.com/rustwasm/wee_alloc/", branch = "master", optional = true }
+neon = { version = "0.1.22", optional = true }
+
+[build-dependencies]
+neon-build = { version = "0.1.22", optional = true }
