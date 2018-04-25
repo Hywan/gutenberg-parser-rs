@@ -2,8 +2,8 @@
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
-the HTML is annotated. Like most annotation language, it is located in
-comments, like this:
+the HTML is annotated. Like most annotation languages, it is located
+in comments, like this:
 
 ```html
 <h1>Famous post</h1>
@@ -22,7 +22,8 @@ within multiple browsers, Web applications like [Electron], native
 applications like macOS, iOS, Windows, Linux etc.
 
 Thus, the parser can be compiled as a static library, can be embedded
-in any Rust projects, can be compiled to [WebAssembly], and soon more.
+in any Rust projects, can be compiled to [WebAssembly], or can be
+compiled to [NodeJS], and soon more.
 
 This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
@@ -52,7 +53,7 @@ To compile the parser to a [NodeJS] native module, run:
 
 ```sh
 $ just build-nodejs
-$ node bindings/nodejs/lib/index.js
+$ node bindings/nodejs/lib/index.js # for a demonstration
 ```
 
 ### Performance and guarantee
