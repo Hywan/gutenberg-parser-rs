@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Block","A block is the elementary component of the post format."]]});
