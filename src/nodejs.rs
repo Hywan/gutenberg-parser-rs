@@ -22,43 +22,13 @@ fn root(call: Call) -> JsResult<JsArray> {
     if let Ok((_remaining, blocks)) = super::root(input.as_bytes()) {
         output = JsArray::new(scope, blocks.len() as u32);
 
-        {
-            let raw_output = output.deref_mut();
+        let raw_output = output.deref_mut();
 
-            for (index, block) in blocks.iter().enumerate() {
-                let item = JsObject::new(scope);
-                item.set(
-                    "name",
-                    JsString::new_or_throw(
-                        scope,
-                        &format!(
-                            "{}/{}",
-                            unsafe { str::from_utf8_unchecked(block.name.0) },
-                            unsafe { str::from_utf8_unchecked(block.name.1) }
-                        )
-                    )?
-                )?;
-                item.set(
-                    "attributes",
-                    if let Some(attributes) = block.attributes {
-                        JsString::new_or_throw(
-                            scope,
-                            unsafe { str::from_utf8_unchecked(attributes) }
-                        )?
-                    } else {
-                        JsString::new_or_throw(
-                            scope,
-                            "{}"
-                        )?
-                    }
-                )?;
-                item.set(
-                    "inner_blocks",
-                    JsArray::new(scope, 0)
-                )?;
-
-                raw_output.set(index as u32, item)?;
-            }
+        for (index, block) in blocks.iter().enumerate() {
+            raw_output.set(
+                index as u32,
+                block.into_js_object(scope)?
+            )?;
         }
     } else {
         output = JsArray::new(scope, 0u32);
@@ -73,3 +43,55 @@ register_module!(
         module.export("root", root)
     }
 );
+
+impl<'a> Block<'a> {
+    fn into_js_object<'b, S: Scope<'b>>(&self, scope: &mut S) -> JsResult<'b, JsObject> {
+        let output = JsObject::new(scope);
+
+        output.set(
+            "name",
+            JsString::new_or_throw(
+                scope,
+                &format!(
+                    "{}/{}",
+                    unsafe { str::from_utf8_unchecked(self.name.0) },
+                    unsafe { str::from_utf8_unchecked(self.name.1) }
+                )
+            )?
+        )?;
+        output.set(
+            "attributes",
+            if let Some(attributes) = self.attributes {
+                JsString::new_or_throw(
+                    scope,
+                    unsafe { str::from_utf8_unchecked(attributes) }
+                )?
+            } else {
+                JsString::new_or_throw(
+                    scope,
+                    "{}"
+                )?
+            }
+        )?;
+
+        let mut inner_blocks = JsArray::new(scope, self.inner_blocks.len() as u32);
+
+        {
+            let raw_inner_blocks = inner_blocks.deref_mut();
+
+            for (index, block) in self.inner_blocks.iter().enumerate() {
+                raw_inner_blocks.set(
+                    index as u32,
+                    block.into_js_object(scope)?
+                )?;
+            }
+        }
+
+        output.set(
+            "inner_blocks",
+            inner_blocks
+        )?;
+
+        Ok(output)
+    }
+}
