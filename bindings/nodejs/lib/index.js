@@ -1,6 +1,8 @@
-var parser = require('../native');
+#!/usr/bin/env node
 
-var output = parser.root("<!-- wp:foo {\"abc\": \"xyz\"} --><!-- wp:bar /--><!-- /wp:foo -->");
+const parser = require('../native');
+
+const output = parser.root('<!-- wp:foo {"abc": "xyz"} --><!-- wp:bar /--><!-- /wp:foo -->');
 
 console.log(output);
 console.log(JSON.stringify(output));
