@@ -3,6 +3,7 @@
 /bindings/nodejs/native/artifacts.json
 /bindings/nodejs/native/index.node
 /bindings/nodejs/native/target/
+/bindings/wasm/gutenberg_post_parser.debug.wasm
 /bindings/wasm/gutenberg_post_parser.wasm
 /bindings/wasm/gutenberg_post_parser.wasm.gz
 /target/

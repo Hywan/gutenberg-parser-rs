@@ -19,10 +19,14 @@ build-nodejs:
 
 # Build the parser and the WASM binding.
 build-wasm:
-	cargo +nightly build --release --no-default-features --features "wasm" --target wasm32-unknown-unknown
+	RUSTFLAGS='-g' cargo +nightly build --release --no-default-features --features "wasm" --target wasm32-unknown-unknown
 	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser.wasm {{wasm_directory}}
 	cd {{wasm_directory}} && \
 		wasm-gc gutenberg_post_parser.wasm && \
+		wasm-snip --snip-rust-fmt-code --snip-rust-panicking-code gutenberg_post_parser.wasm -o gutenberg_post_parser_snipped.wasm && \
+		mv gutenberg_post_parser_snipped.wasm gutenberg_post_parser.wasm && \
+		wasm-gc gutenberg_post_parser.wasm && \
+		wasm-opt -g -Oz -o gutenberg_post_parser.debug.wasm gutenberg_post_parser.wasm && \
 		wasm-opt -Oz -o gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
 		mv gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
 		gzip --best --stdout gutenberg_post_parser.wasm > gutenberg_post_parser.wasm.gz
