@@ -180,7 +180,7 @@ pub type Input<'a> = &'a [InputElement];
 /// ```
 /// extern crate gutenberg_post_parser;
 ///
-/// use gutenberg_post_parser::{root, ast::Block};
+/// use gutenberg_post_parser::{root, ast::Node};
 ///
 /// let input = &b"<!-- wp:foo {\"bar\": true} /-->"[..];
 /// let output = Ok(
@@ -190,10 +190,10 @@ pub type Input<'a> = &'a [InputElement];
 ///
 ///         // The Abstract Syntax Tree.
 ///         vec![
-///             Block {
+///             Node::Block {
 ///                 name: (&b"core"[..], &b"foo"[..]),
 ///                 attributes: Some(&b"{\"bar\": true}"[..]),
-///                 inner_blocks: vec![]
+///                 children: vec![]
 ///             }
 ///         ]
 ///     )
@@ -201,6 +201,6 @@ pub type Input<'a> = &'a [InputElement];
 ///
 /// assert_eq!(root(input), output);
 /// ```
-pub fn root(input: Input) -> Result<(Input, Vec<ast::Block>), nom::Err<Input>> {
+pub fn root(input: Input) -> Result<(Input, Vec<ast::Node>), nom::Err<Input>> {
     parser::block_list(input)
 }

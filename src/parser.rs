@@ -15,27 +15,42 @@ surprise! To learn more, consult the [documentation].
 */
 
 use super::Input;
-use super::ast::Block;
+use super::ast::Node;
 use super::combinators;
 #[cfg(feature = "wasm")] use alloc::Vec;
+use nom::ErrorKind;
 
 named_attr!(
     #[doc="
         Axiom of the grammar: Recognize a list of blocks.
     "],
-    pub block_list<Input, Vec<Block>>,
-    many0!(
-        preceded!(
-            anything_but_block,
+    pub block_list<Input, Vec<Node>>,
+    fold_into_vector_many0!(
+        alt_complete!(
             block
-        )
+          | phrase
+        ),
+        vec![]
     )
 );
 
-named!(
-    anything_but_block,
-    complete!(take_until!("<!--"))
+named_attr!(
+    #[doc=""],
+    phrase<Input, Node>,
+    map_res!(
+        complete!(take_until!("<!--")),
+        phrase_mapper
+    )
 );
+
+#[inline(always)]
+fn phrase_mapper<'a>(input: Input<'a>) -> Result<Node<'a>, ErrorKind> {
+    if input.is_empty() {
+        Err(ErrorKind::Custom(42u32))
+    } else {
+        Ok(Node::Phrase(input))
+    }
+}
 
 named_attr!(
     #[doc="
@@ -46,7 +61,7 @@ named_attr!(
         ```
         extern crate gutenberg_post_parser;
 
-        use gutenberg_post_parser::{ast::Block, parser::block};
+        use gutenberg_post_parser::{ast::Node, parser::block};
 
         let input = &b\"<!-- wp:ns/foo {\\\"abc\\\": \\\"xyz\\\"} --><!-- /wp:ns/foo -->\"[..];
         let output = Ok(
@@ -55,10 +70,10 @@ named_attr!(
                 &b\"\"[..],
 
                 // The Abstract Syntax Tree.
-                Block {
+                Node::Block {
                     name: (&b\"ns\"[..], &b\"foo\"[..]),
                     attributes: Some(&b\"{\\\"abc\\\": \\\"xyz\\\"}\"[..]),
-                    inner_blocks: vec![]
+                    children: vec![]
                 }
             )
         );
@@ -66,7 +81,7 @@ named_attr!(
         assert_eq!(block(input), output);
         ```
     "],
-    pub block<Input, Block>,
+    pub block<Input, Node>,
     do_parse!(
         tag!("<!--") >>
         opt!(whitespaces) >>
@@ -79,16 +94,14 @@ named_attr!(
             // Balanced block.
             do_parse!(
                 tag!("-->") >>
-                inner_blocks: many0!(
-                    preceded!(
-                        anything_but_block,
+                children: fold_into_vector_many0!(
+                    alt_complete!(
                         block
-                    )
+                      | phrase
+                    ),
+                    vec![]
                 ) >>
-                preceded!(
-                    anything_but_block,
-                    tag!("<!--")
-                ) >>
+                tag!("<!--") >>
                 opt!(whitespaces) >>
                 tag!("/wp:") >>
                 _closing_name: block_name >>
@@ -96,10 +109,10 @@ named_attr!(
                 tag!("-->") >>
                 (
                     // @todo: Need to check that `closing_name` is equal to `name`.
-                    Block {
+                    Node::Block {
                         name: name,
                         attributes: attributes,
-                        inner_blocks: inner_blocks
+                        children: children
                     }
                 )
             )
@@ -107,10 +120,10 @@ named_attr!(
           | do_parse!(
                 tag!("/-->") >>
                 (
-                    Block {
+                    Node::Block {
                         name: name,
                         attributes: attributes,
-                        inner_blocks: vec![]
+                        children: vec![]
                     }
                 )
             )
@@ -328,7 +341,7 @@ named_attr!(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use super::super::ast::Block;
+    use super::super::ast::Node;
 
     #[test]
     fn test_block_list() {
@@ -337,15 +350,17 @@ mod tests {
             (
                 &b" ghi"[..],
                 vec![
-                    Block {
+                    Node::Phrase(&b"abc "[..]),
+                    Node::Block {
                         name: (&b"core"[..], &b"foo"[..]),
                         attributes: None,
-                        inner_blocks: vec![
-                            Block {
+                        children: vec![
+                            Node::Block {
                                 name: (&b"core"[..], &b"bar"[..]),
                                 attributes: None,
-                                inner_blocks: vec![]
-                            }
+                                children: vec![]
+                            },
+                            Node::Phrase(&b" def "[..])
                         ]
                     }
                 ]
@@ -360,10 +375,10 @@ mod tests {
         let input = &b"<!-- wp:foo --><!-- /wp:foo -->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"core"[..], &b"foo"[..]),
                 attributes: None,
-                inner_blocks: vec![]
+                children: vec![]
             }
         ));
 
@@ -375,10 +390,10 @@ mod tests {
         let input = &b"<!-- wp:ns/foo --><!-- /wp:ns/foo -->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"ns"[..], &b"foo"[..]),
                 attributes: None,
-                inner_blocks: vec![]
+                children: vec![]
             }
         ));
 
@@ -390,10 +405,10 @@ mod tests {
         let input = &b"<!-- wp:ns/foo {\"abc\": \"xyz\"} --><!-- /wp:ns/foo -->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"ns"[..], &b"foo"[..]),
                 attributes: Some(&b"{\"abc\": \"xyz\"}"[..]),
-                inner_blocks: vec![]
+                children: vec![]
             }
         ));
 
@@ -405,23 +420,23 @@ mod tests {
         let input = &b"<!-- wp:foo --><!-- wp:bar {\"abc\": true} /--><!-- wp:baz --><!-- wp:qux /--><!-- /wp:baz --><!-- /wp:foo -->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"core"[..], &b"foo"[..]),
                 attributes: None,
-                inner_blocks: vec![
-                    Block {
+                children: vec![
+                    Node::Block {
                         name: (&b"core"[..], &b"bar"[..]),
                         attributes: Some(&b"{\"abc\": true}"[..]),
-                        inner_blocks: vec![]
+                        children: vec![]
                     },
-                    Block {
+                    Node::Block {
                         name: (&b"core"[..], &b"baz"[..]),
                         attributes: None,
-                        inner_blocks: vec![
-                            Block {
+                        children: vec![
+                            Node::Block {
                                 name: (&b"core"[..], &b"qux"[..]),
                                 attributes: None,
-                                inner_blocks: vec![]
+                                children: vec![]
                             }
                         ]
                     }
@@ -437,26 +452,31 @@ mod tests {
         let input = &b"<!-- wp:foo --> abc <!-- wp:bar {\"abc\": true} /--> def <!-- wp:baz --> ghi <!-- wp:qux /--> jkl <!-- /wp:baz --> mno <!-- /wp:foo -->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"core"[..], &b"foo"[..]),
                 attributes: None,
-                inner_blocks: vec![
-                    Block {
+                children: vec![
+                    Node::Phrase(&b" abc "[..]),
+                    Node::Block {
                         name: (&b"core"[..], &b"bar"[..]),
                         attributes: Some(&b"{\"abc\": true}"[..]),
-                        inner_blocks: vec![]
+                        children: vec![]
                     },
-                    Block {
+                    Node::Phrase(&b" def "[..]),
+                    Node::Block {
                         name: (&b"core"[..], &b"baz"[..]),
                         attributes: None,
-                        inner_blocks: vec![
-                            Block {
+                        children: vec![
+                            Node::Phrase(&b" ghi "[..]),
+                            Node::Block {
                                 name: (&b"core"[..], &b"qux"[..]),
                                 attributes: None,
-                                inner_blocks: vec![]
-                            }
+                                children: vec![]
+                            },
+                            Node::Phrase(&b" jkl "[..]),
                         ]
-                    }
+                    },
+                    Node::Phrase(&b" mno "[..])
                 ]
             }
         ));
@@ -469,10 +489,10 @@ mod tests {
         let input = &b"<!-- wp:foo /-->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"core"[..], &b"foo"[..]),
                 attributes: None,
-                inner_blocks: vec![]
+                children: vec![]
             }
         ));
 
@@ -484,10 +504,10 @@ mod tests {
         let input = &b"<!-- wp:ns/foo /-->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"ns"[..], &b"foo"[..]),
                 attributes: None,
-                inner_blocks: vec![]
+                children: vec![]
             }
         ));
 
@@ -499,10 +519,10 @@ mod tests {
         let input = &b"<!-- wp:ns/foo {\"abc\": \"xyz\"} /-->"[..];
         let output = Ok((
             &b""[..],
-            Block {
+            Node::Block {
                 name: (&b"ns"[..], &b"foo"[..]),
                 attributes: Some(&b"{\"abc\": \"xyz\"}"[..]),
-                inner_blocks: vec![]
+                children: vec![]
             }
         ));
 

@@ -7,6 +7,8 @@ thus can be absent from the public documentation.
 
 */
 
+#[cfg(feature = "wasm")] use alloc::Vec;
+
 /// `take_till_terminated(S, C)` is a like `take_till` but with a lookahead
 /// combinator `C`.
 #[macro_export]
@@ -52,6 +54,38 @@ macro_rules! take_till_terminated (
         take_till_terminated!($input, $substr, call!($f));
     }
 );
+
+#[macro_export]
+macro_rules! fold_into_vector_many0(
+    ($input:expr, $submacro:ident!($($arguments:tt)*), $init:expr) => (
+        {
+            let result = fold_many0!(
+                $input,
+                $submacro!($($arguments)*),
+                $init,
+                $crate::combinators::fold_into_vector
+            );
+
+            if let Ok((remaining, mut output)) = result {
+                output.shrink_to_fit();
+
+                Ok((remaining, output))
+            } else {
+                result
+            }
+        }
+    );
+
+    ($input:expr, $function:expr, $init:expr) => (
+        fold_many0!($input, call!($function), $init);
+    );
+);
+
+pub(crate) fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
+    accumulator.push(item);
+
+    accumulator
+}
 
 pub(crate) fn is_alphanumeric_extended(chr: u8) -> bool {
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
