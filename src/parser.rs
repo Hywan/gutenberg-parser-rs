@@ -38,7 +38,10 @@ named_attr!(
     #[doc=""],
     phrase<Input, Node>,
     map_res!(
-        complete!(take_until!("<!--")),
+        alt_complete!(
+            take_until!("<!--")
+          | call!(combinators::id)
+        ),
         phrase_mapper
     )
 );
@@ -348,7 +351,7 @@ mod tests {
         let input = &b"abc <!-- wp:foo --><!-- wp:bar /--> def <!-- /wp:foo --> ghi"[..];
         let output = Ok(
             (
-                &b" ghi"[..],
+                &b""[..],
                 vec![
                     Node::Phrase(&b"abc "[..]),
                     Node::Block {
@@ -362,7 +365,8 @@ mod tests {
                             },
                             Node::Phrase(&b" def "[..])
                         ]
-                    }
+                    },
+                    Node::Phrase(&b" ghi"[..])
                 ]
             )
         );

@@ -7,6 +7,8 @@ thus can be absent from the public documentation.
 
 */
 
+use super::Input;
+use nom::IResult;
 #[cfg(feature = "wasm")] use alloc::Vec;
 
 /// `take_till_terminated(S, C)` is a like `take_till` but with a lookahead
@@ -89,6 +91,11 @@ pub(crate) fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
 
 pub(crate) fn is_alphanumeric_extended(chr: u8) -> bool {
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
+}
+
+/// The `id` combinator consumes the entire given input as the output.
+pub(crate) fn id(input: Input) -> IResult<Input, Input> {
+    Ok((&b""[..], input))
 }
 
 #[cfg(test)]
