@@ -82,27 +82,54 @@ impl<'a> Node<'a> {
                     }
                 )?;
 
-                // Children.
-                let mut children_ = JsArray::new(scope, children.len() as u32);
+                // Inner blocks.
+                let mut blocks = JsArray::new(scope, children.len() as u32);
+                let mut phrases = JsArray::new(scope, children.len() as u32);
 
                 {
-                    let raw_children = children_.deref_mut();
+                    let raw_blocks = blocks.deref_mut();
+                    let raw_phrases = phrases.deref_mut();
 
-                    for (index, block) in children.iter().enumerate() {
-                        raw_children.set(
-                            index as u32,
-                            block.into_js_object(scope)?
-                        )?;
+                    for (index, node) in children.iter().enumerate() {
+                        match node {
+                            block @ Node::Block { .. } => {
+                                raw_blocks.set(
+                                    index as u32,
+                                    block.into_js_object(scope)?
+                                )?;
+                            },
+
+                            Node::Phrase(phrase) => {
+                                let block = JsObject::new(scope);
+                                block.set(
+                                    "innerHTML",
+                                    JsString::new_or_throw(
+                                        scope,
+                                        unsafe { str::from_utf8_unchecked(phrase) }
+                                    )?
+                                )?;
+
+                                raw_phrases.set(
+                                    index as u32,
+                                    block
+                                )?;
+                            }
+                        }
                     }
                 }
 
-                output.set(
-                    "children",
-                    children_
-                )?;
+                output.set("innerBlocks", blocks)?;
+                output.set("innerHTML", phrases)?;
             },
 
             Node::Phrase(phrase) => {
+                output.set(
+                    "innerHTML",
+                    JsString::new_or_throw(
+                        scope,
+                        unsafe { str::from_utf8_unchecked(phrase) }
+                    )?
+                )?;
             }
         }
 
