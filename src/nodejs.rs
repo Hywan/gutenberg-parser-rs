@@ -45,13 +45,17 @@ register_module!(
 );
 
 impl<'a> Node<'a> {
+    /// The form of the object matches the expectation of the
+    /// Gutenberg project, it explains why the keys differ from the
+    /// `Block` structure.
     fn into_js_object<'b, S: Scope<'b>>(&self, scope: &mut S) -> JsResult<'b, JsObject> {
         let output = JsObject::new(scope);
 
         match self {
             Node::Block { name, attributes, children } => {
+                // Name.
                 output.set(
-                    "name",
+                    "blockName",
                     JsString::new_or_throw(
                         scope,
                         &format!(
@@ -61,8 +65,10 @@ impl<'a> Node<'a> {
                         )
                     )?
                 )?;
+
+                // Attributes.
                 output.set(
-                    "attributes",
+                    "attrs",
                     if let Some(attributes) = attributes {
                         JsString::new_or_throw(
                             scope,
@@ -76,6 +82,7 @@ impl<'a> Node<'a> {
                     }
                 )?;
 
+                // Children.
                 let mut children_ = JsArray::new(scope, children.len() as u32);
 
                 {
