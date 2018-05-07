@@ -12,6 +12,12 @@ use neon::vm::{Call, JsResult};
 use std::ops::DerefMut;
 use std::str;
 
+macro_rules! to_str (
+    ($slice:expr) => (
+        unsafe { str::from_utf8_unchecked($slice) }
+    )
+);
+
 fn root(call: Call) -> JsResult<JsArray> {
     let scope = call.scope;
     let arguments = call.arguments;
@@ -60,8 +66,8 @@ impl<'a> Node<'a> {
                         scope,
                         &format!(
                             "{}/{}",
-                            unsafe { str::from_utf8_unchecked(name.0) },
-                            unsafe { str::from_utf8_unchecked(name.1) }
+                            to_str!(name.0),
+                            to_str!(name.1)
                         )
                     )?
                 )?;
@@ -72,51 +78,56 @@ impl<'a> Node<'a> {
                     if let Some(attributes) = attributes {
                         JsString::new_or_throw(
                             scope,
-                            unsafe { str::from_utf8_unchecked(attributes) }
+                            to_str!(attributes)
                         )?
                     } else {
                         JsString::new_or_throw(
                             scope,
-                            "{}"
+                            "null"
                         )?
                     }
                 )?;
 
                 // Inner blocks.
-                let mut blocks = JsArray::new(scope, children.len() as u32);
-                let mut phrases = JsArray::new(scope, children.len() as u32);
+                let number_of_blocks =
+                    children
+                        .iter()
+                        .fold(
+                            0u32,
+                            |accumulator, node| {
+                                accumulator +
+                                    match node {
+                                        Node::Block { .. } => 1,
+                                        _                  => 0
+                                    }
+                            }
+                        );
+                let mut blocks = JsArray::new(scope, number_of_blocks);
+                let mut phrases = String::new();
 
                 {
                     let raw_blocks = blocks.deref_mut();
-                    let raw_phrases = phrases.deref_mut();
+                    let mut index = 0u32;
 
-                    for (index, node) in children.iter().enumerate() {
+                    for node in children {
                         match node {
-                            block @ Node::Block { .. } => {
+                            Node::Block { .. } => {
                                 raw_blocks.set(
-                                    index as u32,
-                                    block.into_js_object(scope)?
+                                    index,
+                                    node.into_js_object(scope)?
                                 )?;
+
+                                index += 1;
                             },
 
                             Node::Phrase(phrase) => {
-                                let block = JsObject::new(scope);
-                                block.set(
-                                    "innerHTML",
-                                    JsString::new_or_throw(
-                                        scope,
-                                        unsafe { str::from_utf8_unchecked(phrase) }
-                                    )?
-                                )?;
-
-                                raw_phrases.set(
-                                    index as u32,
-                                    block
-                                )?;
+                                phrases.push_str(to_str!(phrase));
                             }
                         }
                     }
                 }
+
+                let phrases = JsString::new_or_throw(scope, phrases.as_str())?;
 
                 output.set("innerBlocks", blocks)?;
                 output.set("innerHTML", phrases)?;
@@ -124,10 +135,17 @@ impl<'a> Node<'a> {
 
             Node::Phrase(phrase) => {
                 output.set(
+                    "attrs",
+                    JsString::new_or_throw(
+                        scope,
+                        "{}"
+                    )?
+                )?;
+                output.set(
                     "innerHTML",
                     JsString::new_or_throw(
                         scope,
-                        unsafe { str::from_utf8_unchecked(phrase) }
+                        to_str!(phrase)
                     )?
                 )?;
             }
