@@ -44,8 +44,6 @@ function readNodes(module, start_pointer) {
         return null;
     }
 
-    console.log('number of nodes', number_of_nodes);
-
     const nodes = [];
     let pointer = start_pointer + 1;
     let end_pointer;
@@ -63,36 +61,22 @@ function readNodes(module, start_pointer) {
 }
 
 function readNode(buffer, pointer) {
-    console.group('read node');
-
-    console.log('pointer', pointer);
-
     const [node_type] = new Uint8Array(buffer.slice(pointer, pointer + 1));
-
-    console.info('node type', node_type);
 
     // Block.
     if (1 === node_type) {
         const [name_length, attributes_length, number_of_children] = new Uint8Array(buffer.slice(pointer + 1, pointer + 4));
         const payload = buffer.slice(pointer + 4);
 
-        console.log('name length', name_length);
-        console.log('attributes length', attributes_length);
-        console.log('number of children', number_of_children);
-
         let offset = 0;
         let next_offset = name_length;
 
         const name = text_decoder(payload.slice(offset, next_offset));
 
-        console.log('node name', name);
-
         offset = next_offset;
         next_offset = next_offset + attributes_length;
 
         const attributes = JSON.parse(text_decoder(payload.slice(offset, next_offset)));
-
-        console.log('attributes', attributes);
 
         offset = pointer + 4 + next_offset;
         let end_pointer = offset;
@@ -106,11 +90,6 @@ function readNode(buffer, pointer) {
             children.push(node);
         }
 
-        console.log('children', children);
-        console.log('last pointer', end_pointer);
-
-        console.groupEnd();
-
         return {
             last_pointer: end_pointer,
             node: new Block(name, attributes, children)
@@ -120,32 +99,36 @@ function readNode(buffer, pointer) {
     else if (2 === node_type) {
         const [phrase_length] = new Uint8Array(buffer.slice(pointer + 1, pointer + 2));
 
-        console.log('phrase length', phrase_length);
-
         const phrase = text_decoder(buffer.slice(pointer + 2, pointer + 2 + phrase_length));
-
-        console.log('phrase', phrase);
 
         return {
             last_pointer: pointer + 2 + phrase_length,
             node: new Phrase(phrase)
         }
-    } else {
-        console.error('unknown node type', node_type);
     }
 }
 
 class Block {
     constructor(name, attributes, children) {
-        this.name = name;
-        this.attributes = attributes;
-        this.children = children;
+        this.blockName = name;
+        this.attrs = attributes;
+        this.innerBlocks = [];
+        this.innerHTML = '';
+
+        for (let child of children) {
+            if (child instanceof Block) {
+                this.innerBlocks.push(child);
+            } else if (child instanceof Phrase) {
+                this.innerHTML += child.innerHTML;
+            }
+        }
     }
 }
 
 class Phrase {
     constructor(phrase) {
-        this.phrase = phrase;
+        this.attrs = {};
+        this.innerHTML = phrase;
     }
 }
 
@@ -171,38 +154,30 @@ WebAssembly
             Module.root = module.exports.root;
             Module.memory = module.exports.memory;
 
-            const input = `<!-- wp:foo /-->`;
-            const output = Parser.root(input);
-            console.log(output);
+            const stdin = process.stdin;
+            const stdout = process.stdout;
+            let input = '';
+
+            stdin.setEncoding('utf-8');
+            stdin.on(
+                'readable',
+                () => {
+                    let chunk;
+
+                    while (chunk = stdin.read()) {
+                        input += chunk;
+                    }
+                }
+            );
+            stdin.on(
+                'end',
+                () => {
+                    stdout.write(
+                        JSON.stringify(
+                            Parser.root(input)
+                        )
+                    );
+                }
+            );
         }
     );
-
-/*
-const parser = require('../native');
-
-const stdin = process.stdin;
-const stdout = process.stdout;
-let input = '';
-
-stdin.setEncoding('utf-8');
-stdin.on(
-    'readable',
-    () => {
-        let chunk;
-
-        while (chunk = stdin.read()) {
-            input += chunk;
-        }
-    }
-);
-stdin.on(
-    'end',
-    () => {
-        stdout.write(
-            JSON.stringify(
-                parser.root(input)
-            )
-        );
-    }
-);
-*/
