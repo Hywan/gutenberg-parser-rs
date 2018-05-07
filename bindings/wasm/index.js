@@ -11,9 +11,24 @@ function fetchAndInstantiate(url, importObject) {
         );
 }
 
+const text_encoder = new function () {
+    const encoder = new TextEncoder('utf-8');
+
+    return (string) => {
+        return encoder.encode(string);
+    };
+}
+
+const text_decoder = new function () {
+    const decoder = new TextDecoder('utf-8');
+
+    return (array_buffer) => {
+        return decoder.decode(array_buffer);
+    };
+};
+
 function writeString(module, string) {
-    const utf8Encoder = new TextEncoder("utf-8");
-    const string_buffer = utf8Encoder.encode(string);
+    const string_buffer = text_encoder(string);
     const string_length = string_buffer.length;
     const pointer = module.alloc(string_length + 1);
 
@@ -46,7 +61,6 @@ function readNodes(module, start_pointer) {
         const { last_pointer, node } = readNode(buffer, pointer);
 
         pointer = end_pointer = last_pointer;
-
         nodes.push(node);
     }
 
@@ -59,14 +73,6 @@ function readNode(buffer, pointer) {
     console.group('read node');
 
     console.log('pointer', pointer);
-
-    const decoder = new function () {
-        const decoder = new TextDecoder("utf-8");
-
-        return (array_buffer) => {
-            return decoder.decode(array_buffer);
-        };
-    };
 
     const [node_type] = new Uint8Array(buffer.slice(pointer, pointer + 1));
 
@@ -84,14 +90,14 @@ function readNode(buffer, pointer) {
         let offset = 0;
         let next_offset = name_length;
 
-        const name = decoder(payload.slice(offset, next_offset));
+        const name = text_decoder(payload.slice(offset, next_offset));
 
         console.log('node name', name);
 
         offset = next_offset;
         next_offset = next_offset + attributes_length;
 
-        const attributes = JSON.parse(decoder(payload.slice(offset, next_offset)));
+        const attributes = JSON.parse(text_decoder(payload.slice(offset, next_offset)));
 
         console.log('attributes', attributes);
 
@@ -104,7 +110,6 @@ function readNode(buffer, pointer) {
             const { last_pointer, node } = readNode(buffer, offset);
 
             offset = end_pointer = last_pointer;
-
             children.push(node);
         }
 
@@ -124,7 +129,7 @@ function readNode(buffer, pointer) {
 
         console.log('phrase length', phrase_length);
 
-        const phrase = decoder(buffer.slice(pointer + 2, pointer + 2 + phrase_length));
+        const phrase = text_decoder(buffer.slice(pointer + 2, pointer + 2 + phrase_length));
 
         console.log('phrase', phrase);
 
