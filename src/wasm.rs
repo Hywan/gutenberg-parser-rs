@@ -4,7 +4,7 @@ WebAssembly bindings.
 
 */
 
-use super::ast::Block;
+use super::ast::Node;
 use alloc::Vec;
 use core::{self, mem, slice};
 
@@ -49,9 +49,9 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
         let input = slice::from_raw_parts(pointer, length);
         let mut output = vec![];
 
-        if let Ok((_remaining, blocks)) = super::root(input) {
-            for block in blocks {
-                output.extend(block.into_bytes());
+        if let Ok((_remaining, nodes)) = super::root(input) {
+            for node in nodes {
+                output.extend(node.into_bytes());
             }
         }
 
@@ -62,46 +62,51 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     }
 }
 
-impl<'a> Block<'a> {
+impl<'a> Node<'a> {
     fn into_bytes(&self) -> Vec<u8> {
-        let name = self.name;
-        let name_length = name.0.len() + name.1.len() + 1;
+        match *self {
+            Node::Block { name, attributes, ref children } => {
+                let name_length = name.0.len() + name.1.len() + 1;
+                let attributes_length = match attributes {
+                    Some(attributes) => attributes.len(),
+                    None             => 2
+                };
 
-        let attributes = self.attributes;
-        let attributes_length = match attributes {
-            Some(attributes) => attributes.len(),
-            None             => 2
-        };
+                let children: Vec<u8> =
+                    children
+                        .iter()
+                        .flat_map(
+                            |ref node| {
+                                node.into_bytes()
+                            }
+                        )
+                        .collect();
+                let children_length = children.len();
 
-        let inner_blocks: Vec<u8> =
-            self.inner_blocks
-                .iter()
-                .flat_map(
-                    |ref block| {
-                        block.into_bytes()
-                    }
-                )
-                .collect();
-        let inner_blocks_length = inner_blocks.len();
+                let mut output = Vec::with_capacity(3 + name_length + attributes_length + children_length);
 
-        let mut output = Vec::with_capacity(3 + name_length + attributes_length + inner_blocks_length);
+                output.push(name_length as u8);
+                output.push(attributes_length as u8);
+                output.push(children_length as u8);
 
-        output.push(name_length as u8);
-        output.push(attributes_length as u8);
-        output.push(inner_blocks_length as u8);
+                output.extend(name.0);
+                output.push(b'/');
+                output.extend(name.1);
 
-        output.extend(name.0);
-        output.push(b'/');
-        output.extend(name.1);
+                if let Some(attributes) = attributes {
+                    output.extend(attributes);
+                } else {
+                    output.extend(&b"{}"[..]);
+                }
 
-        if let Some(attributes) = attributes {
-            output.extend(attributes);
-        } else {
-            output.extend(&b"{}"[..]);
+                output.extend(children);
+
+                output
+            },
+
+            Node::Phrase(phrase) => {
+                Vec::with_capacity(0)
+            }
         }
-
-        output.extend(inner_blocks);
-
-        output
     }
 }
