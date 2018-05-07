@@ -1,14 +1,29 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
 const parser = require('../native');
-const arguments = process.argv.slice(2);
 
-function parseFromFile(file_input, file_output) {
-    const input = fs.readFileSync(file_input, 'utf-8');
-    const output = parser.root(input);
+const stdin = process.stdin;
+const stdout = process.stdout;
+let input = '';
 
-    fs.writeFileSync(file_output, JSON.stringify(output));
-}
+stdin.setEncoding('utf-8');
+stdin.on(
+    'readable',
+    () => {
+        let chunk;
 
-parseFromFile(arguments[0], arguments[1]);
+        while (chunk = stdin.read()) {
+            input += chunk;
+        }
+    }
+);
+stdin.on(
+    'end',
+    () => {
+        stdout.write(
+            JSON.stringify(
+                parser.root(input)
+            )
+        );
+    }
+);
