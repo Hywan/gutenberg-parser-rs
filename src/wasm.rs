@@ -50,9 +50,14 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
         let mut output = vec![];
 
         if let Ok((_remaining, nodes)) = super::root(input) {
+            let mut number_of_nodes = 0;
+
             for node in nodes {
                 output.extend(node.into_bytes());
+                number_of_nodes += 1;
             }
+
+            output.insert(0, number_of_nodes as u8);
         }
 
         let pointer = output.as_mut_ptr();
@@ -72,6 +77,7 @@ impl<'a> Node<'a> {
                     None             => 2
                 };
 
+                let number_of_children = children.len();
                 let children: Vec<u8> =
                     children
                         .iter()
@@ -81,13 +87,12 @@ impl<'a> Node<'a> {
                             }
                         )
                         .collect();
-                let children_length = children.len();
 
-                let mut output = Vec::with_capacity(3 + name_length + attributes_length + children_length);
+                let mut output = Vec::with_capacity(3 + name_length + attributes_length + number_of_children);
 
                 output.push(name_length as u8);
                 output.push(attributes_length as u8);
-                output.push(children_length as u8);
+                output.push(number_of_children as u8);
 
                 output.extend(name.0);
                 output.push(b'/');
