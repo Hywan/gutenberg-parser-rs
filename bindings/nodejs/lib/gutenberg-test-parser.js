@@ -9,12 +9,10 @@ function parseFromFile(file_input, file_output) {
     const output = parser.root(input);
 
     for (let i in output) {
-        let block = output[i];
+        const block = output[i];
 
-        for (let key in block) {
-            if (key === 'attrs') {
-                block[key] = JSON.parse(block[key]);
-            }
+        if (block['attrs']) {
+            block['attrs'] = JSON.parse(block['attrs']);
         }
     }
 
