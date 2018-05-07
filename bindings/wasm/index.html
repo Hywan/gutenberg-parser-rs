@@ -24,14 +24,21 @@
   </head>
   <body>
     <script src="./index.js"></script>
-    <textarea id="input" readonly><!-- wp:a1 {"bar": "qux"} -->
-  phrase1
-  <!-- wp:a1-1 {"x": "y"} /-->
-  phrase2
-  <!-- wp:a1-2 /-->
-  phrase3
-  <!-- /wp:foo -->
-<!-- wp:a2 -->phrase4<!-- /wp:a2 --></textarea>
+    <textarea id="input" readonly>
+<!-- wp:cover-image {"url":"https://cldup.com/Fz-ASbo2s3.jpg","align":"wide"} -->
+<div class="wp-block-cover-image has-background-dim alignwide" style="background-image:url(https://cldup.com/Fz-ASbo2s3.jpg)">
+	<p class="wp-block-cover-image-text">Of Mountains &amp; Printing Presses</p>
+</div>
+<!-- /wp:cover-image -->
+phrase1
+<!-- wp:paragraph -->
+<p>The goal of this new editor is to make adding rich content to WordPress simple and enjoyable. This whole post is composed of <em>pieces of content</em>—somewhat similar to LEGO bricks—that you can move around and interact with. Move your cursor around and you'll notice the different blocks light up with outlines and arrows. Press the arrows to reposition blocks quickly, without fearing about losing things in the process of copying and pasting.</p>
+<!-- /wp:paragraph -->
+phrase2
+<!-- wp:paragraph -->
+<p>What you are reading now is a <strong>text block</strong>, the most basic block of all. The text block has its own controls to be moved freely around the post...</p>
+<!-- /wp:paragraph -->
+</textarea>
     <output id="output"></output>
   </body>
 </html>

@@ -75,7 +75,7 @@ impl<'a> Node<'a> {
                 let name_length = name.0.len() + name.1.len() + 1;
                 let attributes_length = match attributes {
                     Some(attributes) => attributes.len(),
-                    None             => 2
+                    None             => 4
                 };
 
                 let number_of_children = children.len();
@@ -103,7 +103,7 @@ impl<'a> Node<'a> {
                 if let Some(attributes) = attributes {
                     output.extend(attributes);
                 } else {
-                    output.extend(&b"{}"[..]);
+                    output.extend(&b"null"[..]);
                 }
 
                 output.extend(children);
@@ -118,7 +118,11 @@ impl<'a> Node<'a> {
                 let mut output = Vec::with_capacity(2 + phrase_length);
 
                 output.push(node_type);
-                output.push(phrase_length as u8);
+
+                let phrase_length_as_u8s = u16_to_u8s(phrase_length as u16);
+
+                output.push(phrase_length_as_u8s.0);
+                output.push(phrase_length_as_u8s.1);
 
                 output.extend(phrase);
 
@@ -126,4 +130,15 @@ impl<'a> Node<'a> {
             }
         }
     }
+}
+
+fn u16_to_u8s(x: u16) -> (u8, u8) {
+    (
+        ((x & 0b_1111_1111_0000_0000_u16) >> 8) as u8,
+         (x & 0b_0000_0000_1111_1111_u16) as u8
+    )
+}
+
+fn u8s_to_u16(p: (u8, u8)) -> u16 {
+    ((p.0 as u16) << 8) | (p.1 as u16)
 }

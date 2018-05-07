@@ -20,6 +20,10 @@ const text_decoder = new function () {
     };
 };
 
+function u8s_to_u16(p, o) {
+    return (p << 8) | o;
+}
+
 function writeString(module, string) {
     const string_buffer = text_encoder(string);
     const string_length = string_buffer.length;
@@ -97,14 +101,17 @@ function readNode(buffer, pointer) {
     }
     // Phrase.
     else if (2 === node_type) {
-        const [phrase_length] = new Uint8Array(buffer.slice(pointer + 1, pointer + 2));
+        const [phrase_length_0, phrase_length_1] = new Uint8Array(buffer.slice(pointer + 1, pointer + 3));
+        const phrase_length = u8s_to_u16(phrase_length_0, phrase_length_1);
 
-        const phrase = text_decoder(buffer.slice(pointer + 2, pointer + 2 + phrase_length));
+        const phrase = text_decoder(buffer.slice(pointer + 3, pointer + 3 + phrase_length));
 
         return {
-            last_pointer: pointer + 2 + phrase_length,
+            last_pointer: pointer + 3 + phrase_length,
             node: new Phrase(phrase)
         }
+    } else {
+        console.error('unknown node type', node_type);
     }
 }
 
