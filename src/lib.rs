@@ -128,6 +128,8 @@ The license is a classic `BSD-3-Clause`:
 #[macro_use] extern crate nom;
 #[cfg(feature = "wasm")] extern crate wee_alloc;
 #[cfg(feature = "nodejs")] #[macro_use] extern crate neon;
+#[cfg(feature = "nodejs")] extern crate serde_json;
+#[cfg(feature = "nodejs")] extern crate neon_serde;
 
 
 #[cfg(feature = "wasm")]

@@ -5,12 +5,14 @@ NodeJS bindings.
 */
 
 use super::ast::Node;
-use neon::js::{JsArray, JsString, JsObject, Object};
+use neon::js::{JsArray, JsNull, JsString, JsObject, Object};
 use neon::mem::Handle;
 use neon::scope::Scope;
-use neon::vm::{Call, JsResult};
+use neon::vm::{Call, JsResult, Throw};
 use std::ops::DerefMut;
 use std::str;
+use serde_json;
+use neon_serde;
 
 macro_rules! to_str (
     ($slice:expr) => (
@@ -76,15 +78,13 @@ impl<'a> Node<'a> {
                 output.set(
                     "attrs",
                     if let Some(attributes) = attributes {
-                        JsString::new_or_throw(
-                            scope,
-                            to_str!(attributes)
-                        )?
+                        let json =
+                            serde_json::from_slice::<serde_json::Value>(attributes)
+                                .map_err(|_| Throw)?;
+
+                        neon_serde::to_value(scope, &json)?
                     } else {
-                        JsString::new_or_throw(
-                            scope,
-                            "null"
-                        )?
+                        JsNull::new().upcast()
                     }
                 )?;
 
@@ -136,10 +136,7 @@ impl<'a> Node<'a> {
             Node::Phrase(phrase) => {
                 output.set(
                     "attrs",
-                    JsString::new_or_throw(
-                        scope,
-                        "{}"
-                    )?
+                    JsObject::new(scope)
                 )?;
                 output.set(
                     "innerHTML",

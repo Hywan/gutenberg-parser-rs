@@ -20,12 +20,14 @@ opt-level = 3
 [features]
 default = ["nodejs"] # Because of a strange behavior, `nodejs` must be in `default`. Use `just` to compile correctly.
 wasm = ["wee_alloc"]
-nodejs = ["neon", "neon-build"]
+nodejs = ["neon", "neon-build", "serde_json", "neon-serde"]
 
 [dependencies]
 nom = { version = "4.0.0-beta3", default-features = false, features = ["alloc"] }
 wee_alloc = { version = "0.3.0", optional = true }
 neon = { version = "0.1.22", optional = true }
+serde_json = { version = "1.0", optional = true }
+neon-serde = { version = "0.0.3", optional = true }
 
 [build-dependencies]
 neon-build = { version = "0.1.22", optional = true }
