@@ -60,14 +60,7 @@ function readNode(buffer, pointer) {
 
     console.log('pointer', pointer);
 
-    const [name_length, attributes_length, number_of_children] = new Uint8Array(buffer.slice(pointer, pointer + 3));
-    const payload = buffer.slice(pointer + 3);
-
-    console.log('name length', name_length);
-    console.log('attributes length', attributes_length);
-    console.log('number of children', number_of_children);
-
-    let decoder = new function () {
+    const decoder = new function () {
         const decoder = new TextDecoder("utf-8");
 
         return (array_buffer) => {
@@ -75,49 +68,86 @@ function readNode(buffer, pointer) {
         };
     };
 
-    let offset = 0;
-    let next_offset = name_length;
+    const [node_type] = new Uint8Array(buffer.slice(pointer, pointer + 1));
 
-    const name = decoder(payload.slice(offset, next_offset));
+    console.info('node type', node_type);
 
-    console.log('node name', name);
+    // Block.
+    if (1 === node_type) {
+        const [name_length, attributes_length, number_of_children] = new Uint8Array(buffer.slice(pointer + 1, pointer + 4));
+        const payload = buffer.slice(pointer + 4);
 
-    offset = next_offset;
-    next_offset = next_offset + attributes_length;
+        console.log('name length', name_length);
+        console.log('attributes length', attributes_length);
+        console.log('number of children', number_of_children);
 
-    const attributes = JSON.parse(decoder(payload.slice(offset, next_offset)));
+        let offset = 0;
+        let next_offset = name_length;
 
-    console.log('attributes', attributes);
+        const name = decoder(payload.slice(offset, next_offset));
 
-    offset = pointer + 3 + next_offset;
-    let end_pointer = offset;
+        console.log('node name', name);
 
-    const children = [];
+        offset = next_offset;
+        next_offset = next_offset + attributes_length;
 
-    for (let i = 0; i < number_of_children; ++i) {
-        const { last_pointer, node } = readNode(buffer, offset);
+        const attributes = JSON.parse(decoder(payload.slice(offset, next_offset)));
 
-        offset = end_pointer = last_pointer;
+        console.log('attributes', attributes);
 
-        children.push(node);
+        offset = pointer + 4 + next_offset;
+        let end_pointer = offset;
+
+        const children = [];
+
+        for (let i = 0; i < number_of_children; ++i) {
+            const { last_pointer, node } = readNode(buffer, offset);
+
+            offset = end_pointer = last_pointer;
+
+            children.push(node);
+        }
+
+        console.log('children', children);
+        console.log('last pointer', end_pointer);
+
+        console.groupEnd();
+
+        return {
+            last_pointer: end_pointer,
+            node: new Block(name, attributes, children)
+        };
     }
+    // Phrase.
+    else if (2 === node_type) {
+        const [phrase_length] = new Uint8Array(buffer.slice(pointer + 1, pointer + 2));
 
-    console.log('children', children);
-    console.log('last pointer', end_pointer);
+        console.log('phrase length', phrase_length);
 
-    console.groupEnd();
+        const phrase = decoder(buffer.slice(pointer + 2, pointer + 2 + phrase_length));
 
-    return {
-        last_pointer: end_pointer,
-        node: new Node(name, attributes, children)
-    };
+        console.log('phrase', phrase);
+
+        return {
+            last_pointer: pointer + 2 + phrase_length,
+            node: new Phrase(phrase)
+        }
+    } else {
+        console.error('unknown node type', node_type);
+    }
 }
 
-class Node {
+class Block {
     constructor(name, attributes, children) {
         this.name = name;
         this.attributes = attributes;
         this.children = children;
+    }
+}
+
+class Phrase {
+    constructor(phrase) {
+        this.phrase = phrase;
     }
 }
 
@@ -141,6 +171,9 @@ fetchAndInstantiate("./gutenberg_post_parser.wasm", {})
             Module.root = module.exports.root;
             Module.memory = module.exports.memory;
 
-            console.log(Parser.root(`<!-- wp:a1 {"bar": "qux"} --><!-- wp:a1-1 {"x": "y"} /--><!-- wp:a1-2 /--><!-- /wp:foo --><!-- wp:a2 /-->`));
+            const input = document.getElementById('input').value;
+            const output = Parser.root(input);
+            console.log(output);
+            document.getElementById('output').value = JSON.stringify(output, null, 2);
         }
     );

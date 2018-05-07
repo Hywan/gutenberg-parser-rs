@@ -3,9 +3,35 @@
 <html>
   <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
+    <style>
+      body {
+          display: flex;
+          flex-direction: row;
+      }
+
+      #input {
+          flex: 2;
+          font-family: monospace;
+          margin-right: 1rem;
+      }
+
+      #output {
+          flex: 3;
+          font-family: monospace;
+          white-space: pre;
+      }
+    </style>
   </head>
   <body>
     <script src="./index.js"></script>
-    <p>Open your console.</p>
+    <textarea id="input" readonly><!-- wp:a1 {"bar": "qux"} -->
+  phrase1
+  <!-- wp:a1-1 {"x": "y"} /-->
+  phrase2
+  <!-- wp:a1-2 /-->
+  phrase3
+  <!-- /wp:foo -->
+<!-- wp:a2 -->phrase4<!-- /wp:a2 --></textarea>
+    <output id="output"></output>
   </body>
 </html>

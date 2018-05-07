@@ -71,6 +71,7 @@ impl<'a> Node<'a> {
     fn into_bytes(&self) -> Vec<u8> {
         match *self {
             Node::Block { name, attributes, ref children } => {
+                let node_type = 1u8;
                 let name_length = name.0.len() + name.1.len() + 1;
                 let attributes_length = match attributes {
                     Some(attributes) => attributes.len(),
@@ -88,8 +89,9 @@ impl<'a> Node<'a> {
                         )
                         .collect();
 
-                let mut output = Vec::with_capacity(3 + name_length + attributes_length + number_of_children);
+                let mut output = Vec::with_capacity(4 + name_length + attributes_length + number_of_children);
 
+                output.push(node_type);
                 output.push(name_length as u8);
                 output.push(attributes_length as u8);
                 output.push(number_of_children as u8);
@@ -110,7 +112,17 @@ impl<'a> Node<'a> {
             },
 
             Node::Phrase(phrase) => {
-                Vec::with_capacity(0)
+                let node_type = 2u8;
+                let phrase_length = phrase.len();
+
+                let mut output = Vec::with_capacity(2 + phrase_length);
+
+                output.push(node_type);
+                output.push(phrase_length as u8);
+
+                output.extend(phrase);
+
+                output
             }
         }
     }
