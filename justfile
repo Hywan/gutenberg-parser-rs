@@ -11,7 +11,7 @@ test-library:
 
 # Build a regular binary.
 build-binary:
-	cargo +nightly build --no-default-features --release
+	cargo +nightly build --no-default-features --features "bin" --release
 
 # Build the documentation.
 build-doc:
