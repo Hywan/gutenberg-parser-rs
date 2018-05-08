@@ -9,6 +9,10 @@ build-library:
 test-library:
 	cargo +nightly test --no-default-features
 
+# Build a regular binary.
+build-binary:
+	cargo +nightly build --no-default-features --release
+
 # Build the documentation.
 build-doc:
 	cargo +nightly doc --release --no-default-features --package gutenberg_post_parser
