@@ -16,6 +16,13 @@ extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line:
     }
 }
 
+#[lang = "oom"]
+extern "C" fn oom() -> ! {
+    unsafe {
+        core::intrinsics::abort();
+    }
+}
+
 // This is the definition of `std::ffi::c_void`, but wasm runs without std.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
