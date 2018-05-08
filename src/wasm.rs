@@ -53,7 +53,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
             output.push(nodes.len() as u8);
 
             for node in nodes {
-                output.extend(node.into_bytes());
+                node.into_bytes(&mut output);
             }
         }
 
@@ -65,7 +65,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
 }
 
 impl<'a> Node<'a> {
-    fn into_bytes(&self) -> Vec<u8> {
+    fn into_bytes(&self, output: &mut Vec<u8>) {
         match *self {
             Node::Block { name, attributes, ref children } => {
                 let node_type = 1u8;
@@ -76,17 +76,6 @@ impl<'a> Node<'a> {
                 };
 
                 let number_of_children = children.len();
-                let children: Vec<u8> =
-                    children
-                        .iter()
-                        .flat_map(
-                            |ref node| {
-                                node.into_bytes()
-                            }
-                        )
-                        .collect();
-
-                let mut output = Vec::with_capacity(4 + name_length + attributes_length + number_of_children);
 
                 output.push(node_type);
                 output.push(name_length as u8);
@@ -103,16 +92,14 @@ impl<'a> Node<'a> {
                     output.extend(&b"null"[..]);
                 }
 
-                output.extend(children);
-
-                output
+                for child in children {
+                    child.into_bytes(output);
+                }
             },
 
             Node::Phrase(phrase) => {
                 let node_type = 2u8;
                 let phrase_length = phrase.len();
-
-                let mut output = Vec::with_capacity(2 + phrase_length);
 
                 output.push(node_type);
 
@@ -122,8 +109,6 @@ impl<'a> Node<'a> {
                 output.push(phrase_length_as_u8s.1);
 
                 output.extend(phrase);
-
-                output
             }
         }
     }
