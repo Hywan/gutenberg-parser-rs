@@ -5,7 +5,7 @@ const util = require('util');
 const buffer = fs.readFileSync(__dirname + '/../../wasm/gutenberg_post_parser.wasm');
 
 const text_encoder = new function () {
-    const encoder = new util.TextEncoder('utf-8');
+    const encoder = new util.TextEncoder();
 
     return (string) => {
         return encoder.encode(string);
@@ -24,8 +24,7 @@ function u8s_to_u16(p, o) {
     return (p << 8) | o;
 }
 
-function writeString(module, string) {
-    const string_buffer = text_encoder(string);
+function writeString(module, string_buffer) {
     const string_length = string_buffer.length;
     const pointer = module.alloc(string_length + 1);
 
@@ -142,10 +141,11 @@ class Phrase {
 let Module = {};
 let Parser = {
     root: function(datum) {
-        let string_pointer = writeString(Module, datum);
-        let output_pointer = Module.root(string_pointer, datum.length);
-        let result = readNodes(Module, output_pointer);
-        Module.dealloc(string_pointer, datum.length + 1);
+        const buffer = text_encoder(datum);
+        const buffer_pointer = writeString(Module, buffer);
+        const output_pointer = Module.root(buffer_pointer, buffer.length);
+        const result = readNodes(Module, output_pointer);
+        Module.dealloc(buffer_pointer, buffer.length);
 
         return result;
     }
