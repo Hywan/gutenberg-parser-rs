@@ -1,3 +1,5 @@
+const log = false;
+
 function fetchAndInstantiate(url, importObject) {
     return fetch(url)
         .then(
@@ -54,7 +56,7 @@ function readNodes(module, start_pointer) {
         return null;
     }
 
-    console.log('number of nodes', number_of_nodes);
+    log && console.log('number of nodes', number_of_nodes);
 
     const nodes = [];
     let pointer = start_pointer + 1;
@@ -73,36 +75,36 @@ function readNodes(module, start_pointer) {
 }
 
 function readNode(buffer, pointer) {
-    console.group('read node');
+    log && console.group('read node');
 
-    console.log('pointer', pointer);
+    log && console.log('pointer', pointer);
 
     const [node_type] = new Uint8Array(buffer.slice(pointer, pointer + 1));
 
-    console.info('node type', node_type);
+    log && console.info('node type', node_type);
 
     // Block.
     if (1 === node_type) {
         const [name_length, attributes_length, number_of_children] = new Uint8Array(buffer.slice(pointer + 1, pointer + 4));
         const payload = buffer.slice(pointer + 4);
 
-        console.log('name length', name_length);
-        console.log('attributes length', attributes_length);
-        console.log('number of children', number_of_children);
+        log && console.log('name length', name_length);
+        log && console.log('attributes length', attributes_length);
+        log && console.log('number of children', number_of_children);
 
         let offset = 0;
         let next_offset = name_length;
 
         const name = text_decoder(payload.slice(offset, next_offset));
 
-        console.log('node name', name);
+        log && console.log('node name', name);
 
         offset = next_offset;
         next_offset = next_offset + attributes_length;
 
         const attributes = JSON.parse(text_decoder(payload.slice(offset, next_offset)));
 
-        console.log('attributes', attributes);
+        log && console.log('attributes', attributes);
 
         offset = pointer + 4 + next_offset;
         let end_pointer = offset;
@@ -116,10 +118,10 @@ function readNode(buffer, pointer) {
             children.push(node);
         }
 
-        console.log('children', children);
-        console.log('last pointer', end_pointer);
+        log && console.log('children', children);
+        log && console.log('last pointer', end_pointer);
 
-        console.groupEnd();
+        log && console.groupEnd();
 
         return {
             last_pointer: end_pointer,
@@ -131,20 +133,20 @@ function readNode(buffer, pointer) {
         const [phrase_length_0, phrase_length_1] = new Uint8Array(buffer.slice(pointer + 1, pointer + 3));
         const phrase_length = u8s_to_u16(phrase_length_0, phrase_length_1);
 
-        console.log('phrase length', phrase_length);
+        log && console.log('phrase length', phrase_length);
 
         const phrase = text_decoder(buffer.slice(pointer + 3, pointer + 3 + phrase_length));
 
-        console.log('phrase', phrase);
+        log && console.log('phrase', phrase);
 
-        console.groupEnd();
+        log && console.groupEnd();
 
         return {
             last_pointer: pointer + 3 + phrase_length,
             node: new Phrase(phrase)
         }
     } else {
-        console.error('unknown node type', node_type);
+        log && console.error('unknown node type', node_type);
     }
 }
 
@@ -165,10 +167,22 @@ class Phrase {
 let Module = {};
 let Parser = {
     root: function(datum) {
+        performance.mark('input-preparing');
+
         const buffer = text_encoder(datum);
         const buffer_pointer = writeString(Module, buffer);
+
+        performance.mark('parse-start');
+
         const output_pointer = Module.root(buffer_pointer, buffer.length);
+
+        performance.mark('parse-stop');
+        performance.mark('read-nodes-start');
+
         const result = readNodes(Module, output_pointer);
+
+        performance.mark('read-nodes-stop');
+
         Module.dealloc(buffer_pointer, buffer.length);
 
         return result;
@@ -178,14 +192,35 @@ let Parser = {
 fetchAndInstantiate("./gutenberg_post_parser.wasm", {})
     .then(
         (module) => {
+            performance.mark('init');
+
             Module.alloc = module.exports.alloc;
             Module.dealloc = module.exports.dealloc;
             Module.root = module.exports.root;
             Module.memory = module.exports.memory;
 
+            performance.mark('module-set');
+
             const input = document.getElementById('input').value;
             const output = Parser.root(input);
-            console.log(output);
+            log && console.table(output);
             document.getElementById('output').value = JSON.stringify(output, null, 2);
+
+            performance.mark('shutdown');
+
+            performance.measure('global', 'init', 'shutdown');
+            performance.measure('preamble', 'input-preparing', 'parse-start');
+            performance.measure('parsing', 'parse-start', 'parse-stop');
+            performance.measure('decoding', 'read-nodes-start', 'read-nodes-stop');
+
+            console.table(
+                performance
+                    .getEntriesByType('measure')
+                    .map(
+                        ({name, duration}) => {
+                            return {name, duration};
+                        }
+                    )
+            );
         }
     );
