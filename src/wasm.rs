@@ -50,14 +50,11 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
         let mut output = vec![];
 
         if let Ok((_remaining, nodes)) = super::root(input) {
-            let mut number_of_nodes = 0;
+            output.push(nodes.len() as u8);
 
             for node in nodes {
                 output.extend(node.into_bytes());
-                number_of_nodes += 1;
             }
-
-            output.insert(0, number_of_nodes as u8);
         }
 
         let pointer = output.as_mut_ptr();
