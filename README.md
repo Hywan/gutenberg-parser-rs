@@ -21,13 +21,22 @@ The parser aims at being used on different platforms, such as: Web
 within multiple browsers, Web applications like [Electron], native
 applications like macOS, iOS, Windows, Linux etc.
 
-Thus, the parser can be compiled as a static library, can be embedded
-in any Rust projects, can be compiled to [WebAssembly], or can be
-compiled to [NodeJS], and soon more.
+Thus, the parser can be compiled as a binary, a static library, can be
+embedded in any Rust projects, can be compiled to [WebAssembly], or
+can be compiled to [NodeJS], and soon more.
 
 This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
+
+#### Binary
+
+To compile the parser to a binary, run:
+
+```sh
+$ just build-binary
+$ echo -n '<!-- wp:foo {"bar": "qux"} /-->' | ./target/release/gutenberg-post-parser
+```
 
 #### Static library
 
