@@ -17,6 +17,10 @@ build-binary:
 build-doc:
 	cargo +nightly doc --release --no-default-features --package gutenberg_post_parser
 
+# Build the readme automatically.
+build-readme:
+	cargo readme --input src/lib.rs --template README.tpl > README.md
+
 # Build the parser and the NodeJS binding.
 build-nodejs:
 	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/
