@@ -20,10 +20,10 @@ extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line:
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 pub enum c_void {
-    #[doc(hidden)] 
+    #[doc(hidden)]
     __variant1,
 
-    #[doc(hidden)] 
+    #[doc(hidden)]
     __variant2
 }
 
