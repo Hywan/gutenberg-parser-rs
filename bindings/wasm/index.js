@@ -49,8 +49,8 @@ function writeString(module, string_buffer) {
 }
 
 function readNodes(module, start_pointer) {
-    const buffer = module.memory.buffer;
-    const [number_of_nodes] = new Uint8Array(buffer.slice(start_pointer, start_pointer + 1));
+    const buffer = new Uint8Array(module.memory.buffer.slice(start_pointer));
+    const number_of_nodes = buffer[0];
 
     if (0 >= number_of_nodes) {
         return null;
@@ -59,90 +59,91 @@ function readNodes(module, start_pointer) {
     log && console.log('number of nodes', number_of_nodes);
 
     const nodes = [];
-    let pointer = start_pointer + 1;
-    let end_pointer;
+    let offset = 1;
+    let end_offset;
 
     for (let i = 0; i < number_of_nodes; ++i) {
-        const { last_pointer, node } = readNode(buffer, pointer);
+        const { last_offset, node } = readNode(buffer, offset);
 
-        pointer = end_pointer = last_pointer;
+        offset = end_offset = last_offset;
         nodes.push(node);
     }
 
-    module.dealloc(start_pointer, end_pointer);
+    module.dealloc(start_pointer, start_pointer + end_offset);
 
     return nodes;
 }
 
-function readNode(buffer, pointer) {
+function readNode(buffer, offset) {
     log && console.group('read node');
+    log && console.log('offset', offset);
 
-    log && console.log('pointer', pointer);
-
-    const [node_type] = new Uint8Array(buffer.slice(pointer, pointer + 1));
+    const node_type = buffer[offset];
 
     log && console.info('node type', node_type);
 
     // Block.
     if (1 === node_type) {
-        const [name_length, attributes_length, number_of_children] = new Uint8Array(buffer.slice(pointer + 1, pointer + 4));
-        const payload = buffer.slice(pointer + 4);
+        const name_length = buffer[offset + 1];
+        const attributes_length = buffer[offset + 2];
+        const number_of_children = buffer[offset + 3];
 
         log && console.log('name length', name_length);
         log && console.log('attributes length', attributes_length);
         log && console.log('number of children', number_of_children);
 
-        let offset = 0;
-        let next_offset = name_length;
+        let payload_offset = offset + 4;
+        let next_payload_offset = payload_offset + name_length;
 
-        const name = text_decoder(payload.slice(offset, next_offset));
+        const name = text_decoder(buffer.slice(payload_offset, next_payload_offset));
 
         log && console.log('node name', name);
 
-        offset = next_offset;
-        next_offset = next_offset + attributes_length;
+        payload_offset = next_payload_offset;
+        next_payload_offset += attributes_length;
 
-        const attributes = JSON.parse(text_decoder(payload.slice(offset, next_offset)));
+        const attributes = JSON.parse(text_decoder(buffer.slice(payload_offset, next_payload_offset)));
 
         log && console.log('attributes', attributes);
 
-        offset = pointer + 4 + next_offset;
-        let end_pointer = offset;
+        payload_offset = next_payload_offset;
+        let end_offset = payload_offset;
 
         const children = [];
 
         for (let i = 0; i < number_of_children; ++i) {
-            const { last_pointer, node } = readNode(buffer, offset);
+            const { last_offset, node } = readNode(buffer, payload_offset);
 
-            offset = end_pointer = last_pointer;
+            payload_offset = end_offset = last_offset;
             children.push(node);
         }
 
         log && console.log('children', children);
-        log && console.log('last pointer', end_pointer);
+        log && console.log('last offset', end_offset);
 
         log && console.groupEnd();
 
         return {
-            last_pointer: end_pointer,
+            last_offset: end_offset,
             node: new Block(name, attributes, children)
         };
     }
     // Phrase.
     else if (2 === node_type) {
-        const [phrase_length_0, phrase_length_1] = new Uint8Array(buffer.slice(pointer + 1, pointer + 3));
+        const phrase_length_0 = buffer[offset + 1];
+        const phrase_length_1 = buffer[offset + 2];
         const phrase_length = u8s_to_u16(phrase_length_0, phrase_length_1);
 
         log && console.log('phrase length', phrase_length);
 
-        const phrase = text_decoder(buffer.slice(pointer + 3, pointer + 3 + phrase_length));
+        const phrase = text_decoder(buffer.slice(offset + 3, offset + 3 + phrase_length));
 
         log && console.log('phrase', phrase);
 
         log && console.groupEnd();
 
         return {
-            last_pointer: pointer + 3 + phrase_length,
+            last_offset: offset + 3 + phrase_length,
             node: new Phrase(phrase)
         }
     } else {
