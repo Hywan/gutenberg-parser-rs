@@ -15,7 +15,7 @@ macro_rules! to_str (
  
 fn main() { 
     let matches = App::new("gutenberg-post-parser")
-       .version("0.6.0")
+       .version(env!("CARGO_PKG_VERSION"))
        .about("Parse Gutenberg posts!")
        .author("Ivan Enderlin")
         .arg(
