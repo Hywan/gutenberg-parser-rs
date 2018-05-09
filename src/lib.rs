@@ -121,13 +121,13 @@ The license is a classic `BSD-3-Clause`:
     cfg_attr(
         feature = "wasm",
         feature(
+            alloc,
+            core_intrinsics,
+            global_allocator,
+            lang_items,
             proc_macro,
             wasm_custom_section,
             wasm_import_module,
-            global_allocator,
-            alloc,
-            core_intrinsics,
-            lang_items
         )
     )
 ]

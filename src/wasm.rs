@@ -16,6 +16,7 @@ extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line:
     }
 }
 
+// This is required by `no_std`.
 #[lang = "oom"]
 extern "C" fn oom() -> ! {
     unsafe {
