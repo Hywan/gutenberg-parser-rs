@@ -1,5 +1,6 @@
 function parser() {
     const log = false;
+    const bench = false;
 
     function fetchAndInstantiate(url, importObject) {
         return fetch(url)
@@ -169,21 +170,21 @@ function parser() {
     const Module = {};
     const Parser = {
         root: function(datum) {
-            performance.mark('input-preparing');
+            bench && performance.mark('input-preparing');
 
             const buffer = text_encoder(datum);
             const buffer_pointer = writeString(Module, buffer);
 
-            performance.mark('parse-start');
+            bench && performance.mark('parse-start');
 
             const output_pointer = Module.root(buffer_pointer, buffer.length);
 
-            performance.mark('parse-stop');
-            performance.mark('read-nodes-start');
+            bench && performance.mark('parse-stop');
+            bench && performance.mark('read-nodes-start');
 
             const result = readNodes(Module, output_pointer);
 
-            performance.mark('read-nodes-stop');
+            bench && performance.mark('read-nodes-stop');
 
             Module.dealloc(buffer_pointer, buffer.length);
 
@@ -197,7 +198,7 @@ function parser() {
         return (input) => {
             wasm.then(
                 (module) => {
-                    performance.mark('init');
+                    bench && performance.mark('init');
 
                     if (undefined === Module.alloc) {
                         Module.alloc = module.exports.alloc;
@@ -206,20 +207,20 @@ function parser() {
                         Module.memory = module.exports.memory;
                     }
 
-                    performance.mark('module-set');
+                    bench && performance.mark('module-set');
 
                     const output = Parser.root(input);
                     log && console.table(output);
                     document.getElementById('output').value = JSON.stringify(output, null, 2);
 
-                    performance.mark('shutdown');
+                    bench && performance.mark('shutdown');
 
-                    performance.measure('global', 'init', 'shutdown');
-                    performance.measure('preamble', 'input-preparing', 'parse-start');
-                    performance.measure('parsing', 'parse-start', 'parse-stop');
-                    performance.measure('decoding', 'read-nodes-start', 'read-nodes-stop');
+                    bench && performance.measure('global', 'init', 'shutdown');
+                    bench && performance.measure('preamble', 'input-preparing', 'parse-start');
+                    bench && performance.measure('parsing', 'parse-start', 'parse-stop');
+                    bench && performance.measure('decoding', 'read-nodes-start', 'read-nodes-stop');
 
-                    console.table(
+                    bench && console.table(
                         performance
                             .getEntriesByType('measure')
                             .map(
@@ -229,8 +230,8 @@ function parser() {
                             )
                     );
 
-                    performance.clearMarks();
-                    performance.clearMeasures();
+                    bench && performance.clearMarks();
+                    bench && performance.clearMeasures();
                 }
             );
         };
