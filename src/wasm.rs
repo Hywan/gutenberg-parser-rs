@@ -16,14 +16,21 @@ extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line:
     }
 }
 
+#[lang = "oom"]
+extern "C" fn oom() -> ! {
+    unsafe {
+        core::intrinsics::abort();
+    }
+}
+
 // This is the definition of `std::ffi::c_void`, but wasm runs without std.
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 pub enum c_void {
-    #[doc(hidden)] 
+    #[doc(hidden)]
     __variant1,
 
-    #[doc(hidden)] 
+    #[doc(hidden)]
     __variant2
 }
 
@@ -119,8 +126,4 @@ fn u16_to_u8s(x: u16) -> (u8, u8) {
         ((x & 0b_1111_1111_0000_0000_u16) >> 8) as u8,
          (x & 0b_0000_0000_1111_1111_u16) as u8
     )
-}
-
-fn u8s_to_u16(p: (u8, u8)) -> u16 {
-    ((p.0 as u16) << 8) | (p.1 as u16)
 }
