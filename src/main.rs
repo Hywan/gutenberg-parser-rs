@@ -1,9 +1,11 @@
 extern crate gutenberg_post_parser;
+#[macro_use] extern crate failure;
 extern crate clap; 
 
 use gutenberg_post_parser::{root, ast::Node};
+use failure::{Error, ResultExt};
 use clap::{App, Arg};
-use std::fs::File;
+use std::fs;
 use std::io::{self, prelude::*};
 use std::str;
 
@@ -13,7 +15,7 @@ macro_rules! to_str (
     )
 );
  
-fn main() { 
+fn main() -> Result<(), Error> {
     let matches = App::new("gutenberg-post-parser")
        .version(env!("CARGO_PKG_VERSION"))
        .about("Parse Gutenberg posts!")
@@ -26,17 +28,17 @@ fn main() {
         )
        .get_matches(); 
 
-    let mut content = String::new();
+    let mut content;
 
     match matches.value_of("INPUT") {
         Some(file_name) => {
-            let mut file = File::open(file_name).unwrap();
-            file.read_to_string(&mut content).unwrap();
+            content = fs::read_to_string(file_name).context("Cannot open or read the given file to parse.")?;
         },
 
         None => {
             let stdin = io::stdin();
-            stdin.lock().read_to_string(&mut content).unwrap();
+            content = String::new();
+            stdin.lock().read_to_string(&mut content).context("Cannot read from `stdin`.")?;
         }
     }
 
@@ -45,33 +47,37 @@ fn main() {
             let mut stdout = io::stdout();
             let mut lock = stdout.lock();
 
-            serialize_nodes_to_json(lock, nodes);
+            serialize_nodes_to_json(lock, nodes).context("Failed to serialize parser output to JSON.")?;
         },
 
         Err(_) => {
-            println!("Failed to parser the content.");
+            return Err(format_err!("Failed to parse the datum."));
         }
     }
+
+    Ok(())
 }
 
-fn serialize_nodes_to_json<W: Write>(mut writer: W, nodes: Vec<Node>) {
-    writer.write_all(&b"["[..]).unwrap();
+fn serialize_nodes_to_json<W: Write>(mut writer: W, nodes: Vec<Node>) -> Result<(), Error> {
+    writer.write_all(&b"["[..])?;
 
     for (index, node) in nodes.iter().enumerate() {
         if 0 != index {
-            writer.write_all(&b","[..]).unwrap();
+            writer.write_all(&b","[..])?;
         }
 
-        serialize_node_to_json(&mut writer, node);
+        serialize_node_to_json(&mut writer, node)?;
     }
 
-    writer.write_all(&b"]"[..]).unwrap();
+    writer.write_all(&b"]"[..])?;
+
+    Ok(())
 }
 
-fn serialize_node_to_json<W: Write>(writer: &mut W, node: &Node) {
+fn serialize_node_to_json<W: Write>(writer: &mut W, node: &Node) -> Result<(), Error> {
     match node {
         Node::Block { name, attributes, children } => {
-            writer.write_all(&b"{"[..]).unwrap();
+            writer.write_all(&b"{"[..])?;
 
             write!(
                 writer,
@@ -82,7 +88,7 @@ fn serialize_node_to_json<W: Write>(writer: &mut W, node: &Node) {
                     Some(attributes) => to_str!(attributes),
                     None => "null"
                 }
-            ).unwrap();
+            )?;
 
             let mut blocks = vec![];
             let mut phrases = vec![];
@@ -94,23 +100,23 @@ fn serialize_node_to_json<W: Write>(writer: &mut W, node: &Node) {
                 }
             }
 
-            writer.write_all(&b",\"innerBlocks\":["[..]).unwrap();
+            writer.write_all(&b",\"innerBlocks\":["[..])?;
 
             for (index, block) in blocks.iter().enumerate() {
                 if 0 != index {
-                    writer.write_all(&b","[..]).unwrap();
+                    writer.write_all(&b","[..])?;
                 }
 
-                serialize_node_to_json(writer, block);
+                serialize_node_to_json(writer, block)?;
             }
 
-            writer.write_all(&b"],\"innerHTML\":\""[..]).unwrap();
+            writer.write_all(&b"],\"innerHTML\":\""[..])?;
 
             for phrase in phrases {
-                writer.write_all(escape_json_literal(to_str!(phrase)).as_bytes()).unwrap();
+                writer.write_all(escape_json_literal(to_str!(phrase)).as_bytes())?;
             }
 
-            writer.write_all(&b"\"}"[..]).unwrap();
+            writer.write_all(&b"\"}"[..])?;
         },
 
         Node::Phrase(phrase) => {
@@ -118,9 +124,11 @@ fn serialize_node_to_json<W: Write>(writer: &mut W, node: &Node) {
                 writer,
                 "{{\"attrs\":{{}},\"innerHTML\":\"{0}\"}}",
                 escape_json_literal(to_str!(phrase))
-            ).unwrap();
+            )?;
         }
     }
+
+    Ok(())
 }
 
 fn escape_json_literal(str: &str) -> String {
