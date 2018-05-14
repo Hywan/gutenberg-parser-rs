@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Block","A block is the elementary component of the post format."]]});
+initSidebarItems({"enum":[["Node","Represent a node in the AST."]]});

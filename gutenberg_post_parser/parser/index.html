@@ -1,9 +1,83 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `parser` mod in crate `gutenberg_post_parser`."><meta name="keywords" content="rust, rustlang, rust-lang, parser"><title>gutenberg_post_parser::parser - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Module parser</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>gutenberg_post_parser</a></p><script>window.sidebarCurrent = {name: 'parser', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>gutenberg_post_parser</a>::<wbr><a class="mod" href=''>parser</a></span><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/gutenberg_post_parser/parser.rs.html#1-711' title='goto source code'>[src]</a></span></h1><div class='docblock'><p>The Gutenberg post parser.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `parser` mod in crate `gutenberg_post_parser`."><meta name="keywords" content="rust, rustlang, rust-lang, parser"><title>gutenberg_post_parser::parser - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Module parser</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>gutenberg_post_parser</a></p><script>window.sidebarCurrent = {name: 'parser', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>gutenberg_post_parser</a>::<wbr><a class="mod" href=''>parser</a></span><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../../src/gutenberg_post_parser/parser.rs.html#1-862' title='goto source code'>[src]</a></span></h1><div class='docblock'><p>The Gutenberg post parser.</p>
 <p>The Gutenberg post parser is a parser combinator. Thus it provides
 mulitple parsers, aka combinators. They are based on the <a href="https://github.com/Geal/nom/">nom</a>
-project.</p>
-<p>The writing of combiantors heavily relies on Rust macros. Don't be
-surprise! To learn more, consult the <a href="https://docs.rs/nom/%2A/nom/">documentation</a>.</p>
+project. Each parser receives an input, and produces an output of kind
+<a href="../../nom/type.IResult.html"><code>IResult</code></a>.</p>
+<p>The writing of parsers heavily relies on Rust macros. Don't be
+surprise! To learn more, consult the <a href="https://docs.rs/nom/%2A/nom/">documentation</a>. Nonetheless, a
+grammar is maintained with the EBNF notation hereinbelow.</p>
+<h1 id="grammar" class="section-header"><a href="#grammar">Grammar</a></h1>
+<p>This section describes the Gutenberg post grammar with the <a href="https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form">Extended
+Backus-Naur form (EBNF) metasyntax notation</a>.</p>
+<h2 id="block_list" class="section-header"><a href="#block_list"><code>block_list</code></a></h2>
+<p>This rule is the axiom of the grammar.</p>
+<pre><code class="language-ebnf">block_list =
+    { block | phrase } ;
+</code></pre>
+<h2 id="block" class="section-header"><a href="#block"><code>block</code></a></h2>
+<p>A balanced block has an opening and a closing tag. Their names must be
+identical, i.e. the respective namespaces and names must match. A void
+block is an “auto-closing” block.</p>
+<p>A balanced block can have children, while a void block cannot.</p>
+<pre><code class="language-ebnf">block =
+    block_balanced | block_void
+
+block_balanced =
+    &quot;&lt;!--&quot;, [ wss ], &quot;wp:&quot;, block_name, wss, block_attributes, [ wss ], &quot;--&gt;&quot;,
+    block_list,
+    &quot;&lt;!--&quot;, [ wss ], &quot;/wp:&quot;, block_name, [ wss ], &quot;--&gt;&quot; ;
+
+block_void =
+    &quot;&lt;!--&quot;, [ wss ], &quot;wp:&quot;, block_name, wss, block_attributes, [ wss ], &quot;/--&gt;&quot; ;
+</code></pre>
+<h2 id="block_name" class="section-header"><a href="#block_name"><code>block_name</code></a></h2>
+<p>A block name is a pair composed of a namespace, and a name. The
+namespace is optional, and defaults to <code>core</code>.</p>
+<pre><code class="language-ebnf">block_name =
+    namespaced_block_name | core_block_name ;
+
+namespaced_block_name =
+    block_name_part, &quot;/&quot;, block_name_part ;
+
+core_block_name =
+    block_name_part ;
+
+block_name_part =
+    letter, { letter | digit } ;
+
+letter =
+    &quot;a&quot; | &quot;b&quot; | &quot;c&quot; | &quot;d&quot; | &quot;e&quot; | &quot;f&quot; | &quot;g&quot; | &quot;h&quot; | &quot;i&quot; | &quot;j&quot; | &quot;k&quot; |
+    &quot;l&quot; | &quot;m&quot; | &quot;n&quot; | &quot;o&quot; | &quot;p&quot; | &quot;q&quot; | &quot;r&quot; | &quot;s&quot; | &quot;t&quot; | &quot;u&quot; | &quot;v&quot; |
+    &quot;w&quot; | &quot;x&quot; | &quot;y&quot; | &quot;z&quot; ;
+
+digit =
+    &quot;0&quot; | &quot;1&quot; | &quot;2&quot; | &quot;3&quot; | &quot;4&quot; | &quot;5&quot; | &quot;6&quot; | &quot;7&quot; | &quot;8&quot; | &quot;9&quot; ;
+</code></pre>
+<h2 id="block_attributes" class="section-header"><a href="#block_attributes"><code>block_attributes</code></a></h2>
+<p>Block attributes must be a valid JSON object, like defined in the
+<a href="https://tools.ietf.org/html/rfc7159">RFC 7159</a>. It therefore must start by <code>{</code> and end by <code>}</code>:</p>
+<pre><code class="language-ebnf">block_attributes =
+    ? RFC 7159, JSON, Section 4. Objects ? ;
+</code></pre>
+<h2 id="phrase" class="section-header"><a href="#phrase"><code>phrase</code></a></h2>
+<p>A phrase is anything that is not a block.</p>
+<pre><code class="language-ebnf">phrase =
+    anything - &quot;&lt;!--&quot;
+
+anything =
+    ? any bytes ?
+</code></pre>
+<h2 id="wss" class="section-header"><a href="#wss"><code>wss</code></a></h2>
+<p>Whitespace is shortened to <code>ws</code>, and whitespaces is shortened to <code>wss</code>.</p>
+<pre><code class="language-ebnf">wss =
+    ws, { ws }
+
+ws =
+    &quot; &quot;  (* U+0020 *)
+  | &quot;\n&quot; (* U+000A *)
+  | &quot;\r&quot; (* U+000D *)
+  | &quot;\t&quot; (* U+0009 *)
+</code></pre>
 </div><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
                        <tr class=' module-item'>
@@ -63,10 +137,18 @@ surprise! To learn more, consult the <a href="https://docs.rs/nom/%2A/nom/">docu
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class="fn" href="fn.phrase.html"
+                                  title='fn gutenberg_post_parser::parser::phrase'>phrase</a></td>
+                           <td class='docblock-short'>
+                                <p>Recognize a phrase.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class="fn" href="fn.whitespaces.html"
                                   title='fn gutenberg_post_parser::parser::whitespaces'>whitespaces</a></td>
                            <td class='docblock-short'>
                                 <p>Recognize whitespaces.</p>
 
                            </td>
-                       </tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "gutenberg_post_parser";</script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>
+                       </tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><aside id="help" class="hidden"><div><h1 class="hidden">Help</h1><div class="shortcuts"><h2>Keyboard Shortcuts</h2><dl><dt><kbd>?</kbd></dt><dd>Show this help dialog</dd><dt><kbd>S</kbd></dt><dd>Focus the search field</dd><dt><kbd>↑</kbd></dt><dd>Move up in search results</dd><dt><kbd>↓</kbd></dt><dd>Move down in search results</dd><dt><kbd>↹</kbd></dt><dd>Switch tab</dd><dt><kbd>&#9166;</kbd></dt><dd>Go to active search result</dd><dt><kbd>+</kbd></dt><dd>Expand all sections</dd><dt><kbd>-</kbd></dt><dd>Collapse all sections</dd></dl></div><div class="infos"><h2>Search Tricks</h2><p>Prefix searches with a type followed by a colon (e.g. <code>fn:</code>) to restrict the search to a given type.</p><p>Accepted types are: <code>fn</code>, <code>mod</code>, <code>struct</code>, <code>enum</code>, <code>trait</code>, <code>type</code>, <code>macro</code>, and <code>const</code>.</p><p>Search functions by type signature (e.g. <code>vec -> usize</code> or <code>* -> vec</code>)</p><p>Search multiple things at once by splitting your query with comma (e.g. <code>str,u8</code> or <code>String,struct:Vec,test</code>)</p></div></div></aside><script>window.rootPath = "../../";window.currentCrate = "gutenberg_post_parser";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>
