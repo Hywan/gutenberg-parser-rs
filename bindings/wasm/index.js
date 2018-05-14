@@ -65,10 +65,9 @@ function parser() {
         let end_offset;
 
         for (let i = 0; i < number_of_nodes; ++i) {
-            const { last_offset, node } = readNode(buffer, offset);
+            const last_offset = readNode(buffer, offset, nodes);
 
             offset = end_offset = last_offset;
-            nodes.push(node);
         }
 
         module.dealloc(start_pointer, start_pointer + end_offset);
@@ -76,7 +75,7 @@ function parser() {
         return nodes;
     }
 
-    function readNode(buffer, offset) {
+    function readNode(buffer, offset, nodes) {
         log && console.group('read node');
         log && console.log('offset', offset);
 
@@ -114,10 +113,9 @@ function parser() {
             const children = [];
 
             for (let i = 0; i < number_of_children; ++i) {
-                const { last_offset, node } = readNode(buffer, payload_offset);
+                const last_offset = readNode(buffer, payload_offset, children);
 
                 payload_offset = end_offset = last_offset;
-                children.push(node);
             }
 
             log && console.log('children', children);
@@ -125,10 +123,9 @@ function parser() {
 
             log && console.groupEnd();
 
-            return {
-                last_offset: end_offset,
-                node: new Block(name, attributes, children)
-            };
+            nodes.push(new Block(name, attributes, children));
+
+            return end_offset;
         }
         // Phrase.
         else if (2 === node_type) {
@@ -144,10 +141,9 @@ function parser() {
 
             log && console.groupEnd();
 
-            return {
-                last_offset: offset + 3 + phrase_length,
-                node: new Phrase(phrase)
-            }
+            nodes.push(new Phrase(phrase));
+
+            return offset + 3 + phrase_length;
         } else {
             log && console.error('unknown node type', node_type);
         }
