@@ -5,9 +5,20 @@ wasm_directory = "bindings/wasm"
 build-library:
 	cargo +nightly build --no-default-features --release
 
-# Test the parser only (i.e. not the bindings to external languages) and its documentation.
-test-library:
-	cargo +nightly test --no-default-features
+# Run all the tests of the parser.
+test: test-library-unit test-library-integration test-documentation
+
+# Run the unit tests of the parser.
+test-library-unit:
+	cargo +nightly test --lib --no-default-features
+
+# Run the integration tests of the parser.
+test-library-integration:
+	cargo +nightly test --test integration --no-default-features
+
+# Test the parser documentation.
+test-documentation:
+	cargo +nightly test --doc --no-default-features
 
 # Build a regular binary.
 build-binary:
