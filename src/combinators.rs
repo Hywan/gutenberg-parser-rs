@@ -11,8 +11,8 @@ use super::Input;
 use nom::IResult;
 #[cfg(feature = "wasm")] use alloc::Vec;
 
-/// `take_till_terminated(S, C)` is a like `take_till` but with a lookahead
-/// combinator `C`.
+/// `take_till_terminated(S, C)` is like `take_till` from but with a
+/// lookahead combinator `C`.
 #[macro_export]
 macro_rules! take_till_terminated (
     ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
@@ -57,6 +57,33 @@ macro_rules! take_till_terminated (
     }
 );
 
+/// `fold_into_vector_many0!(I -> IResult<I,O>, R) => I -> IResult<I, R>`
+/// is a wrapper around `fold_many0!` specifically designed for vectors.
+///
+/// This is strictly equivalent to `fold_many0!(submacro!(…),
+/// Vec::new(), fold_into_vector)` but it shrinks the capacity of the
+/// vector to fit the current length.
+///
+/// # Examples
+///
+/// ```
+/// #[macro_use] extern crate nom;
+/// #[macro_use] extern crate gutenberg_post_parser;
+///
+/// # fn main() {
+/// named!(
+///     test<Vec<&[u8]>>,
+///     fold_into_vector_many0!(
+///         tag!("abc"),
+///         Vec::new()
+///     )
+/// );
+///
+/// if let Ok((_, vector)) = test(b"abcabcabc") {
+///     assert_eq!(vector.capacity(), vector.len());
+/// }
+/// # }
+/// ```
 #[macro_export]
 macro_rules! fold_into_vector_many0(
     ($input:expr, $submacro:ident!($($arguments:tt)*), $init:expr) => (
@@ -83,7 +110,7 @@ macro_rules! fold_into_vector_many0(
     );
 );
 
-pub(crate) fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
+pub fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
     accumulator.push(item);
 
     accumulator

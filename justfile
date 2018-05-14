@@ -17,6 +17,10 @@ build-binary:
 build-doc:
 	cargo +nightly doc --release --no-default-features --package gutenberg_post_parser
 
+# Open the documentation.
+open-doc: build-doc
+	open target/doc/gutenberg_post_parser/index.html
+
 # Build the readme automatically.
 build-readme:
 	cargo readme --input src/lib.rs --template README.tpl > README.md

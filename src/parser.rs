@@ -4,13 +4,117 @@ The Gutenberg post parser.
 
 The Gutenberg post parser is a parser combinator. Thus it provides
 mulitple parsers, aka combinators. They are based on the [nom]
-project.
+project. Each parser receives an input, and produces an output of kind
+[`IResult`][IResult].
 
-The writing of combiantors heavily relies on Rust macros. Don't be
-surprise! To learn more, consult the [documentation].
+The writing of parsers heavily relies on Rust macros. Don't be
+surprise! To learn more, consult the [documentation]. Nonetheless, a
+grammar is maintained with the EBNF notation hereinbelow.
+
+# Grammar
+
+This section describes the Gutenberg post grammar with the [Extended
+Backus-Naur form (EBNF) metasyntax notation][EBNF].
+
+## `block_list`
+
+This rule is the axiom of the grammar.
+
+```ebnf
+block_list =
+    { block | phrase } ;
+```
+
+## `block`
+
+A balanced block has an opening and a closing tag. Their names must be
+identical, i.e. the respective namespaces and names must match. A void
+block is an “auto-closing” block.
+
+A balanced block can have children, while a void block cannot.
+
+```ebnf
+block =
+    block_balanced | block_void
+
+block_balanced =
+    "<!--", [ wss ], "wp:", block_name, wss, block_attributes, [ wss ], "-->",
+    block_list,
+    "<!--", [ wss ], "/wp:", block_name, [ wss ], "-->" ;
+
+block_void =
+    "<!--", [ wss ], "wp:", block_name, wss, block_attributes, [ wss ], "/-->" ;
+```
+
+## `block_name`
+
+A block name is a pair composed of a namespace, and a name. The
+namespace is optional, and defaults to `core`.
+
+```ebnf
+block_name =
+    namespaced_block_name | core_block_name ;
+
+namespaced_block_name =
+    block_name_part, "/", block_name_part ;
+
+core_block_name =
+    block_name_part ;
+
+block_name_part =
+    letter, { letter | digit } ;
+
+letter =
+    "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" |
+    "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" |
+    "w" | "x" | "y" | "z" ;
+
+digit =
+    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+```
+
+## `block_attributes`
+
+Block attributes must be a valid JSON object, like defined in the
+[RFC 7159]. It therefore must start by `{` and end by `}`:
+
+```ebnf
+block_attributes =
+    ? RFC 7159, JSON, Section 4. Objects ? ;
+```
+
+## `phrase`
+
+A phrase is anything that is not a block.
+
+```ebnf
+phrase =
+    anything - "<!--"
+
+anything =
+    ? any bytes ?
+```
+
+## `wss`
+
+Whitespace is shortened to `ws`, and whitespaces is shortened to `wss`.
+
+```ebnf
+wss =
+    ws, { ws }
+
+ws =
+    " "  (* U+0020 *)
+  | "\n" (* U+000A *)
+  | "\r" (* U+000D *)
+  | "\t" (* U+0009 *)
+```
 
 [nom]: https://github.com/Geal/nom/
 [documentation]: https://docs.rs/nom/%2A/nom/
+[IResult]: ../../nom/type.IResult.html
+[EBNF]: https://en.wikipedia.org/wiki/Extended_Backus%E2%80%93Naur_form
+[RFC 7159]: https://tools.ietf.org/html/rfc7159
 
 */
 
@@ -35,8 +139,31 @@ named_attr!(
 );
 
 named_attr!(
-    #[doc=""],
-    phrase<Input, Node>,
+    #[doc="
+        Recognize a phrase.
+
+        # Examples
+
+        ```
+        extern crate gutenberg_post_parser;
+
+        use gutenberg_post_parser::{ast::Node, parser::phrase};
+
+        let input = &b\"foobar\"[..];
+        let output = Ok(
+            (
+                // The remaining data.
+                &b\"\"[..],
+
+                // The Abstract Syntax Tree.
+                Node::Phrase(&b\"foobar\"[..])
+            )
+        );
+
+        assert_eq!(phrase(input), output);
+        ```
+    "],
+    pub phrase<Input, Node>,
     map_res!(
         alt_complete!(
             take_until!("<!--")

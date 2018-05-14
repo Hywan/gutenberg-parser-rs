@@ -2,6 +2,18 @@
 
 WebAssembly bindings.
 
+The workflow is basically the following:
+
+  1. Javascript encodes a datum into WebAssembly memory,
+  2. Rust reads this datum, runs the parser on it, and encodes the
+     resulting AST into a sequence of bytes into WebAssembly memory,
+  3. Javascript decodes this sequences of bytes, and maps it to a AST
+     in the Javascript lands with specific objects. The respective AST
+     are not necessarily the same.
+
+This module is responsible of managing WebAssembly memory allocations
+and deallocations, to panic, and to manage an out-of-memory situation.
+
 */
 
 use super::ast::Node;
