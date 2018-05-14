@@ -225,7 +225,7 @@ named_attr!(
             do_parse!(
                 tag!("-->") >>
                 children: fold_into_vector_many0!(
-                    alt_complete!(
+                    alt!(
                         block
                       | phrase
                     ),
@@ -429,7 +429,7 @@ named_attr!(
             "}",
             preceded!(
                 opt!(whitespaces),
-                alt_complete!(
+                alt!(
                     tag!("/-->") |
                     tag!("-->")
                 )
