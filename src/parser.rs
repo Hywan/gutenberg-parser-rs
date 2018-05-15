@@ -124,6 +124,12 @@ use super::combinators;
 #[cfg(feature = "wasm")] use alloc::Vec;
 use nom::ErrorKind;
 
+const COMMENT_OPENING: &'static [u8] = b"<!--";
+const COMMENT_CLOSING: &'static [u8] = b"-->";
+const COMMENT_AUTO_CLOSING: &'static [u8] = b"/-->";
+const WP_OPENING: &'static [u8] = b"wp:";
+const WP_CLOSING: &'static [u8] = b"/wp:";
+
 named_attr!(
     #[doc="
         Axiom of the grammar: Recognize a list of blocks.
@@ -167,12 +173,12 @@ named_attr!(
     map_res!(
         alt_complete!(
             take_until_terminated!(
-                "<!--",
+                COMMENT_OPENING,
                 preceded!(
                     opt!(whitespaces),
                     alt!(
-                        tag!("/wp:")
-                      | tag!("wp:")
+                        tag!(WP_CLOSING)
+                      | tag!(WP_OPENING)
                     )
                 )
             )
@@ -222,9 +228,9 @@ named_attr!(
     "],
     pub block<Input, Node>,
     do_parse!(
-        tag!("<!--") >>
+        tag!(COMMENT_OPENING) >>
         opt!(whitespaces) >>
-        tag!("wp:") >>
+        tag!(WP_OPENING) >>
         name: block_name >>
         whitespaces >>
         attributes: opt!(block_attributes) >>
@@ -232,7 +238,7 @@ named_attr!(
         result: alt!(
             // Balanced block.
             do_parse!(
-                tag!("-->") >>
+                tag!(COMMENT_CLOSING) >>
                 children: fold_into_vector_many0!(
                     alt!(
                         block
@@ -240,12 +246,12 @@ named_attr!(
                     ),
                     vec![]
                 ) >>
-                tag!("<!--") >>
+                tag!(COMMENT_OPENING) >>
                 opt!(whitespaces) >>
-                tag!("/wp:") >>
+                tag!(WP_CLOSING) >>
                 _closing_name: block_name >>
                 opt!(whitespaces) >>
-                tag!("-->") >>
+                tag!(COMMENT_CLOSING) >>
                 (
                     // @todo: Need to check that `closing_name` is equal to `name`.
                     Node::Block {
@@ -257,7 +263,7 @@ named_attr!(
             )
             // Void block.
           | do_parse!(
-                tag!("/-->") >>
+                tag!(COMMENT_AUTO_CLOSING) >>
                 (
                     Node::Block {
                         name: name,
@@ -439,8 +445,8 @@ named_attr!(
             preceded!(
                 opt!(whitespaces),
                 alt!(
-                    tag!("/-->") |
-                    tag!("-->")
+                    tag!(COMMENT_AUTO_CLOSING)
+                  | tag!(COMMENT_CLOSING)
                 )
             )
         )
