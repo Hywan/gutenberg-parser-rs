@@ -1,0 +1,265 @@
+<!-- wp:paragraph -->
+<p>In <a href="https://fluffyandflakey.blog/2017/09/04/gutenberg-posts-arent-html/">my last post</a> I discussed the implications of higher-level abstractions over HTML in the content that we author on the web. Love them or hate them, <a href="https://codex.wordpress.org/Shortcode_API">shortcodes</a> are a big part of how WordPress has traditionally enabled content authors to engage with such higher-level abstractions. In this post I want to share some of the challenges shortcodes present and why Gutenberg has chosen a different path, what that path <em>is</em>﻿, and what it means for us all.</p>
+<!-- /wp:paragraph -->
+
+<p><!--more--></p>
+
+<!-- wp:heading -->
+<h3>Optional closings</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Let&#x27;s dive right in! Can you tell me how we should interpret the following snippet? It comes from a hypothetical <code>post_content</code> with a custom shortcode.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>[region] [region] [/region]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>There are actually only two plausible meanings: we have an outer region with a nested and empty inner region; we have an empty region above a non-empty region. Parenthesis would clear this up.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>([region] ([region]) [/region]) // nested
+([region]) ([region] [/region]) // sequential</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>This very small example can cause considerable headache! It has a name: the <a href="https://en.wikipedia.org/wiki/Dangling_else">dangling-else problem</a>. Shortcodes maintain an ambiguity because of the fact that they don&#x27;t require any actual closing. If they required the close then we could be free of this confusion.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>[region] [region /] [/region] // must be nested
+[region /] [region] [/region] // must be sequential</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>If we changed WordPress to require the closers then we would risk breaking important software and websites already built upon the existing behavior. It&#x27;s near-impossible to determine how far the effects could reach or what problems they could cause. While we <em>can</em>﻿ find situations free of the ambiguity, we can&#x27;t make any guarantees about it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>It just so happens to be that due to the way shortcodes are currently handled in WordPress that the inner shortcodes will be &quot;swallowed up&quot; into the nested interpretation.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Recursive confusion</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Here&#x27;s another trick!</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>[label color=&quot;blue&quot;]
+Would you like to play a [label color=&quot;green&quot;]game[/color]
+[/color]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>What color will <code>game</code> take on? Green, or blue? We don&#x27;t know! WordPress doesn&#x27;t recurse into the content of shortcodes in order to process nested shortcodes. However, individual shortcodes can choose to do this on their own with <code>do_shortcode( $content )</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If the <code>label</code> doesn&#x27;t recurse voluntarily then the output will actually contain the inner shortcode: <code>[label color=&quot;green&quot;]game[/color]</code> instead of just <code>game</code> - definitely not something the visitors of a site should see.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Several popular plugins use shortcodes to encode layout hints into <code>post_content</code>. As long as everyone decides to recurse into the shortcode content the system works, but if someone forgets then we end up with broken posts. Again, we have to be careful before deciding to jump in and change this behavior in core. Other plugins are going to depend on the fact that content inside of the shortcodes is left as-is. In fact, that leads us to another point.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Manual labor</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The Shortcode API exposes a complicated burden on developers. Doing simple stuff is quite easy, but most of the &quot;details&quot; that make web content difficult are left to the responsibility of the shortcode author. Recursion, entity escaping, and formatting are a handful of processes <em>not</em>﻿ performed on the content between shortcodes. These have to be called explicitly inside of the plugin code, a difficult task to say the least. Someone trying hard to maintain consistency in their shortcode by calling all the appropriate filters could accidentally create an infinite loop through WordPress&#x27; core <img draggable="false" class="emoji" alt="😱" src="https://s.w.org/images/core/emoji/2.4/svg/1f631.svg" scale="0" />.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Interoperability</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Shortcodes break HTML.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>This is [demo]Sad &lt;img title=&quot;don&#x27;t end the [/demo]&quot; /&gt;[/demo]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>In this otherwise-legitimate snippet is going to break on account of the &quot;closing tag&quot; in the HTML attribute. At best we&#x27;ll end up with a broken demo, but we could also end up with WordPress stripping out the content altogether.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>This is &quot; /&gt;[/demo]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>How should <em>an editor</em> handle that snippet anyway? Even if it&#x27;s aware that the shortcode is there, how should it display the content while editing? Because of the semantics of the shortcode we can&#x27;t assume that the contents are supposed to be actual or valid HTML. What if <code>[demo]</code> does nothing more than add a <code>class</code> to the content? What if it replaces it with an interactive graphic? We can back up to a simpler case even; how should this be rendered outside of WordPress?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>[[gallery ids=&quot;1,2,3&quot;]]</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Shortcodes are nice markers, but they end up tying our content to a specific installation of WordPress. If we copy the source from <code>post_content</code> into another editor we end up losing everything about the shortcodes except their attributes. If we copy it into another version of WordPress or an installation without the right set of plugins and versions even it could all mess up. If we try and view a post in an HTML viewer or editor we get confusion and botched renders.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Escaping the pit</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Sorry for sounding so harsh on shortcodes - they have served us well! However, as we look towards the future and want to do better we are presented with a choice: fix the problems with shortcodes or find a different way to accomplish what they have been doing for us. Gutenberg has chosen the latter. &quot;Fixing&quot; shortcodes could be a Sisyphean task due to how much of the web depends on them and to how so many of the problems are <em>decisions</em>﻿ and not <em>technical</em>﻿ in nature.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>What do we need then moving forward? What would we do if we were to redesign shortcodes from scratch?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>no ambiguity when mixing or nesting</li>
+    <li>looks right (or reasonable) when viewed outside of WordPress</li>
+    <li>maintain simplicity if possible</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>Actually, this list isn&#x27;t so bad. There&#x27;s one major decision point though that&#x27;s a bit more complicated: do we stick with <code>post_content</code> or abandon it? Do we fundamentally break the way people interact with posts and rebuild the entire editing and viewing pipeline inside of WordPress or do we try and preserve as much of that experience as we can taking the tradeoffs it brings?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>I heard JSON was good.</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>On the one hand, if we abandon <code>post_content</code> and move to something like structured data model in a new database table we would have complete freedom to work unambiguously and easily in whatever direction we want to move. We would have full control over the editing experience and confidence that nobody would be (should be) interacting with that data outside of the new editor.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>On the other hand, as tempting as this is (because it&#x27;s technically easy to manipulate a data structure in memory), it brings with it quite a few costs and also fails to meet one important goal I have written above. Abandoning <code>post_content</code> and abandoning HTML means abandoning the past. Every single workflow people have grown used to disappears because the data just isn&#x27;t available to them (well, for those who write their posts in Simplenote and then copy/paste into WordPress that would still work <img draggable="false" class="emoji" alt="😉" src="https://s.w.org/images/core/emoji/2.4/svg/1f609.svg" scale="0" />): this includes things like backups, filters, and integrations which assume <code>post_content</code> will be there.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Well, maybe not entirely. We have one more option on this front: synchronize the rendered version of the document into <code>post_content</code> after every save. This would preserve all of the existing integrations and we could rely on filters to work through the content on render. Another temptingly easy solution, but it brings with it one major drawback: loss of sync.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Supposing that we synchronized <em>the actual post</em> with <code>post_content</code> then we lose a major boon of using a <em>separate</em> and <em>different</em> data model: the presumption that things are normal. If someone opens up the post in the text editor or makes  a naïve update via the API then there&#x27;s no mapping back into the structured content. At best we lose the changes, at worst we mess up the post when we try and edit it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>How about the other option? Could we somehow try and make this shortcode idea work without abandoning it entirely?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Shortcodes 2.0</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>What if we take the idea behind shortcodes (embedding higher-level abstractions inline to a post) but do it in a way that works around some of their challenges? What options would we have? For the sake of this discussion, let&#x27;s just be frank and call these &quot;new shortcodes&quot; <em>blocks</em>﻿.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We could make a very simple decision and use curly-brackets instead: <code>{gutencode /}</code> and <code>{gutencode}…{/gutencode}</code> would be explicit and we could enforce this new grammar with the closing slash without breaking old stuff. Of course, this still leaves us with posts that break HTML in the same way that shortcodes do. It could also be quite confusing knowing when to use the new syntax vs the old syntax. And lastly we&#x27;re stuck without a valid render outside of a specific WordPress install.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We could wrap each section in <code>&lt;div&gt;</code> components with custom data attributes. Actually this is a quite-workable solution. <code>&lt;div&gt;</code>s are already in the <em>language of the system</em>﻿ as semantically-meaningless HTML and they are forced to be properly nested or closed (well, mostly). On the other hand, they actually do change the <em>structure</em>﻿ of the HTML and could interfere with existing CSS selectors, plus custom data attributes hold their own complicated constraints. It&#x27;s hard to distinguish between <code>&lt;div&gt;</code> elements that are there because they are blocks and those which an author explicitly put in there for other purposes (we <em>could</em>﻿ add a custom flag to all block-<code>&lt;div&gt;</code>s to mitigate this). We could fill the <code>&lt;div&gt;</code>s or leave them empty. We need to properly parse HTML if we use this solution: a decidedly <em>not</em>﻿ simple task, especially since PHP has no right and proper and simple HTML parser.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A third possible approach is to create something in the language of the system which no author would normally be expected to write on their own and which would be easier to identify without needing a spec-compliant HTML parser. After deliberating on these goals and tradeoffs in Gutenberg, we came up with the concept of using augmented HTML comments as boundaries. The comment is a building block for embedding <em>non-HTML</em> into <em>HTML</em>: because of the spec, comments are already <em>different</em> than HTML and can&#x27;t be legitimately embedded where they don&#x27;t belong (as in attributes or inside other tags).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>So with comments we can create new shortcode/block delimiters: the opening, closing, and (to borrow from the language of HTML) the void. While certainly more verbose than shortcodes, this idea provides some novel ways to move forward. Let&#x27;s see how they fit into our goals and how they address shortcode pitfalls.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Comment delimiters</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>If a block is to contain child content, it must start with an opening and end with a closing. There are no other options.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>&lt;!-- wp:core/demo --&gt;squeeze!&lt;!-- /wp:core/demo --&gt;</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>Some blocks/shortcodes don&#x27;t need content however. Consider the gallery: if all we wanted to do was iterate on the shortcode syntax, we could use a void block.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:code -->
+<pre class="wp-block-code"><code>&lt;!-- wp:test/gallery {&quot;ids&quot;:[1,2,3]} /--&gt;</code></pre>
+<!-- /wp:code -->
+
+<!-- wp:paragraph -->
+<p>No confusion (note the forward slash at the end of the &quot;opening&quot; tag).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The HTML comments are also inherently nestable. With the mandatory closing tags we can safely assume that inner content will be parsed as well. Although Gutenberg hasn&#x27;t yet added this support it&#x27;s currently being implemented. In fact, this method of nesting was so straightforward that the only reason Gutenberg hasn&#x27;t yet implemented it is because of the difficulties in knowing how best to <em>edit </em>nested content, not in how to parse it.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Since we&#x27;re introducing <em>new</em>﻿ syntax instead of repurposing <em>old</em>﻿ syntax we are free to make decisions without risking breaks with existing behaviors. We can make purposeful assertions about entity encoding, filters, and security.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This syntax is also valid HTML. It&#x27;s not only semantically neutral but also doesn&#x27;t (shouldn&#x27;t) change the structure of HTML or impact CSS selector queries. The only meaningful way to treat unknown HTML comments is to entirely ignore them. While this does have some negative consequences for our ability to edit these blocks outside of a capable editor, it frees us to view the posts anywhere and allows for qualified editors to jump in and make smaller changes without needing to load the entire system.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>At the end of the day it&#x27;s just HTML, but it&#x27;s more than that. Inside of the delimited sections we have meaning associated with that content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In some ways this isn&#x27;t so simple and there are big problems to tackle when using HTML comments: editors will hide or fail to understand the comments; the content inside the blocks will be mangled in ways that break that bigger meaning; plugins will even interfere with good content due to inappropriate RegExp-based filters and friends.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>However, the advantages appear fairly strong at the same time: the parser remains simple and unambiguous; the quirks of shortcodes disappear; posts are completely viewable outside of WordPress (or when the necessary theme or plugins are missing); and the <code>post_content</code> remains the one single place to edit posts (no synchronization issues, or <em>fewer</em>﻿ synchronization issues).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2>Summary</h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>In this post I hope that I have motivated a reason to leave behind shortcodes when reimagining content generation in WordPress. We could have tried to use them as the basis for blocks in the Gutenberg project but we didn&#x27;t on account of some of the limiting reasons above. I hope that this post has also illustrated some of the design choices that could have been made and that it motivated the decision to encode the blocks with formalized HTML comment delimiters.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In one sense, the concept of blocks around which Gutenberg <em>is</em> based can be seen as an acknowledgement that shortcodes were on to something. The fundamental idea - that web pages are more than rich text documents, that they are a collection of independent higher-level abstractions over content of various types - this idea is good. In leaving behind the shortcode baggage we can push the idea to its logical extent: everything is a block. Where editor support for shortcodes lacked we can make blocks first-class citizens, so to speak. Where shortcodes were opaque we can make blocks transparent. Where the technical quirks of shortcodes held us back, we can make blocks enable modern web composition.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The HTML comments that now delineate blocks are maybe a way of saying, &quot;how would we have built shortcodes had we started with the experience gained over the past fourteen years?&quot; They are a compromise based on the fact that WordPress permeates the web. They are a compromise that appears to be working quite well so far. They are a compromise balancing ease of use for content authors new to WordPress and the speed with which seasoned developers iterate on their sites.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Gutenberg is bringing many changes to the way we author content in WordPress and there&#x27;s lots of work still to do to bring the entire ecosystem into harmony on these changes. Getting away from the awkward and implicit HTML+Shortcode grammar and moving to &quot;Shortcodes 2.0&quot; has opened up so many wonderful new possibilities to explore through the editing experience.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We&#x27;re at a good point in the perennial discussion about how is best to author content on the web. I&#x27;m quite pleased with where the plurality of voices in this conversation has been leading us and I think that WordPress will grow stronger by leaving behind its Shortcodes, bless their hearts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph {"align":"center","textColor":"#737272","customFontSize":14} -->
+<p style="color:#737272;font-size:14px;text-align:center">This post brought to you by the new Gutenberg editor for WordPress!<br/></p>
+<!-- /wp:paragraph -->
