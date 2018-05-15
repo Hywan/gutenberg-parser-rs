@@ -1,8 +1,9 @@
 extern crate gutenberg_post_parser;
 #[macro_use] extern crate failure;
 extern crate clap; 
+extern crate nom;
 
-use gutenberg_post_parser::{root, ast::Node};
+use gutenberg_post_parser::{root, ast::Node, Input};
 use failure::{Error, ResultExt};
 use clap::{App, Arg};
 use std::fs;
@@ -16,17 +17,30 @@ macro_rules! to_str (
 );
  
 fn main() -> Result<(), Error> {
-    let matches = App::new("gutenberg-post-parser")
-       .version(env!("CARGO_PKG_VERSION"))
-       .about("Parse Gutenberg posts!")
-       .author("Ivan Enderlin")
-        .arg(
-            Arg::with_name("INPUT")
-                .help("File containing the input (if absent, read `stdin`).")
-                .required(false)
-                .index(1)
-        )
-       .get_matches(); 
+    let matches =
+        App::new("gutenberg-post-parser")
+            .version(env!("CARGO_PKG_VERSION"))
+            .about("Parse Gutenberg posts!")
+            .author("Ivan Enderlin")
+            .arg(
+                Arg::with_name("emit-json")
+                    .help("Compile the AST into JSON (default).")
+                    .short("j")
+                    .long("emit-json")
+            )
+            .arg(
+                Arg::with_name("emit-debug")
+                    .help("Compile the AST into Rust debug format.")
+                    .short("d")
+                    .long("emit-debug")
+            )
+            .arg(
+                Arg::with_name("INPUT")
+                    .help("File containing the input (if absent, read `stdin`).")
+                    .required(false)
+                    .index(1)
+            )
+            .get_matches();
 
     let mut content;
 
@@ -43,11 +57,17 @@ fn main() -> Result<(), Error> {
     }
 
     match root(content.as_bytes()) {
-        Ok((_remaining, nodes)) => {
-            let mut stdout = io::stdout();
-            let mut lock = stdout.lock();
+        Ok((remaining, nodes)) => {
+            if matches.is_present("emit-debug") {
+                let debug: nom::IResult<Input, Vec<Node>> = Ok((remaining, nodes));
 
-            serialize_nodes_to_json(lock, nodes).context("Failed to serialize parser output to JSON.")?;
+                print!("{:?}", debug);
+            } else {
+                let mut stdout = io::stdout();
+                let mut lock = stdout.lock();
+
+                serialize_nodes_to_json(lock, nodes).context("Failed to serialize parser output to JSON.")?;
+            }
         },
 
         Err(_) => {
