@@ -166,8 +166,17 @@ named_attr!(
     pub phrase<Input, Node>,
     map_res!(
         alt_complete!(
-            take_until!("<!--")
-          | call!(combinators::id)
+            take_until_terminated!(
+                "<!--",
+                preceded!(
+                    opt!(whitespaces),
+                    alt!(
+                        tag!("/wp:")
+                      | tag!("wp:")
+                    )
+                )
+            )
+          | combinators::id
         ),
         phrase_mapper
     )
@@ -425,7 +434,7 @@ named_attr!(
     pub block_attributes,
     preceded!(
         peek!(tag!("{")),
-        take_till_terminated!(
+        take_until_terminated_and_consume!(
             "}",
             preceded!(
                 opt!(whitespaces),
@@ -499,6 +508,42 @@ mod tests {
         );
 
         assert_eq!(block_list(input), output);
+    }
+
+    #[test]
+    fn test_block_list_with_a_regular_comment() {
+        let input = &b"<p><!-- more --></p><!-- wp:foo /-->"[..];
+        let output = Ok(
+            (
+                &b""[..],
+                vec![
+                    Node::Phrase(&b"<p><!-- more --></p>"[..]),
+                    Node::Block {
+                        name: (&b"core"[..], &b"foo"[..]),
+                        attributes: None,
+                        children: vec![]
+                    }
+                ]
+            )
+        );
+
+        assert_eq!(block_list(input), output);
+    }
+
+    #[test]
+    fn test_phrase() {
+        let input = &b"foobar"[..];
+
+        assert_eq!(phrase(input), Ok((&b""[..], Node::Phrase(input))));
+        assert_eq!(block_list(input), Ok((&b""[..], vec![Node::Phrase(input)])));
+    }
+
+    #[test]
+    fn test_phrase_comment() {
+        let input = &b"<p><!-- more --></p>"[..];
+
+        assert_eq!(phrase(input), Ok((&b""[..], Node::Phrase(input))));
+        assert_eq!(block_list(input), Ok((&b""[..], vec![Node::Phrase(input)])));
     }
 
     #[test]
@@ -759,10 +804,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok() {
+    fn test_take_until_terminated_ok() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "d",
                 tag!("c")
             )
@@ -775,10 +820,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok_at_position_0() {
+    fn test_take_until_terminated_ok_at_position_0() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "a",
                 tag!("b")
             )
@@ -791,10 +836,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok_at_position_eof_minus_one() {
+    fn test_take_until_terminated_ok_at_position_eof_minus_one() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "b",
                 tag!("a")
             )
@@ -807,10 +852,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok_with_multiple_substring() {
+    fn test_take_until_terminated_ok_with_multiple_substring() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "c",
                 tag!("b")
             )
@@ -823,10 +868,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_error() {
+    fn test_take_until_terminated_error() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "a",
                 tag!("z")
             )
@@ -841,12 +886,12 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_optional() {
+    fn test_take_until_terminated_optional() {
         named!(
             parser<Input, Option<Input>>,
             opt!(
                 complete!(
-                    take_till_terminated!(
+                    take_until_terminated_and_consume!(
                         "a",
                         tag!("z")
                     )

@@ -11,11 +11,13 @@ use super::Input;
 use nom::IResult;
 #[cfg(feature = "wasm")] use alloc::Vec;
 
-/// `take_till_terminated(S, C)` is like `take_till` from but with a
-/// lookahead combinator `C`.
+/// `take_until_terminated(S, C)` is like `take_until` but with a
+/// lookahead combinator `C`. It's not similar to
+/// `terminated!(take_until(S, peek!(C)))` because it loops over the
+/// input until `C` is true.
 #[macro_export]
-macro_rules! take_till_terminated (
-    ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
+macro_rules! take_until_terminated (
+    (_ $input:expr, $substr:expr, $consume:expr, $submac:ident!( $($args:tt)* )) => (
         {
             use ::nom::{
                 ErrorKind,
@@ -27,13 +29,20 @@ macro_rules! take_till_terminated (
             };
 
             let input = $input;
+            let substr_length = $substr.len();
             let mut index = 0;
             let mut result: Option<IResult<_, _>> = None;
 
             while let Some(next_index) = input.slice(index..).find_substring($substr) {
-                match $submac!(input.slice(index + next_index + 1..), $($args)*) {
+                match $submac!(input.slice(index + next_index + substr_length..), $($args)*) {
                     Ok(_) => {
-                        result = Some(Ok((input.slice(index + next_index + 1..), input.slice(0..index + next_index + 1))));
+                        let separator = if $consume {
+                            index + next_index + substr_length
+                        } else {
+                            index + next_index
+                        };
+
+                        result = Some(Ok((input.slice(separator..), input.slice(0..separator))));
 
                         break;
                     },
@@ -52,9 +61,24 @@ macro_rules! take_till_terminated (
         }
     );
 
-    ($input:expr, $substr:expr, $f:expr) => {
-        take_till_terminated!($input, $substr, call!($f));
-    }
+    ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
+        take_until_terminated!(_ $input, $substr, false, $submac!($($args)*));
+    );
+
+    ($input:expr, $substr:expr, $f:expr) => (
+        take_until_terminated!(_ $input, $substr, false, call!($f));
+    );
+);
+
+#[macro_export]
+macro_rules! take_until_terminated_and_consume (
+    ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
+        take_until_terminated!(_ $input, $substr, true, $submac!($($args)*));
+    );
+
+    ($input:expr, $substr:expr, $f:expr) => (
+        take_until_terminated!(_ $input, $substr, true, call!($f));
+    );
 );
 
 /// `fold_into_vector_many0!(I -> IResult<I,O>, R) => I -> IResult<I, R>`
@@ -128,10 +152,10 @@ pub(crate) fn id(input: Input) -> IResult<Input, Input> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_take_till_terminated_ok() {
+    fn test_take_until_terminated_ok() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "d",
                 tag!("c")
             )
@@ -144,10 +168,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok_at_position_0() {
+    fn test_take_until_terminated_ok_at_position_0() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "a",
                 tag!("b")
             )
@@ -160,10 +184,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok_at_position_eof_minus_one() {
+    fn test_take_until_terminated_ok_at_position_eof_minus_one() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "b",
                 tag!("a")
             )
@@ -176,10 +200,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_ok_with_multiple_substring() {
+    fn test_take_until_terminated_ok_with_multiple_substring() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "c",
                 tag!("b")
             )
@@ -192,10 +216,10 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_error() {
+    fn test_take_until_terminated_error() {
         named!(
             parser,
-            take_till_terminated!(
+            take_until_terminated_and_consume!(
                 "a",
                 tag!("z")
             )
@@ -210,12 +234,12 @@ mod tests {
     }
 
     #[test]
-    fn test_take_till_terminated_optional() {
+    fn test_take_until_terminated_optional() {
         named!(
             parser<&[u8], Option<&[u8]>>,
             opt!(
                 complete!(
-                    take_till_terminated!(
+                    take_until_terminated_and_consume!(
                         "a",
                         tag!("z")
                     )
