@@ -1,0 +1,1172 @@
+<!-- wp:paragraph -->
+<p><a href="https://medium.com/">﻿Homepage</a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h2><em>﻿The value of a pixel</em></h2>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p><em>In the beginning of September 2016, the new Chrome Core UI redesign, or so called “Chrome MD” (for Material design), rolled out on Windows as part of our 53rd update. It is the last step of a three phase deployment of the new design,which started in 51 with Chrome OS and Linux, followed by macOS in 52. Windows is the culmination of that process and while Chrome is never finished, it felt to me like the right time to take a look back and reflect on this process that almost took 2 years, hopefully delivering some details and experiences that might be useful to you.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><em>If you read my previous article about </em><a href="https://medium.com/google-design/redesigning-chrome-android-11eab15dc7ee#.r73a07ceb"><em>Redesigning Chrome for Android</em></a><em>, this one will be similar although I tried, somewhat unsuccessfully, to keep it lighter on the technical details… and it’s only in one part this time. If you didn’t read it, I’d recommend it as it is an integral part of the thinking process for Chrome desktop, its chronological successor.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>A bit of background</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>I have been working on Chrome and Chrome OS for almost 5 years as a visual designer. While I was splitting my time between the browser and the OS, I have been slowly transitioning to a full-time role on ChromeOS over the past year.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Back in 2012, One of my first big project as a new Chrome team member was to make the freshly redesigned Chrome Core UI of the time compatible with high resolution displays such as the first Macbook Pro Retina and the first Chromebook Pixel, which was sporting Google’s version of the retina display. The Chromebook Pixel was slated for a release on February 2013, a bit after the Macbook Pro.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>As a noogler, this experience introduced me to the complexity and intricacy of the Chrome browser design. It also gave me an accelerated course through all the design decisions that have been made so far.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Our goal at the time was not only to bring the new design to life on the upcoming new screen resolutions and density ratios(1x and 2x) but also to rethink and facilitate the way we collaborate with engineering by organizing our workflow process and asset repositories.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This need came out of the increasing necessity for Chrome’s design process to become more future proof. The fast pace at which Chrome grew since its birth didn’t allow a lot of time for cleaning things up along the way. The more we moved forward, the hardest it became to iterate on our previous work, creating delay and design debt.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>After a few month of work, following the release of the new design for regular resolution screens, the shiny new high definition came out. This is what it looked like:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>I took the opportunity to take the inventory of our entire assets repository (~1200 bitmaps for desktop) and organized it to be able to move faster in the future. This would come in handy for what’s to come.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This design was going to remain more or less in the same state for 4 years, until April 2016, date of the Chrome material design for Chrome OS release.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3><strong>Timing and planning</strong></h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Now that Chrome was supporting high resolution screens and that our process has been ironed out and was becoming quite efficient, it was time to switch our focus to mobile.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>At the time (beginning of 2013), Chrome was yet to become the default browser on Android, didn’t have a tablet version and has just been release on iOS.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Mobile became my primary focus in the years separating the beginning of 2013 and the Chrome Android Material design revamp of 2015 but it didn’t mean that nothing was happening on the desktop side.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Something very interesting was taking shape, we started seeing the desktop/laptop landscape shift into a state where touchscreen were no longer the exclusive attribute of mobile but also the one of more productive platforms such as laptops. While there was some attempts in the previous years, it was the first time the option of having a touchscreen on a laptop seems realistic and more than a gimmick or an exploration.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>I had a close experience of that with the first Chromebook pixel but another thing that triggered a lot of my interest at the time was Windows 8 and their very strong commitment to deliver a very opinionated UI on a new, hybrid form factor, with the Surface as a hero device.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>The 1st Chromebook Pixel (2013) with its high resolution touch-screen</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>The first Microsoft surface and the Windows 8 “Metro mode”.</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The duality of the OS as well as the choice to go for a very touchable UI for both touchable and non-touchable devices got me thinking about the place and direction of the Chrome UI in this type of environment.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We already had to face this type of questions with the first Chromebook Pixel and its touchscreen but the choice was made to rely on touchscreen for content scrolling and secondary interactions only rather than a primary method of input. The positioning of the Pixel as a very experimental and “for enthusiast” device allowed us to take our time to think about it, why and how our UI should be impacted.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>After some time, we decided to create what will become the precursor of today’s “Hybrid mode”: <em>Touch-view</em>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Touch-view was a modification of the normal Core UI to allow the core elements to be more spaced out, limiting the amount of user touch errors.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This was deployed on some Chromebooks and on Windows 8.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>It was an interesting experiment and while it didn’t last very long, touch-view on windows being rapidly cancelled and Windows 8 itself being re-thought to what was going to become Windows 10, it was enough to offer a glimpse at what was coming on the horizon: the democratization of “hybrid” or “convertible” devices and the slow but steady blurring of the line between tablet and laptops.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3><strong>Adapting to an upcoming and growing device category: hybrids</strong></h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Fast forward to the end of 2014. A lot of things happened in the system design landscape, Apple announced Yosemite, with its UI style closing the gap between macOS and iOS7 and Lollipop was about to be released, using the new Google visual design language: <a href="https://material.google.com/#">Material design</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The design landscape was evolving and while companies were following their own guidelines, a common theme was emerging: the “Skeuomorphic” era was ending, replaced by a “lighter” UI characterized by more white space, diminished use of strong shadow and what a lot of us commonly dubbed as the famously (or infamously) “flat design era”.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Windows had its “Modern UI”, Apple its “iOS UI” and Google its “Material Design”. As part of this big update cycle, Chrome received a revamp of its mobile properties, <a href="https://itunes.apple.com/us/app/chrome-web-browser-by-google/id535886823?mt=8">iOS</a> and <a href="https://play.google.com/store/apps/details?id=com.android.chrome&amp;hl=en">Android</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We said goodbye to our strong shadows, highlights and noise effects on top of our gradients. We sharpened our tabs and selected a set of icons consistent with the Google design guidelines. The new Chrome was here… just not yet on desktop…</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>The new Chrome MD on tablet</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The Desktop UI future was slowly taking shape and clearer opinions on the matter were forming. Windows and Google on one side trying to figure out a design system capable on handling all screen sized and format at once, Apple on the other with opinionated layout directions working on a per platform and per format basis (touch for iOS, non-touch for macOS).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>It is at that time, almost two years from now, that the Chrome desktop redesign process started.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>The Hybrid layout type</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>A constant a non trivial thing I had to take care of during my years working on Chrome and that most designers deal with is asset management. There’s a reason I previously mentioned organizing our ~1200 bitmaps assets on desktop. Beyond it being incredibly fun (/s), it is a necessity when working across platform.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>From an front-end engineering perspective Chrome is spread across 4 frameworks/codebases: <strong>Views</strong>, shared by Windows,Chrome OS and Linux (our framework to build the UI), <strong>Cocoa</strong> on macOS, <strong>Java </strong>for Android, and <strong>Obj-C/Swift </strong>for iOS.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>To keep our sanity and to enable better long term asset management, we try to share as much design resources as possible across platforms.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For example Windows, Chrome OS and Mac share a lot of common visuals. They might be implemented differently but the bitmaps are the same.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>On mobile and while Chrome for Android and iOS are different in many ways, we also try to design and conceive assets to be cross-platform. Chrome for tablet is a good example of that. Whether you launch chrome on iPad or an Android tablet, they will look very similar.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>Chrome for Android and Chrome for iOS 9 (MD)</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>Chrome for Android tablet (MD)</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>Chrome for iPad (MD)</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Of course there are a good amount of platform specific resources but this solid system of shared elements reaches its limit and when you have to deal with multipliers and form factors (or layout types), it gets tricky.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Before even considering hybrid, the landscape looks as the following:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>As you can see, there is a set of 2 layout types: <em>Touch</em> and <em>non-touch</em>. Among these two layout types are 2 core multipliers (1x and 2x) for an extended total of 5 to 6 multiplier per platform:<br/>- 100, 150, 200, 300, 400 for mobile<br/>- 100, 125, 150, 180, 200, 225 for desktop (in extreme cases on Windows)</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This is a lot of multipliers and assets to create, so much so that we ended up relying on scaling for odd multipliers, creating less than ideal rendering.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In this context and with the climbing demand for touchable and convertible devices we were going to have to find a solution for convertible devices, inspired by touch-view that we were going to name “Hybrid”, adding more complexity to our existing structure:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This had the potential of creating yet a new set of assets to export and manage, pushing our current bitmap based process far beyond its limit.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This is were programmatic rendering comes in.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>New layout type, new process</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Chrome “hybrid mode” was originally designed for Chomebooks, inspired by our previous effort: “Touch-view”. This time, we needed to create Hybrid as part of the redesign effort and not as an addition to an already existing UI.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To do so, we needed two things:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>A design flexible enough to handle regular mode AND hybrid mode. Regular mode was initially going to be deployed on the overwhelmingly largest portion of our user base.</li>
+    <li>A way to create, export and implement our assets that would gracefully scale in the broad layout type and PPI landscape of desktop.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The solution to our second problem came through the effort of <a href="https://plus.google.com/+PeterKasting">Peter Kasting</a>, <a href="https://www.linkedin.com/in/evan-stade-4585826">Evan Stade</a> and <a href="https://plus.google.com/112863466211452408130">Terry Anderson</a> (Tech Lead on the project). <br/>I initially wasn’t convinced that rendering shapes (especially chrome tabs) and icons entirely programmatically was going to achieve the level of detail that we would be able to deliver with .pngs. I was wrong.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Chrome is using the <a href="https://skia.org/">Skia graphics library</a>. After a few tries, Peter was able to render key Chrome elements such as tabs and omnibox perfectly without using any type of bitmap. On his side, Evan created a converter able to translate .svg code to Skia code. .svg would essentially serve as a blueprint, a set of instructions for code rendering.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The design to engineering process was then defined as followed:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><em>Designers would create .svg at any size desired to serve as a template for the Skia code rendering. This applies to both shapes and icons. Engineering would then take this template and implement it in Chrome, using Skia.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Here’s a schematic of the tabs:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Tabs are made of one .svg for the filling and another one for the stroke. Engineering then takes the .svg code and changes their paths to SKIA code adding proper coloring and opacity.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Here’s a code preview with the example of an icon, using the auto-conversion tool Evan put together:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This technique resulted in a huge decrease in the number of bitmaps use in Chrome, from around 1200 to… 0.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Keep in mind that all variant of buttons are now handled via code, effectively removing any duplicates for hover/pressed states as well as any need to apply color directly on the asset. All of this would be handled in code.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The bonus and huge advantage over using .svg directly is that we are able to control the rendering of each elements on a per PPI basis. This means that we can create an icon slightly different from 1x to 2x if need be. This is a huge deal as desktop is still majoritarily 1x. In addition we would also be able to control rendering for decimal multipliers, like 1.5, 1.25, etc… Making Chrome look as good as we can get in all odd PPI configurations.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>With this new awesome tool and process in place, it was time to design and implement the new UI.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Visual consistency and design details</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The redesign of the desktop UI wasn’t about starting from scratch as much as bridging the gap between our new design language on mobile and our aging desktop visuals.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A question that I think has been in the mind of all Chrome visual designers at one point is: <em>“What makes Chrome, Chrome?”</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>There is a lot to what makes Chrome what it is but at the same time, our role is to disappear in favor of the content, in other words, be present but not in the way.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>The key elements when you think about our Core UI are the tabs and icons. Chrome mobile was already using the new sharp tab edges on tablet and was also using the new icon system derived from the Material design guidelines. In this context, our goal was to:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>Bring the new tab shapes to life on desktop</li>
+    <li>Bring a new set of icons, derived from MD using desktop sizes</li>
+    <li>Align and simplify our color palette and our theming system. <br/>Bonus: Bring the new “dark” incognito to desktop</li>
+    <li>Start the revamp of secondary UI elements such as buttons, toolbars, bubbles, etc…</li>
+    <li>Create a more touchable version of Chrome for convertible devices</li>
+    <li>Come up with a set of rules for Third party OS consistency</li>
+    <li>Implement MD motion when possible</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h3>General layout and UI footprint</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>There is one key thing to remember when designing Chrome’s Core layout: <strong>UI footprint</strong>. It’s the exact amount of pixel we use to display our UI or in other words, the amount of pixels we take away from the content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The height of the pre-MD design when the bookmark bar wasn’t displayed was 73px on Chrome OS and macOS (including the window frame) and 78px on Windows (including the frame as well).<br/>The native frame on windows is taller than its ChromeOS and macOS counterparts. It makes the frame easier to click and grab at the cost of a bigger footprint. See a comparison on macOS with Windows below, pre-MD:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This previous version of the Chrome toolbar layout was created when high PPI screens didn’t exist so it was optimized for rendering at 100% scale, using odd numbers so you could center element on a full pixel.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The first thing that needed to be done was using an even grid so that carrying the layout throughout various multipliers would be easier. This way icons would fall on the pixel grid more often by comparison with an odd number based design grid.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Material design uses <a href="https://material.google.com/layout/metrics-keylines.html#">8</a>pt as its baseline. We are using half as small: <strong>4pt</strong>. <br/>Setting a grid and positioning elements by increments of 4pt tremendously helped getting a good balance and keeping the layout, iconography and typography consistent throughout. To achieve balance, we split the UI in half: tabs + window frame / Toolbar.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This is what it looks like for the <strong>regular UI</strong>:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>As you can see on this 200% (or @2x) preview of Chrome MD on Chrome OS, the toolbar is split in two parts of 36pt each. Each core element falls on the 4pt grid.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Tabs are 28pt, equal to the omnibox height. We leave an 8pt top padding between the tabs and the top of the frame.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you looked closely, you might have noticed that the omnibox strokes are not aligned on the grid in this preview. The reason is that we use 1px as line weight regardless of the PPI, creating a lighter UI with thinner strokes.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The downside of this technique is that you always need to remember that the space which was supposed to be filled by the thicker, 2px stroke, is now an empty space.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>You might also have noticed that we render the stroke by adding 1pt at the bottom of the toolbar rather than insetting it for balance reason, effectively adding 1pt to the 36pt+36pt total height.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>On the left is our<strong> hybrid UI.</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For Hybrid, we maintain the frame padding (8pt) while increasing the tabs and toolbar footprint by 4pt. The result is a more spaced out 40+40 layout.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>You might wonder at this point why we do not simply match the Android or iOS touch target recommendations (48 and 44 respectively) to make things touchable. We actually tried this but goes against what Hybrid is trying to achieve.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>We aim at the right compromise between full-touch and non-touch. Balancing our goal to minimize user touch errors without compromising the productivity aspect expected from a laptop layout.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>On desktop, every pixel counts, delivering the tablet UI on a laptop was out of the question.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Following is a comparison between Chrome pre-MD, Chrome MD normal layout, Hybrid and finally, Tablet, all rendered at 200% (xhdpi for Android).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Effectively, the MD normal layout footprint, including the window frame is 2px taller than its pre-MD ChromeOS/macOS counterpart (71 vs. 73). However, because we moved the UI up by 3px in the window frame the new UI, not counting the window frame we get a UI effectively 5px taller (60 vs. 65).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>A pixel is extremely valuable for Chrome and every single one counts.<br/>In the case of the redesign, all size decision was affected by the following factors: UI legacy, adoption of the new grid and overall UI balance.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>This logic also applied to icons…</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Iconography</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>The choice was quickly made as to what set of icons to use.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We needed to revamp our numerous core ui icons as well as all the feature icon spread across the product and the <a href="https://design.google.com/icons/">Material design icon repository</a> offers just that. That way, they would also be fully consistent with the icons on our mobile properties, both iOS and Android.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>However, one problem remained: grid size. The <a href="https://material.google.com/style/icons.html#icons-system-icons">24x24pt</a> based grid wasn’t really fitting the rather condensed UI we were planning to create (even including hybrid). After all, they were conceived for mobile.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We needed to derive a grid that would fit our new normal and hybrid UI.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To do so and to match our 4pt grid, we used 16x16pt based icons as described in the following preview.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>We reduced the container from 24pt to 16pt and added some flexibility around the initial internal padding: <strong>2pt</strong> change to <strong>1pt to 2pt</strong> depending on the icon for the Chrome icon grid. The reason for this flexible padding is that considering the wide variety of icons we were going to use, some might require extra space to make their paths work visually at small sizes.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The advantage of this straight 33% reduction in size is that we were going to be able to also use scaling straight from the Material icons. This would drastically improve our icon delivery time and increase scale-ability… at the cost of some icon being rendered off grid, and therefore slightly blurry.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>While this would be fine on secondary icons, all our most prominent icons had to be rendered properly and as pixel perfect as possible. To that end, we would re(create) them to avoid any off-grid pixel, especially on lower PPIs. See our “back” icons below”</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>As you can see, since we have control of the rendering on any given PP, we remove the scaling-induced blurriness of the icon. <br/>We also made the icon line weight slightly thinner (2px on 100% and 3px one 200% from the initial 2px in 100% and 4px in 200%) as I thought the weight was slightly too high. This way, they are more elegant and balanced within our UI.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This technique offering both flexibility and control over our assets really reduced our visual maintenance cost. Relying on an already existing, huge set of asset was also a huge time saver for our feature team, capable of iterating faster on their feature icon without having to wait on a designer to create a custom icon. Finally, it brought consistency between mobile and desktop.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Since these were rendered programmatically, we also deleted all duplication for color states, all we have to deliver is a black .svg and paint the required color in code.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>A nice added bonus of programmatic rendering is that we are able to cut and badge the icons when needed (for blocked extensions and permissions for example) instead of exporting the blocked and non-blocked variant as separate bitmaps.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>See the process specced below:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Below is a preview of the new unified iconography system with color and badged versions. This gives you a sense of the system as a whole.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Now that the icon creation process is ironed-out. Let’s see how they fit within the UI.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Touch targets and layout</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Since the icons are based on a 16x16pt layout that fits perfectly the 4pt grid determined earlier, placing them and spacing them in the UI was just a matter of figuring out the proper size of touch/click targets for both normal and hybrid mode.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In normal mode, we went for 28x28pt touch targets, holding 16x16pt icons. Of course the following spacing are consistent throughout all Chrome normal layouts, regardless of the platform.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Below is Chrome in ChromeOS:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>For Hybrid, concessions had to be made as to how much we wanted the UI to grow. We wanted to offer the user more space while maintaining a compact layout which explains why some elements had to break off the grid, as you’ll see below.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>As we were still trying the theory behind this layout, we were a bit more conservative. What I kept repeating to myself during the making of this layout was that the user shouldn’t feel too uncomfortable using it with mouse only, it shouldn’t waste space.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We first focused on increasing the height of elements for which we already had identified the most pain points: the tabs and the omnibox.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We both increased them to 32pt from 28. In addition, we use a technique that increase the touch area of the tab into the frame itself, adding 8pt of additional touch target size.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>While icons kept their 28x28pt touch targets, we increased their surrounding margin to 8pt, giving the UI more space and reducing user touch errors. Same principle applies to icons within the omnibox (extensions and permissions) as well as extension icons.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>You can notice that while the spacing changes, icons, remain the exact same size. We use 16x16pt iconography throughout. This minimizes the amount of design asset requiring maintenance, making long term scalability as well as feature iteration easier.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>See what the completed Hybrid core UI looks like below.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>Conceiving a layout from the ground up is a fairly easy part, coming back to it years after years and not being lost and overwhelmed is where initial planning and organization pays off.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>Aligning all icons to be the same size tremendously streamlined our maintenance and design process and made the design more uniform and elegant.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Previous, non-MD icons were created over a period of several years which made it hard to maintain a consistent set of size. This time, we even updated our extension icon requirements to be 16x16pt instead of the previous 19x19pt. We also redefined the way badging works, following the same cropping technique we used for blocked permission.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Finally, for users who like to always show their bookmarks bar, we tweaked it as well so it doesn’t unbalance or overpowers both layouts.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>See example below with Mac for normal layout, Windows and Chrome OS for Hybrid.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Mac appends 28pt to its normal footprint, to match the toolbar buttons 28x28pt click targets.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Windows and Chrome OS in normal or hybrid, operate slightly differently.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>We appended a 24pt high bookmarks bar to balance the extra height of the Windows frame. Since ChromeOS uses the same implementation as Windows, it inherits this same measurement.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>As we are still experimenting with this layout on ChromeOS. Time will tell if aiming for the right balance between touch and non touch will pay off.<br/>This is why until we get a better understanding of our users habit and needs on the the Windows platform, we will ship the normal layout by default for all Windows devices. ChromeOS touch-able devices will however get Hybrid by default.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you want to try it for yourself, simply head to the chrome flags section (chrome://flags) and set the <em>“UI Layout in the browser’s top chrome”</em> flag to <em>“Touch”.</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:heading -->
+<h3>Omnibox, results dropdown and security indicators</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>There are two tenants to our omnibox and dropdown layout design:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>Give a strong emphasis on security states.</li>
+    <li>Fast access to the information or URL you need to go to.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>The omnibox is probably the most important feature of Chrome. It is our users’ gateway to Google search results, the web, as well as their own bookmarks and history. It is also the only place where we can indicate strongly the security state of a domain, effectively trying to protect our users against a myriad of online threats through active blocking, passive indication and education.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To that goal, visual designer <a href="https://twitter.com/maxwkr">Max Walker</a> as been working hand in hand with Chrome UX lead <a href="https://twitter.com/alexainslie">Alex Ainslie</a> and Chrome security to add a new, revamped security indicator system to our omnibox which goes as followed:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>We replaced the default “page” icon by an info button, inviting users to click it to edit site permission and understand the security state of the domain they are on. Non encrypted HTTP pages fall in this category.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:list -->
+<ul>
+    <li>Secured or “Green lock” state is now only applied to secure, HTTPS sites. This move rewards secured domain who uses encryption.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:list -->
+<ul>
+    <li>You might remember that Chrome had a yellow security state back a few years ago. This time, all websites with broken https or presenting a threat are marked as red. When Google knows the domain is a phishing site, we also completely block its access.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Max aligned the typography of the certification with the URL text and used our new color scheme. He also revamped our locks, giving them a light look.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>In direct relationship with this is the omnibox dropdown, or the container of the result you get when typing a query. The dropdown wasn’t drastically changed in the context of this revamp. We changed the iconography along with the color scheme but the core of our work is represented in two changes: a new layout for hybrid and more importantly, inline answers.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><strong>Inline answers</strong>, also named “answers in suggest” is essentially Google or Chrome displaying the information you are looking for before you actually hit “enter” to validate the query. For example, when you type “weather in los ang” in the omnibox, Chrome was suggesting you the following:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Now with answers in suggest, if we are sure to have the answer you are looking for, we display it as part of the results. As you can see below, it doesn’t only apply to the weather but also quick queries, stock search as well as calculations.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This is what this query looks like in normal layout:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>And here’s the difference with another query (stock query this time) in the hybrid layout, with improved row height for touch-ability.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The omnibox dropdown on desktop always offered very tight rows, regardless of the platform. It is a balance between information density, clarity and ease of use to get the user from query to result as fast as possible.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Just like for the other Core UI features, hybrid is about reducing user touch error by increasing the height of each row while maintaining high information density to avoid too much travel for the user’s eye and therefore more time to access content.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Colors and accessibility</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Beyond layout density, another element with a lot of influence is color.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Chrome MD for desktop went through the same mutation Chrome for Android did. We needed a more unified color guideline as well as a consistent and more importantly, accessible, color scheme.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Of course the most prominent change you notice when opening Chrome is the Core UI color change itself.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Balancing the color of the core UI is a task requiring some subtlety, more than I thought it would at first.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The Core UI is formed of three key elements:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>The frame, created by the OS itself, changing on a per platform basis</li>
+    <li>The Active tab and toolbar. Which includes the selected tab attached to the ommibox and controls</li>
+    <li>The inactive tab(s).</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>To work well, these three things need to have a proper amount of contrast. Something that wasn’t easy to solve was how to bring the design to a flatter, more modern look within compromising too much on the contrast.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Another thing we needed to think about was theme. Contrarily to mobile, desktop supports theming. We needed to account for that and improve on it if possible.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Finally, my personal favorite, we wanted to make incognito mode really different, instead of theming only the frame, we wanted to completely change its global theme, making it very dark, just like its mobile counterpart.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Here’s Chrome three level structure for both modes:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Our Core UI color system is as follows:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Mac and Chrome OS are pretty straight forward as we control the color of the OS frame directly, simply adding the background blur on mac.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Windows is a bit trickier as the user or system can set pretty much any color as their frame color. Therefore, we continued what we’ve been doing so far, playing with opacity to blend our color with whatever the system shows. <br/>See comparison below, while mac and Chrome OS inactive tabs uses an opaque coloring, we reduce the fill of inactive tabs and new tab button to 78% on Windows.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>Normal Core UI coloring on macOS, Windows and Chrome OS.</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>To balance the new color theme, we rely heavily on the use of stroke. Since the stroke have a 1px weight regardless of PPI, their opacity have been tweaked a lot so that they do not look too dark in 1x, or too light in 2x. This goes for normal and incognito mode.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>Chrome macOS in 200% and 100%. Both strokes have a 1px weight.</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>Accessibility has always been part of Chrome’s DNA whether it’s on the content side with <a href="http://a11yproject.com/">a11y</a> compliance or on the UI side.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In the past two years, this effort grew even stronger. Admittedly on the visual side, our color scheme needed a new pass to make it both simpler and compliant to the <a href="https://www.w3.org/TR/WCAG/">WCAG 2.0</a> rules for good contrast.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We made sure that all our typography as well as iconography reaches at least AA level or 4.5:1 contrast ratio:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>A great tool I recommend to test contrast ratio: <a href="http://leaverou.github.io/contrast-ratio/">http://leaverou.github.io/contrast-ratio/</a></p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p>Directly related, our programmatic rendering enables us to color our icons dynamically based on the contrast ratio, which not only means that the themes created for Chrome will look better but also that accessibility will be improved as well.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>As you can see below, installing the theme “<a href="https://goo.gl/AnqzXo">Dark theme V3</a>” makes the icons switch to white and the dropdown automatically switch to dark mode.<br/>This is a direct benefit we get from programmatic rendering and our incognito mode implementation.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:heading -->
+<h3>Motion</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Motion is a big part of what people think of when describing “Material design”, especially on mobile. Good motion design on this form factor can really make an app shine and empower its users to use it more effectively. Provided you are not over-doing it, you as a designer can provide delight as well as guidance and spatial awareness using subtle hints and opinionated and clear UI movement.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>But when it comes to desktop and its mouse-and-keyboard-first, large screen environment, it’s a slightly different story. <br/>Desktop is a platform you will likely engage with for a higher amount of time than mobile, usually using productivity tools, in favor of a deeper experiences as opposed to the quick, on-the-go or more lean back mobile experience.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>As much as we would like touch and non-touch platforms to be more consistent in their paradigm and attributes, something that might seem necessary and engaging on mobile can become an annoyance if not a hindrance to the task you are trying to accomplish on desktop.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Chrome desktop has always been about efficiency and execution speed. No motion should get in the way of you accomplishing your task, which is why most UI surfaces appear with no delay or with the minimal amount of motion.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Take our omnibox dropdown for example, a bit of motion might seems nice at first but when you access it more than a hundred times a day, you are quickly going to hate us for that extra bit of time we are taking away from you, simply to show a hypothetical sliding animation with fade-in. <br/>This is why we make it appear instantly, like our menus.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>So how do you get some “Material design delight” on a platform that seems so hostile to motion. Well, you try to add it to pieces of the UI that will not be affected by it, this is why we played with ripple effect on our buttons.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>There is a lot to a click action on desktop and there is even more when you combine that with the touch-ability of hybrid devices. Some of the states do not even exist on mobile. They go as follow:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li>Hover state</li>
+    <li>Active state</li>
+    <li>Single click/tap (onClick-release)</li>
+    <li>Single click/tap to active (button enters “active” state upon release)</li>
+    <li>Long click/tap to active (for elements only displaying options on long click/tap)</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p>We based all our motion on the <a href="https://material.google.com/motion/material-motion.html#material-motion-how-does-material-move">Material design ripple burst</a>. A simple burst of color growing out from the the click or tap location.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>Since hover states didn’t exist in the MD spec, the first thing we had to do was combining it with the ripple. We make the ripple burst out of the squared hover state, pushing its boundaries outward. In the case of a simple hover + single click with no active state, it looks like this:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>This is what it looks like in our toolbar:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>For “<em>single click to active</em>” and “<em>long click/pressed to active</em>” we needed to combine the ripple with the common final state of the button, the active state, which is a grey rounded rectangle, similar to our hover state.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>To do so, we worked with the Material design team to explore some morphing effect on the ripple. This is a mobile exploration:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Applied to the desktop, and for the <em>single click to active, </em>we maintain the ripple expansion spread but once the ripple reaches its apogee, we morph it into a square instead of letting it burst. It looks like this:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>The <em>long click/tap to active</em> is very similar, only this time we slow down the expansion of the ripple.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Lastly for our bookmarks bar, we implemented a flood ripple. This type of ripple is an expanding ellipse filling up a contained area. In our case, we combine the ripple with the hover state to create the active state of our bookmarks, like shown below:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" /></figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>Quick note, we decided not to carry ripple effect to macOS as they felt a little out of place on this platform. We chose OS consistency here.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:separator -->
+<hr class="wp-block-separator" />
+<!-- /wp:separator -->
+
+<!-- wp:paragraph -->
+<p>On the engineering side, <a href="https://ca.linkedin.com/in/ben-ruthig-8b39101b">Ben Ruthig</a> was behind the accomplishment of re-building the ripple system from scratch on our desktop platforms.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>On the design side, initial motion previews and specs were quickly put together using <a href="http://tumult.com/hype/">Hype 3</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The video you saw above were done using this tool. The very high level nature of this type of prototyping enabled us to jump in real code fast rather than spending cycles iterating on prototypes. We used prototyping as a general direction instead of a definite spec. As the code vastly varies from web to C, direct engineering input and tryouts early-on was invaluable.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>For this type of motion work, the engineer was the real designer.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h3>What’s next</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>After the completion of the implementation-ready specs and mocks for the Core UI, I dabbled a bit in Chrome’s secondary ui.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>We include in that category every Chrome element not directly visible such as menus, dialogs, bubbles, buttons, info-bars, find-in-page and download shelf. Some might have rolled out already, some might be coming soon:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>Preview of the new info-bar, using now deprecated buttons.</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>The new download shelf, available on Windows.</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>I won’t show it here not to spoil future updates but if you are an avid Chrome user, you might have enabled a few flags showing that the Chrome team is working hard to bring a polished new experience to the secondary UI as well as for the Chrome inner pages, like the ones below:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>The new “History” inner page</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:image -->
+<figure class="wp-block-image"><img alt="" />
+    <figcaption>The new “downloads” inner page</figcaption>
+</figure>
+<!-- /wp:image -->
+
+<!-- wp:paragraph -->
+<p>As my involvement in the Chrome browser is ending with this Core UI project, I’m excited to see what the Chrome team has for the future of Chrome on desktop and mobile.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h3>Lessons learned and initial release feedback</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>As a closing note, I’d like to share some of the lessons I learned during this project as well as some release reaction, both internal and external, hoping that these will be helpful to you, in your projects.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h4><strong>1. Engineers are great designers</strong></h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We talk a lot in our design circles about if and why a designer should code. There are a lot of diverging opinions on the matter and it comes from the fact that there is no simple definition of the role of a designer. <br/>However, we talk less of the opposite: S<em>hould engineer design?</em></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In the end, they are the makers and to a certain extent, the “designers” of your product, the ones who make it become a real thing. Sometimes, as a designer, I feel like all that we do is trying to “fake” or “mimick” the end result. Cutting to the chase as fast as possible to try things in the real environment, in real code, is essential.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>In this project, a lot of my assumptions were broken by engineers who not only brought better solutions to the table but executed and iterated on the design better that I could ever do. I’m thinking more specifically of programmatic rendering (an effort championed by Peter Kasting) and motion design (lead by Ben Ruthig). Their code knowledge was crucial in getting the design right and more than only changing the design it changed the nature of the project, from a visual revamp of the UI to a core rewriting.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>Everybody is a designer. Ideas are not limited to a role. If you are lucky enough to be working with motivated and engaged engineer, you might realize that they can sometimes be a better designer than you.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h4><strong>2. Involve engineers early</strong></h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>In the present case, they were involved right away and were an integral of the design and conception process. As I mentioned earlier, their motivation to deliver better design through better engineering solution made the product what it is today. Maintaining constant communication was key to bring the right design to life.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>You don’t necessarily need to understand how to code, it’s more important to understand the people who do.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h4><strong>3. Know when to be precise, learn when to be loose</strong></h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Delivering extremely precise spec work is necessary, however, in some cases, leaving your preliminary work open for feedback and new ideas can bring your design to another level. As long as your end design stays true to its original goal or intent, let others enter your process and improve on your design.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading -->
+<h4><strong>4. Beware of change aversion</strong></h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>When you are redesigning a product, especially if it has been around for a while, you will run into what a lot of us have encountered: change aversion. Now be careful, sometimes your design might actually be bad but in a lot of cases, the simple act of changing something is sufficient to trigger moderate to extreme reaction from your users.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>It can be extremely hard to receive and extremely hard to fight. For this redesign, adding a few pixel triggered lengthy discussions or debate.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>I won’t lie, I do not have the miracle solution to it but there are things that you can do to minimize change aversion:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul>
+    <li><em>Communicate with your audience.</em> Always have a deck ready to explain your vision to who might want to hear it, especially if they are your stakeholders.</li>
+    <li><em>Stay the course.</em> It is very beneficial to strongly believe in the choices you made. Don’t get stubborn but stay confident.</li>
+    <li><em>Be prepared.</em> When somebody wants to discuss some of your design decisions, be prepared to back these up with facts, studies (when possible) or past experiences. If you find yourself in a situation where you cannot answer back, you might find that their feedback is worth considering.</li>
+    <li><em>Understand some things take time.</em> Probably the most frustrating and the one I’m having the most trouble dealing with, some things just take time to change. The bigger the product, the longer it might take. Find happiness in the small victories and understand that your product is never done.</li>
+</ul>
+<!-- /wp:list -->
+
+<!-- wp:heading -->
+<h4><strong>5. Manage your expectation</strong></h4>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>When the update started to roll out, the hardest feedback I received was: <em>“That’s it?”. </em>It’s a fair feedback in my opinion. The project took time and it’s not a visual revolution. I like to think that if you look into the details, you might start to see how much attention and care we put into it.<br/>The biggest improvements brought by this redesign project are under the hood. It is an engineering achievement most and foremost.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>I do hope that the benefit will be felt over time, both in our team and with our users, as Chrome has never been so flexible and consistent across our supported platforms.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote">
+    <p>Finding satisfaction in your work and the result of it through your own eyes is more important than seeking validation through others’. If you are <strong>truly</strong> and <strong>honestly</strong> satisfied with what <strong>you</strong> have done. You’re good.</p>
+</blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:heading -->
+<h3><strong>Closing notes</strong></h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>Thanks for reading so far. If you want to reach out, feel free to connect on <a href="https://twitter.com/KounterB">Twitter</a> or <a href="http://sebastien-gabriel.com/get-in-touch">anywhere else</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>If you want to connect with the Chrome design team, these are cool people to follow on Twitter: <a href="https://twitter.com/alexainslie">Alex Ainslie</a>, <a href="https://twitter.com/cleerview">Chris Lee</a>, <a href="https://twitter.com/maxwkr">Max Walker</a>, <a href="https://twitter.com/rilan">Rachel Ilan Simpson</a>, <a href="https://twitter.com/peteschaffner">Peter Schaffner</a>, <a href="https://twitter.com/san_toki">Hannah Lee</a>, <a href="https://twitter.com/gmurphy">Glen Murphy</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>The awesome engineering team behind this work:<br/><a href="https://plus.google.com/+PeterKasting">Peter Kasting</a>, <a href="https://www.linkedin.com/in/ben-ruthig-8b39101b">Ben Ruthig</a>, <a href="https://www.linkedin.com/in/evan-stade-4585826">Evan Stade,</a> <a href="https://plus.google.com/112863466211452408130">Terry Anderson</a>, <a href="https://www.linkedin.com/in/valery-arkhangorodsky-7388ab">Valery Arkhangorosky</a>, Jayson Adams.</p>
+<!-- /wp:paragraph -->
