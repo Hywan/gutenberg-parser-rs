@@ -29,7 +29,7 @@ nodejs = ["neon", "neon-build", "serde_json", "neon-serde"]
 bin = ["failure", "clap"]
 
 [dependencies]
-nom = { version = "4.0.0-beta3", default-features = false, features = ["alloc"] }
+nom = { version = "4.0.0", default-features = false, features = ["alloc"] }
 wee_alloc = { version = "0.4.0", optional = true }
 neon = { version = "0.1.22", optional = true }
 serde_json = { version = "1.0", optional = true }
