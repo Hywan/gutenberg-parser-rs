@@ -70,6 +70,8 @@ macro_rules! take_until_terminated (
     );
 );
 
+/// `take_until_terminated_and_consume(S, C)` is similar to
+/// `take_until_terminated` but it consumes `S`.
 #[macro_export]
 macro_rules! take_until_terminated_and_consume (
     ($input:expr, $substr:expr, $submac:ident!( $($args:tt)* )) => (
@@ -134,12 +136,15 @@ macro_rules! fold_into_vector_many0(
     );
 );
 
+/// Helper to fold an item into a vector.
 pub fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
     accumulator.push(item);
 
     accumulator
 }
 
+/// Check whether a character is in the set of alphanumeric extended
+/// characters, i.e. `[a-z0-9_-]`.
 pub(crate) fn is_alphanumeric_extended(chr: u8) -> bool {
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
 }

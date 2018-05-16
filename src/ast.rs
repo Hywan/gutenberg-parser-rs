@@ -7,7 +7,7 @@ The Abstract Syntax Tree (AST), i.e. the output of the parser.
 use super::Input;
 #[cfg(feature = "wasm")] use alloc::Vec;
 
-/// Represent a node in the AST.
+/// Represent a node in an AST.
 #[derive(PartialEq)]
 #[cfg_attr(not(feature = "wasm"), derive(Debug))]
 pub enum Node<'a> {

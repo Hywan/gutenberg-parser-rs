@@ -53,9 +53,6 @@ register_module!(
 );
 
 impl<'a> Node<'a> {
-    /// The form of the object matches the expectation of the
-    /// Gutenberg project, it explains why the keys differ from the
-    /// `Block` structure.
     fn into_js_object<'b, S: Scope<'b>>(&self, scope: &mut S) -> JsResult<'b, JsObject> {
         let output = JsObject::new(scope);
 

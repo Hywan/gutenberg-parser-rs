@@ -2,8 +2,8 @@
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
-the HTML is annotated. Like most annotation languages, it is located
-in comments, like this:
+the HTML is now annotated. Like most annotation languages, it is
+located in comments, like this:
 
 ```html
 <h1>Famous post</h1>
@@ -13,21 +13,32 @@ lorem ipsum
 <!-- /wp:component -->
 ```
 
-The parser analyses a post and generates an Abstract Syntax Tree (AST) of it.
+The parser analyses a post and generates an Abstract Syntax Tree (AST)
+of it. The AST is then accessible to many languages through bindings.
 
-### Platforms and bindings
+### Platforms and bindings, aka targets
 
-The parser aims at being used on different platforms, such as: Web
-within multiple browsers, Web applications like [Electron], native
+The parser aims at being used on different platforms, such as: the Web
+(within multiple browsers), Web applications like [Electron], native
 applications like macOS, iOS, Windows, Linux etc.
 
-Thus, the parser can be compiled as a binary, a static library, can be
-embedded in any Rust projects, can be compiled to [WebAssembly], or
-can be compiled to [NodeJS], and soon more.
+Thus, the parser can be compiled as:
+
+  * A [binary](#binary),
+  * A [static library](#static-library),
+  * Can be embedded in any Rust projects,
+  * A [WebAssemble binary](#webassembly),
+  * A [NodeJS native module](#nodejs),
+  * And soon more.
 
 This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
+
+**Note**: Right now, this project needs `rustc` nightly to compile
+most of the targets. The project should switch to stable in a couple
+of months. Since then, be sure to run the latest nightly version with
+`rustup update nightly`.
 
 #### Binary
 
@@ -35,7 +46,7 @@ To compile the parser to a binary, run:
 
 ```sh
 $ just build-binary
-$ echo -n '<!-- wp:foo {"bar": "qux"} /-->' | ./target/release/gutenberg-post-parser
+$ ./target/release/gutenberg-post-parser --emit-json <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
 ```
 
 #### Static library
@@ -49,7 +60,7 @@ $ ls target/release/
 
 #### WebAssembly
 
-To compile the parser to a [WebAssembly] file, run:
+To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
 $ just build-wasm
@@ -67,8 +78,25 @@ $ node bindings/nodejs/lib/index.js # for a demonstration
 
 ### Performance and guarantee
 
-The parser guarantees to never copy the data in memory, which makes it
-fast and memory efficient.
+The parser guarantees to never copy the data in memory while
+analyzing, which makes it fast and memory efficient.
+
+[A yet-to-be-official benchmark][gutenberg-parser-comparator] is used
+to compare the performance of the actual Javascript parser against the
+Rust parser compiled as a WASM binary so that it can run in the
+browser. Here are the results:
+
+| file | Javascript parser (ms) | Rust parser as a WASM binary (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 13.167 | 0.43 | x 31 |
+| [`shortcode-shortcomings.html`] | 26.784 | 0.476 | x 56 |
+| [`redesigning-chrome-desktop.html`] | 75.500 | 1.811 | x 42 |
+| [`web-at-maximum-fps.html`] | 88.118 | 1.334 | x 66 |
+| [`early-adopting-the-future.html`] | 201.011 | 3.171 | x 63 |
+| [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | x 104 |
+
+The WASM binary of the Rust parser is in average 60 times faster than
+the Javascript implementation.
 
 ### License
 
@@ -76,7 +104,7 @@ The license is a classic `BSD-3-Clause`:
 
 > New BSD License
 >
-> Copyright ©, Ivan Enderlin. All rights reserved.
+> Copyright © Ivan Enderlin. All rights reserved.
 >
 > Redistribution and use in source and binary forms, with or without
 > modification, are permitted provided that the following conditions are met:
@@ -110,4 +138,11 @@ The license is a classic `BSD-3-Clause`:
 [Justfile]: https://github.com/casey/just/
 [WebAssembly]: http://webassembly.org/
 [NodeJS]: https://nodejs.org/
+[gutenberg-parser-comparator]: https://github.com/dmsnell/gutenberg-parser-comparator
+[`demo-post.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html
+[`shortcode-shortcomings.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html
+[`redesigning-chrome-desktop.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/redesigning-chrome-desktop.html
+[`web-at-maximum-fps.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/web-at-maximum-fps.html
+[`early-adopting-the-future.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/early-adopting-the-future.html
+[`moby-dick-parsed.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/moby-dick-parsed.html
 
