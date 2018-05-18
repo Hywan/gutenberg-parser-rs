@@ -249,11 +249,15 @@ named_attr!(
                 tag!(COMMENT_OPENING) >>
                 opt!(whitespaces) >>
                 tag!(WP_CLOSING) >>
-                _closing_name: block_name >>
+                _closing_name: verify!(
+                    block_name,
+                    |closing_name| {
+                        name == closing_name
+                    }
+                ) >>
                 opt!(whitespaces) >>
                 tag!(COMMENT_CLOSING) >>
                 (
-                    // @todo: Need to check that `closing_name` is equal to `name`.
                     Node::Block {
                         name: name,
                         attributes: attributes,
@@ -487,6 +491,11 @@ named_attr!(
 mod tests {
     use super::*;
     use super::super::ast::Node;
+    use nom::{
+        Err::Error,
+        ErrorKind,
+        simple_errors::Context
+    };
 
     #[test]
     fn test_block_list() {
@@ -662,6 +671,14 @@ mod tests {
                 ]
             }
         ));
+
+        assert_eq!(block(input), output);
+    }
+
+    #[test]
+    fn test_block_balanced_has_invalid_closing_name() {
+        let input = &b"<!-- wp:foo --><!-- /wp:bar -->"[..];
+        let output = Err(Error(Context::Code(&b"--><!-- /wp:bar -->"[..], ErrorKind::Alt)));
 
         assert_eq!(block(input), output);
     }
