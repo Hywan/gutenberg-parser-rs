@@ -157,4 +157,6 @@ fn escape_json_literal(str: &str) -> String {
         .replace("\r", "\\r")
         .replace("\t", "\\t")
         .replace("\"", "\\\"")
+        .replace("\u{0008}", "\\b")
+        .replace("\u{000C}", "\\f")
 }
