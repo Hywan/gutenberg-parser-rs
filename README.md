@@ -93,6 +93,7 @@ browser. Here are the results:
 | [`redesigning-chrome-desktop.html`] | 75.500 | 1.811 | x 42 |
 | [`web-at-maximum-fps.html`] | 88.118 | 1.334 | x 66 |
 | [`early-adopting-the-future.html`] | 201.011 | 3.171 | x 63 |
+| [`pygmalian-raw-html.html` | 311.416 | 2.894 | x 108 |
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | x 104 |
 
 The WASM binary of the Rust parser is in average 60 times faster than
