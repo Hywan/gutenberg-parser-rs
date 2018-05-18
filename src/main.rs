@@ -154,6 +154,7 @@ fn serialize_node_to_json<W: Write>(writer: &mut W, node: &Node) -> Result<(), E
 fn escape_json_literal(str: &str) -> String {
     str
         .replace("\n", "\\n")
+        .replace("\r", "\\r")
         .replace("\t", "\\t")
         .replace("\"", "\\\"")
 }
