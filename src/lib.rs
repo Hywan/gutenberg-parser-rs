@@ -95,7 +95,7 @@ browser. Here are the results:
 | [`redesigning-chrome-desktop.html`] | 75.500 | 1.811 | x 42 |
 | [`web-at-maximum-fps.html`] | 88.118 | 1.334 | x 66 |
 | [`early-adopting-the-future.html`] | 201.011 | 3.171 | x 63 |
-| [`pygmalian-raw-html.html` | 311.416 | 2.894 | x 108 |
+| [`pygmalian-raw-html.html`] | 311.416 | 2.894 | x 108 |
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | x 104 |
 
 The WASM binary of the Rust parser is in average 60 times faster than
@@ -147,6 +147,7 @@ The license is a classic `BSD-3-Clause`:
 [`redesigning-chrome-desktop.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/redesigning-chrome-desktop.html
 [`web-at-maximum-fps.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/web-at-maximum-fps.html
 [`early-adopting-the-future.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/early-adopting-the-future.html
+[`pygmalian-raw-html.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/pygmalian-raw-html.html
 [`moby-dick-parsed.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/moby-dick-parsed.html
 
 */
