@@ -70,10 +70,12 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
         let mut output = vec![];
 
         if let Ok((_remaining, nodes)) = super::root(input) {
-            let nodes_length = u16_to_u8s(nodes.len() as u16);
+            let nodes_length = u32_to_u8s(nodes.len() as u32);
 
             output.push(nodes_length.0);
             output.push(nodes_length.1);
+            output.push(nodes_length.2);
+            output.push(nodes_length.3);
 
             for node in nodes {
                 node.into_bytes(&mut output);
@@ -97,7 +99,7 @@ impl<'a> Node<'a> {
                     Some(attributes) => attributes.len(),
                     None             => 4
                 };
-                let attributes_length_as_u8s = u16_to_u8s(attributes_length as u16);
+                let attributes_length_as_u8s = u32_to_u8s(attributes_length as u32);
 
                 let number_of_children = children.len();
 
@@ -105,6 +107,8 @@ impl<'a> Node<'a> {
                 output.push(name_length as u8);
                 output.push(attributes_length_as_u8s.0);
                 output.push(attributes_length_as_u8s.1);
+                output.push(attributes_length_as_u8s.2);
+                output.push(attributes_length_as_u8s.3);
                 output.push(number_of_children as u8);
 
                 output.extend(name.0);
@@ -128,10 +132,12 @@ impl<'a> Node<'a> {
 
                 output.push(node_type);
 
-                let phrase_length_as_u8s = u16_to_u8s(phrase_length as u16);
+                let phrase_length_as_u8s = u32_to_u8s(phrase_length as u32);
 
                 output.push(phrase_length_as_u8s.0);
                 output.push(phrase_length_as_u8s.1);
+                output.push(phrase_length_as_u8s.2);
+                output.push(phrase_length_as_u8s.3);
 
                 output.extend(phrase);
             }
@@ -139,9 +145,11 @@ impl<'a> Node<'a> {
     }
 }
 
-fn u16_to_u8s(x: u16) -> (u8, u8) {
+fn u32_to_u8s(x: u32) -> (u8, u8, u8, u8) {
     (
-        ((x & 0b_1111_1111_0000_0000_u16) >> 8) as u8,
-         (x & 0b_0000_0000_1111_1111_u16) as u8
+        ((x & 0b_1111_1111_0000_0000_0000_0000_0000_0000_u32) >> 24) as u8,
+        ((x & 0b_0000_0000_1111_1111_0000_0000_0000_0000_u32) >> 16) as u8,
+        ((x & 0b_0000_0000_0000_0000_1111_1111_0000_0000_u32) >>  8) as u8,
+        ((x & 0b_0000_0000_0000_0000_0000_0000_1111_1111_u32)      ) as u8
     )
 }

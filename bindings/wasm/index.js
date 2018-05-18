@@ -31,8 +31,8 @@ function parser() {
         };
     };
 
-    function u8s_to_u16(p, o) {
-        return (p << 8) | o;
+    function u8s_to_u32(p, o, q, r) {
+        return (p << 24) | (o << 16) | (q << 8) | r;
     }
 
     function writeString(module, string_buffer) {
@@ -52,9 +52,7 @@ function parser() {
 
     function readNodes(module, start_pointer) {
         const buffer = new Uint8Array(module.memory.buffer.slice(start_pointer));
-        const number_of_nodes_0 = buffer[0];
-        const number_of_nodes_1 = buffer[1];
-        const number_of_nodes = u8s_to_u16(number_of_nodes_0, number_of_nodes_1);
+        const number_of_nodes = u8s_to_u32(buffer[0], buffer[1], buffer[2], buffer[3]);
 
         if (0 >= number_of_nodes) {
             return null;
@@ -63,7 +61,7 @@ function parser() {
         log && console.log('number of nodes', number_of_nodes);
 
         const nodes = [];
-        let offset = 2;
+        let offset = 4;
         let end_offset;
 
         for (let i = 0; i < number_of_nodes; ++i) {
@@ -88,16 +86,14 @@ function parser() {
         // Block.
         if (1 === node_type) {
             const name_length = buffer[offset + 1];
-            const attributes_length_0 = buffer[offset + 2];
-            const attributes_length_1 = buffer[offset + 3];
-            const attributes_length = u8s_to_u16(attributes_length_0, attributes_length_1);
-            const number_of_children = buffer[offset + 4];
+            const attributes_length = u8s_to_u32(buffer[offset + 2], buffer[offset + 3], buffer[offset + 4], buffer[offset + 5]);
+            const number_of_children = buffer[offset + 6];
 
             log && console.log('name length', name_length);
             log && console.log('attributes length', attributes_length);
             log && console.log('number of children', number_of_children);
 
-            let payload_offset = offset + 5;
+            let payload_offset = offset + 7;
             let next_payload_offset = payload_offset + name_length;
 
             const name = text_decoder(buffer.slice(payload_offset, next_payload_offset));
@@ -133,13 +129,12 @@ function parser() {
         }
         // Phrase.
         else if (2 === node_type) {
-            const phrase_length_0 = buffer[offset + 1];
-            const phrase_length_1 = buffer[offset + 2];
-            const phrase_length = u8s_to_u16(phrase_length_0, phrase_length_1);
+            const phrase_length = u8s_to_u32(buffer[offset + 1], buffer[offset + 2], buffer[offset + 3], buffer[offset + 4]);
 
             log && console.log('phrase length', phrase_length);
 
-            const phrase = text_decoder(buffer.slice(offset + 3, offset + 3 + phrase_length));
+            const phrase_offset = offset + 5;
+            const phrase = text_decoder(buffer.slice(phrase_offset, phrase_offset + phrase_length));
 
             log && console.log('phrase', phrase);
 
@@ -147,7 +142,7 @@ function parser() {
 
             nodes.push(new Phrase(phrase));
 
-            return offset + 3 + phrase_length;
+            return phrase_offset + phrase_length;
         } else {
             log && console.error('unknown node type', node_type);
         }
