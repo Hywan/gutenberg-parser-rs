@@ -96,7 +96,7 @@ browser. Here are the results:
 | [`pygmalian-raw-html.html`] | 311.416 | 2.894 | x 108 |
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | x 104 |
 
-The WASM binary of the Rust parser is in average 60 times faster than
+The WASM binary of the Rust parser is in average 67 times faster than
 the Javascript implementation.
 
 ### License
