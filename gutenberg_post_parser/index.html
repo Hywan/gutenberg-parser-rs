@@ -1,29 +1,40 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `gutenberg_post_parser` crate."><meta name="keywords" content="rust, rustlang, rust-lang, gutenberg_post_parser"><title>gutenberg_post_parser - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Crate gutenberg_post_parser</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'gutenberg_post_parser', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>gutenberg_post_parser</a></span><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/gutenberg_post_parser/lib.rs.html#1-217' title='goto source code'>[src]</a></span></h1><div class='docblock'><h1 id="the-gutenberg-post-parser" class="section-header"><a href="#the-gutenberg-post-parser">The Gutenberg post parser.</a></h1>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `gutenberg_post_parser` crate."><meta name="keywords" content="rust, rustlang, rust-lang, gutenberg_post_parser"><title>gutenberg_post_parser - Rust</title><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../dark.css"><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script src="../storage.js"></script></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><p class='location'>Crate gutenberg_post_parser</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#functions">Functions</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'gutenberg_post_parser', ty: 'mod', relpath: '../'};</script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../settings.html"><img src="../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>gutenberg_post_parser</a></span><span class='out-of-band'><span id='render-detail'><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class='inner'>&#x2212;</span>]</a></span><a class='srclink' href='../src/gutenberg_post_parser/lib.rs.html#1-254' title='goto source code'>[src]</a></span></h1><div class='docblock'><h1 id="the-gutenberg-post-parser" class="section-header"><a href="#the-gutenberg-post-parser">The Gutenberg post parser.</a></h1>
 <p><a href="https://github.com/WordPress/gutenberg/">Gutenberg</a> is a new post editor for the <a href="https://wordpress.org/">WordPress</a> ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
-the HTML is annotated. Like most annotation languages, it is located
-in comments, like this:</p>
+the HTML is now annotated. Like most annotation languages, it is
+located in comments, like this:</p>
 <pre><code class="language-html">&lt;h1&gt;Famous post&lt;/h1&gt;
 
 &lt;!-- wp:component {attributes: &quot;as JSON&quot;} --&gt;
 lorem ipsum
 &lt;!-- /wp:component --&gt;
 </code></pre>
-<p>The parser analyses a post and generates an Abstract Syntax Tree (AST) of it.</p>
-<h2 id="platforms-and-bindings" class="section-header"><a href="#platforms-and-bindings">Platforms and bindings</a></h2>
-<p>The parser aims at being used on different platforms, such as: Web
-within multiple browsers, Web applications like <a href="https://github.com/electron/">Electron</a>, native
+<p>The parser analyses a post and generates an Abstract Syntax Tree (AST)
+of it. The AST is then accessible to many languages through bindings.</p>
+<h2 id="platforms-and-bindings-aka-targets" class="section-header"><a href="#platforms-and-bindings-aka-targets">Platforms and bindings, aka targets</a></h2>
+<p>The parser aims at being used on different platforms, such as: the Web
+(within multiple browsers), Web applications like <a href="https://github.com/electron/">Electron</a>, native
 applications like macOS, iOS, Windows, Linux etc.</p>
-<p>Thus, the parser can be compiled as a binary, a static library, can be
-embedded in any Rust projects, can be compiled to <a href="http://webassembly.org/">WebAssembly</a>, or
-can be compiled to <a href="https://nodejs.org/">NodeJS</a>, and soon more.</p>
+<p>Thus, the parser can be compiled as:</p>
+<ul>
+<li>A <a href="#binary">binary</a>,</li>
+<li>A <a href="#static-library">static library</a>,</li>
+<li>Can be embedded in any Rust projects,</li>
+<li>A <a href="#webassembly">WebAssemble binary</a>,</li>
+<li>A <a href="#nodejs">NodeJS native module</a>,</li>
+<li>And soon more.</li>
+</ul>
 <p>This project uses <a href="https://github.com/casey/just/">Justfile</a> as an alternative to Makefile. Every
 following command will use <code>just</code>, you might consider to install
 it. To learn about all the commands, just <code>just --list</code>.</p>
+<p><strong>Note</strong>: Right now, this project needs <code>rustc</code> nightly to compile
+most of the targets. The project should switch to stable in a couple
+of months. Since then, be sure to run the latest nightly version with
+<code>rustup update nightly</code>.</p>
 <h3 id="binary" class="section-header"><a href="#binary">Binary</a></h3>
 <p>To compile the parser to a binary, run:</p>
 <pre><code class="language-sh">$ just build-binary
-$ echo -n '&lt;!-- wp:foo {&quot;bar&quot;: &quot;qux&quot;} /--&gt;' | ./target/release/gutenberg-post-parser
+$ ./target/release/gutenberg-post-parser --emit-json &lt;( echo -n '&lt;!-- wp:foo {&quot;bar&quot;: &quot;qux&quot;} /--&gt;' )
 </code></pre>
 <h3 id="static-library" class="section-header"><a href="#static-library">Static library</a></h3>
 <p>To compile the parser to a static library, run:</p>
@@ -31,7 +42,7 @@ $ echo -n '&lt;!-- wp:foo {&quot;bar&quot;: &quot;qux&quot;} /--&gt;' | ./target
 $ ls target/release/
 </code></pre>
 <h3 id="webassembly" class="section-header"><a href="#webassembly">WebAssembly</a></h3>
-<p>To compile the parser to a <a href="http://webassembly.org/">WebAssembly</a> file, run:</p>
+<p>To compile the parser to a <a href="http://webassembly.org/">WebAssembly</a> binary, run:</p>
 <pre><code class="language-sh">$ just build-wasm
 $ open bindings/wasm/index.html # for a demonstration
 </code></pre>
@@ -41,8 +52,23 @@ $ open bindings/wasm/index.html # for a demonstration
 $ node bindings/nodejs/lib/index.js # for a demonstration
 </code></pre>
 <h2 id="performance-and-guarantee" class="section-header"><a href="#performance-and-guarantee">Performance and guarantee</a></h2>
-<p>The parser guarantees to never copy the data in memory, which makes it
-fast and memory efficient.</p>
+<p>The parser guarantees to never copy the data in memory while
+analyzing, which makes it fast and memory efficient.</p>
+<p><a href="https://github.com/dmsnell/gutenberg-parser-comparator">A yet-to-be-official benchmark</a> is used
+to compare the performance of the actual Javascript parser against the
+Rust parser compiled as a WASM binary so that it can run in the
+browser. Here are the results:</p>
+<table><thead><tr><th> file </th><th> Javascript parser (ms) </th><th> Rust parser as a WASM binary (ms) </th><th> speedup </th></tr></thead><tbody>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html"><code>demo-post.html</code></a> </td><td> 13.167 </td><td> 0.43 </td><td> × 31 </td></tr>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html"><code>shortcode-shortcomings.html</code></a> </td><td> 26.784 </td><td> 0.476 </td><td> × 56 </td></tr>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/redesigning-chrome-desktop.html"><code>redesigning-chrome-desktop.html</code></a> </td><td> 75.500 </td><td> 1.811 </td><td> × 42 </td></tr>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/web-at-maximum-fps.html"><code>web-at-maximum-fps.html</code></a> </td><td> 88.118 </td><td> 1.334 </td><td> × 66 </td></tr>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/early-adopting-the-future.html"><code>early-adopting-the-future.html</code></a> </td><td> 201.011 </td><td> 3.171 </td><td> × 63 </td></tr>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/pygmalian-raw-html.html"><code>pygmalian-raw-html.html</code></a> </td><td> 311.416 </td><td> 2.894 </td><td> × 108 </td></tr>
+<tr><td> <a href="https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/moby-dick-parsed.html"><code>moby-dick-parsed.html</code></a> </td><td> 2,466.533 </td><td> 23.62 </td><td> × 104 </td></tr>
+</tbody></table>
+<p>The WASM binary of the Rust parser is in average 67 times faster than
+the Javascript implementation.</p>
 <h2 id="license" class="section-header"><a href="#license">License</a></h2>
 <p>The license is a classic <code>BSD-3-Clause</code>:</p>
 <blockquote>
@@ -115,11 +141,22 @@ is a wrapper around <code>fold_many0!</code> specifically designed for vectors.<
                            </td>
                        </tr>
                        <tr class=' module-item'>
-                           <td><a class="macro" href="macro.take_till_terminated.html"
-                                  title='macro gutenberg_post_parser::take_till_terminated'>take_till_terminated</a></td>
+                           <td><a class="macro" href="macro.take_until_terminated.html"
+                                  title='macro gutenberg_post_parser::take_until_terminated'>take_until_terminated</a></td>
                            <td class='docblock-short'>
-                                <p><code>take_till_terminated(S, C)</code> is like <code>take_till</code> from but with a
-lookahead combinator <code>C</code>.</p>
+                                <p><code>take_until_terminated(S, C)</code> is like <code>take_until</code> but with a
+lookahead combinator <code>C</code>. It's not similar to
+<code>terminated!(take_until(S, peek!(C)))</code> because it loops over the
+input until <code>C</code> is true.</p>
+
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="macro" href="macro.take_until_terminated_and_consume.html"
+                                  title='macro gutenberg_post_parser::take_until_terminated_and_consume'>take_until_terminated_and_consume</a></td>
+                           <td class='docblock-short'>
+                                <p><code>take_until_terminated_and_consume(S, C)</code> is similar to
+<code>take_until_terminated</code> but it consumes <code>S</code>.</p>
 
                            </td>
                        </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>

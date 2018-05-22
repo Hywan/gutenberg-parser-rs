@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Node","Represent a node in the AST."]]});
+initSidebarItems({"enum":[["Node","Represent a node in an AST."]]});

@@ -39,7 +39,7 @@ The Abstract Syntax Tree (AST), i.e. the output of the parser.
 <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Input</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>)]</span> <span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">Vec</span>;
 
-<span class="doccomment">/// Represent a node in the AST.</span>
+<span class="doccomment">/// Represent a node in an AST.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg_attr</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>), <span class="ident">derive</span>(<span class="ident">Debug</span>))]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Node</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {

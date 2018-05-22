@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors["nom"] = [];
+implementors["nom"] = [{text:"impl&lt;'a&gt; <a class=\"trait\" href=\"nom/lib/std/prelude/v1/v1/trait.AsRef.html\" title=\"trait nom::lib::std::prelude::v1::v1::AsRef\">AsRef</a>&lt;str&gt; for <a class=\"struct\" href=\"nom/types/struct.CompleteStr.html\" title=\"struct nom::types::CompleteStr\">CompleteStr</a>&lt;'a&gt;",synthetic:false,types:["nom::types::CompleteStr"]},];
 
             if (window.register_implementors) {
                 window.register_implementors(implementors);

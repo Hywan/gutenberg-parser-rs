@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["fold_into_vector",""]]});
+initSidebarItems({"fn":[["fold_into_vector","Helper to fold an item into a vector."]]});
