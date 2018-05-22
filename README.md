@@ -88,13 +88,13 @@ browser. Here are the results:
 
 | file | Javascript parser (ms) | Rust parser as a WASM binary (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 13.167 | 0.43 | x 31 |
-| [`shortcode-shortcomings.html`] | 26.784 | 0.476 | x 56 |
-| [`redesigning-chrome-desktop.html`] | 75.500 | 1.811 | x 42 |
-| [`web-at-maximum-fps.html`] | 88.118 | 1.334 | x 66 |
-| [`early-adopting-the-future.html`] | 201.011 | 3.171 | x 63 |
-| [`pygmalian-raw-html.html`] | 311.416 | 2.894 | x 108 |
-| [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | x 104 |
+| [`demo-post.html`] | 13.167 | 0.43 | × 31 |
+| [`shortcode-shortcomings.html`] | 26.784 | 0.476 | × 56 |
+| [`redesigning-chrome-desktop.html`] | 75.500 | 1.811 | × 42 |
+| [`web-at-maximum-fps.html`] | 88.118 | 1.334 | × 66 |
+| [`early-adopting-the-future.html`] | 201.011 | 3.171 | × 63 |
+| [`pygmalian-raw-html.html`] | 311.416 | 2.894 | × 108 |
+| [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
 
 The WASM binary of the Rust parser is in average 67 times faster than
 the Javascript implementation.
