@@ -1,4 +1,5 @@
 cwd = `pwd`
+asmjs_directory = "bindings/asmjs"
 c_directory = "bindings/c"
 nodejs_directory = "bindings/nodejs"
 php_directory = "bindings/php"
@@ -45,6 +46,12 @@ build-c:
 			-l pthread \
 			-l c \
 			-l m
+
+# Build the parser and produce an ASM.js file.
+build-asmjs: build-wasm
+	wasm2es6js --wasm2asm --output {{asmjs_directory}}/gutenberg_post_parser.asm.js {{wasm_directory}}/gutenberg_post_parser.wasm
+	cd {{asmjs_directory}} && \
+		sed -i '' -e 's/export //' gutenberg_post_parser.asm.js
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
