@@ -23,6 +23,10 @@ build-wasm:
 		mv gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
 		gzip --best --stdout gutenberg_post_parser.wasm > gutenberg_post_parser.wasm.gz
 
+# Start an HTTP server to serve WASM demo.
+start-wasm-server:
+	cd {{wasm_directory}} && php -S localhost:8888 -t . server.php
+
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
 	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/

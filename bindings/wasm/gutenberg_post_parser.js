@@ -2,7 +2,7 @@ class Gutenberg_Post_Parser {
     constructor(Block, Phrase, wasmURL) {
         this.Block = Block;
         this.Phrase = Phrase;
-        this._wasm = this.fetchAndInstantiate(wasmURL, {});
+        this._wasm = this.instantiateWASM(wasmURL, {});
 
         this._encoder = new TextEncoder();
         this._decoder = new TextDecoder('utf-8');
@@ -24,17 +24,8 @@ class Gutenberg_Post_Parser {
         };
     }
 
-    fetchAndInstantiate(url, importObject) {
-        return fetch(url)
-            .then(
-                (response) => response.arrayBuffer()
-            )
-            .then(
-                (bytes) => WebAssembly.instantiate(bytes, importObject)
-            )
-            .then(
-                (results) => results.instance
-            );
+    instantiateWASM(url, importObject) {
+        return WebAssembly.instantiateStreaming(fetch(url), importObject).then(obj => obj.instance);
     }
 
     text_encoder(string) {
