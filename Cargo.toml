@@ -14,7 +14,7 @@ required-features = ["bin"]
 
 [lib]
 name = "gutenberg_post_parser"
-crate-type = ["lib", "cdylib", "dylib"]
+crate-type = ["cdylib", "dylib", "staticlib"]
 path = "src/lib.rs"
 
 [profile.release]
@@ -25,6 +25,7 @@ opt-level = 3
 [features]
 default = ["nodejs"] # Because of a strange behavior, `nodejs` must be in `default`. Use `just --list` to compile correctly.
 wasm = ["wee_alloc"]
+c = ["cbindgen"]
 nodejs = ["neon", "neon-build", "serde_json", "neon-serde"]
 bin = ["failure", "clap"]
 
@@ -38,4 +39,5 @@ failure = { version = "0.1.1", optional = true }
 clap = { version = "^2.31.2", optional = true }
 
 [build-dependencies]
+cbindgen = { version = "0.6.0", optional = true }
 neon-build = { version = "0.1.22", optional = true }

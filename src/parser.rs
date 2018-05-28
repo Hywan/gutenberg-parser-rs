@@ -491,11 +491,9 @@ named_attr!(
 mod tests {
     use super::*;
     use super::super::ast::Node;
-    use nom::{
-        Err::Error,
-        ErrorKind,
-        simple_errors::Context
-    };
+    use nom::Err::Error;
+    use nom::ErrorKind;
+    use nom::simple_errors::Context;
 
     #[test]
     fn test_block_list() {

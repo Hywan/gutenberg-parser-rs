@@ -1,0 +1,5 @@
+header = "/* Gutengerg Post Parser, the C bindings. */"
+tab_width = 4
+
+[export]
+exclude = ["root", "alloc", "dealloc"]

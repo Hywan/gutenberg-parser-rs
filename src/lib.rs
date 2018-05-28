@@ -187,6 +187,7 @@ pub mod ast;
 #[macro_use] pub mod combinators;
 pub mod parser;
 #[cfg(feature = "wasm")] pub mod wasm;
+#[cfg(feature = "c")] pub mod c;
 #[cfg(feature = "nodejs")] pub mod nodejs;
 
 
