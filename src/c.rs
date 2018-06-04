@@ -8,22 +8,21 @@ use super::root;
 use super::ast;
 use std::ffi::{CStr, CString};
 use std::mem;
-use std::os::raw::c_char;
+use std::os::raw::{c_char, c_void};
 
-/// cbindgen:derive-helper-methods
 #[repr(C)]
 pub enum Option_c_char {
     Some(*const c_char),
     None
 }
 
-/// cbindgen:derive-helper-methods
 #[repr(C)]
 pub enum Node {
     Block {
         namespace: *const c_char,
         name: *const c_char,
         attributes: Option_c_char,
+        children: *const c_void
     },
     Phrase(*const c_char)
 }
@@ -34,7 +33,6 @@ pub struct Vector_Node {
     length: usize
 }
 
-/// cbindgen:derive-helper-methods
 #[repr(C)]
 pub enum Result {
     Ok(Vector_Node),
@@ -53,12 +51,23 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                     |node| {
                         match node {
                             ast::Node::Block { name, attributes, children } => {
-                                let name_0 = CString::new(name.0).unwrap();
-                                let name_1 = CString::new(name.1).unwrap();
+                                Node::Block {
+                                    namespace: {
+                                        let namespace = CString::new(name.0).unwrap();
+                                        let pointer = namespace.as_ptr();
 
-                                let block = Node::Block {
-                                    namespace: name_0.as_ptr(),
-                                    name: name_1.as_ptr(),
+                                        mem::forget(namespace);
+
+                                        pointer
+                                    },
+                                    name: {
+                                        let name = CString::new(name.1).unwrap();
+                                        let pointer = name.as_ptr();
+
+                                        mem::forget(name);
+
+                                        pointer
+                                    },
                                     attributes: match attributes {
                                         Some(attributes) => {
                                             let attributes = CString::new(attributes).unwrap();
@@ -72,13 +81,17 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                                         None => {
                                             Option_c_char::None
                                         }
+                                    },
+                                    children: {
+                                        let vector = Vector_Node {
+                                            buffer: vec![].as_slice().as_ptr(),
+                                            length: 0
+                                        };
+                                        let vector_ptr: *const c_void = &vector as *const _ as *const c_void;
+
+                                        vector_ptr
                                     }
-                                };
-
-                                mem::forget(name_0);
-                                mem::forget(name_1);
-
-                                block
+                                }
                             },
 
                             ast::Node::Phrase(input) => {

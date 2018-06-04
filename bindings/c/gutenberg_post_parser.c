@@ -30,9 +30,13 @@ int main() {
 
         printf("  %s\n", attributes);
       }
+
+      Vector_Node* children = (Vector_Node*) block.children;
     } else {
+      const char *phrase = node.phrase._0;
+
       printf("phrase\n");
-      printf("  %s\n", node.phrase._0);
+      printf("  %s\n", phrase);
     }
 
     printf("\n");
