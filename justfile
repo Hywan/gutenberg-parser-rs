@@ -1,3 +1,5 @@
+cwd = `pwd`
+c_directory = "bindings/c"
 nodejs_directory = "bindings/nodejs"
 wasm_directory = "bindings/wasm"
 
@@ -30,6 +32,18 @@ start-wasm-server:
 # Build the parser and produce a C binary.
 build-c:
 	cargo build --no-default-features --features "c" --release
+
+test-c:
+	cd {{c_directory}} && \
+	    clang \
+		-o gutenberg-post-parser \
+		gutenberg_post_parser.c \
+		-L {{cwd}}/target/release/ \
+		-l gutenberg_post_parser \
+		-l System \
+		-l pthread \
+		-l c \
+		-l m
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:

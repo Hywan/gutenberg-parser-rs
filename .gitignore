@@ -1,4 +1,5 @@
 /Cargo.lock
+/bindings/c/gutenberg-post-parser
 /bindings/c/gutenberg_post_parser.h
 /bindings/nodejs/native/Cargo.lock
 /bindings/nodejs/native/artifacts.json
