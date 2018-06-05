@@ -22,7 +22,7 @@ pub enum Node {
         namespace: *const c_char,
         name: *const c_char,
         attributes: Option_c_char,
-        // Cannot declare `Vector_Node` here because of https://github.com/eqrion/cbindgen/issues/43.
+        // Cannot type to `*const Vector_Node` here because of https://github.com/eqrion/cbindgen/issues/43.
         children: *const c_void
     },
     Phrase(*const c_char)
