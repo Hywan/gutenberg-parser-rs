@@ -50,64 +50,7 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                 .into_iter()
                 .map(
                     |node| {
-                        match node {
-                            ast::Node::Block { name, attributes, children } => {
-                                Node::Block {
-                                    namespace: {
-                                        let namespace = CString::new(name.0).unwrap();
-                                        let pointer = namespace.as_ptr();
-
-                                        mem::forget(namespace);
-
-                                        pointer
-                                    },
-                                    name: {
-                                        let name = CString::new(name.1).unwrap();
-                                        let pointer = name.as_ptr();
-
-                                        mem::forget(name);
-
-                                        pointer
-                                    },
-                                    attributes: match attributes {
-                                        Some(attributes) => {
-                                            let attributes = CString::new(attributes).unwrap();
-                                            let some = Option_c_char::Some(attributes.as_ptr());
-
-                                            mem::forget(attributes);
-
-                                            some
-                                        },
-
-                                        None => {
-                                            Option_c_char::None
-                                        }
-                                    },
-                                    children: {
-                                        let vector = Vector_Node {
-                                            buffer: vec![].as_slice().as_ptr(),
-                                            length: 42,
-                                        };
-
-                                        let boxed_vector = Box::new(vector);
-                                        let static_ref_vector: &'static mut Vector_Node = Box::leak(boxed_vector);
-
-                                        let vector_ptr = static_ref_vector as *const _ as *const c_void;
-
-                                        vector_ptr
-                                    }
-                                }
-                            },
-
-                            ast::Node::Phrase(input) => {
-                                let input = CString::new(input).unwrap();
-                                let phrase = Node::Phrase(input.as_ptr());
-
-                                mem::forget(input);
-
-                                phrase
-                            }
-                        }
+                        node.into_ffi()
                     }
                 )
                 .collect();
@@ -120,5 +63,78 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
         )
     } else {
         Result::Err
+    }
+}
+
+impl<'a> ast::Node<'a> {
+    fn into_ffi(&self) -> Node {
+        match *self {
+            ast::Node::Block { name, attributes, ref children } => {
+                Node::Block {
+                    namespace: {
+                        let namespace = CString::new(name.0).unwrap();
+                        let pointer = namespace.as_ptr();
+
+                        mem::forget(namespace);
+
+                        pointer
+                    },
+                    name: {
+                        let name = CString::new(name.1).unwrap();
+                        let pointer = name.as_ptr();
+
+                        mem::forget(name);
+
+                        pointer
+                    },
+                    attributes: match attributes {
+                        Some(attributes) => {
+                            let attributes = CString::new(attributes).unwrap();
+                            let some = Option_c_char::Some(attributes.as_ptr());
+
+                            mem::forget(attributes);
+
+                            some
+                        },
+
+                        None => {
+                            Option_c_char::None
+                        }
+                    },
+                    children: {
+                        let output: Vec<Node> =
+                            children
+                                .into_iter()
+                                .map(
+                                    |node| {
+                                        node.into_ffi()
+                                    }
+                                )
+                                .collect();
+
+                        let vector = Vector_Node {
+                            buffer: output.as_slice().as_ptr(),
+                            length: output.len()
+                        };
+
+                        let boxed_vector = Box::new(vector);
+                        let static_ref_vector: &'static mut Vector_Node = Box::leak(boxed_vector);
+
+                        let vector_ptr = static_ref_vector as *const _ as *const c_void;
+
+                        vector_ptr
+                    }
+                }
+            },
+
+            ast::Node::Phrase(input) => {
+                let input = CString::new(input).unwrap();
+                let phrase = Node::Phrase(input.as_ptr());
+
+                mem::forget(input);
+
+                phrase
+            }
+        }
     }
 }
