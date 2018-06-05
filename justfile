@@ -34,6 +34,7 @@ build-c:
 	cargo build --no-default-features --features "c" --release
 	cd {{c_directory}} && \
 		clang \
+			-Wall \
 			-o gutenberg-post-parser \
 			gutenberg_post_parser.c \
 			-L {{cwd}}/target/release/ \

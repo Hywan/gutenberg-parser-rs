@@ -112,15 +112,15 @@ impl<'a> ast::Node<'a> {
                                 )
                                 .collect();
 
-                        let vector = Vector_Node {
-                            buffer: output.as_slice().as_ptr(),
-                            length: output.len()
-                        };
+                        let vector = Box::new(
+                            Vector_Node {
+                                buffer: output.as_slice().as_ptr(),
+                                length: output.len()
+                            }
+                        );
+                        let vector_ptr = Box::into_raw(vector) as *const _ as *const c_void;
 
-                        let boxed_vector = Box::new(vector);
-                        let static_ref_vector: &'static mut Vector_Node = Box::leak(boxed_vector);
-
-                        let vector_ptr = static_ref_vector as *const _ as *const c_void;
+                        mem::forget(output);
 
                         vector_ptr
                     }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "gutenberg_post_parser.h"
 
 void print(const Vector_Node* nodes, int depth) {
@@ -16,9 +17,12 @@ void print(const Vector_Node* nodes, int depth) {
 
     if (node.tag == Block) {
       const Block_Body block = node.block;
+      const char *namespace = block.namespace;
+      const char *name = block.name;
 
       printf("%*.*sblock\n", depth, depth, " ");
-      printf("%*.*s    %s/%s\n", depth, depth, " ", block.namespace, block.name);
+
+      printf("%*.*s    %s/%s\n", depth, depth, " ", namespace, name);
 
       if (block.attributes.tag == Some) {
         const char *attributes = block.attributes.some._0;
@@ -59,7 +63,7 @@ int main(int argc, char **argv) {
   long file_size = ftell(file);
   rewind(file);
 
-  char* file_content = (char*) malloc(sizeof(char) * file_size);
+  char* file_content = (char*) calloc(file_size, sizeof(char));
   size_t result = fread(file_content, 1, file_size, file);
 
   if (((long) result) != file_size) {
@@ -68,7 +72,10 @@ int main(int argc, char **argv) {
     return 3;
   }
 
+  printf("content length %ld/%lu\n", file_size, strlen(file_content));
+
   printf("%s\n", file_content);
+
   Result output = parse(file_content);
 
   if (output.tag == Err) {
@@ -80,8 +87,8 @@ int main(int argc, char **argv) {
   const Vector_Node nodes = output.ok._0;
   print(&nodes, 0);
 
-  fclose(file);
   free(file_content);
+  fclose(file);
 
   return 0;
 }
