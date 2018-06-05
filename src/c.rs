@@ -22,6 +22,7 @@ pub enum Node {
         namespace: *const c_char,
         name: *const c_char,
         attributes: Option_c_char,
+        // Cannot declare `Vector_Node` here because of https://github.com/eqrion/cbindgen/issues/43.
         children: *const c_void
     },
     Phrase(*const c_char)
@@ -85,9 +86,20 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                                     children: {
                                         let vector = Vector_Node {
                                             buffer: vec![].as_slice().as_ptr(),
-                                            length: 0
+                                            length: 42,
                                         };
-                                        let vector_ptr: *const c_void = &vector as *const _ as *const c_void;
+                                        let vector_ptr = &vector as *const _ as *const c_void;
+
+                                        println!("(rust) ===> vector.length = {:?}", vector.length);
+
+                                        mem::forget(vector);
+
+                                        println!("(rust) ===> vector_ptr = {:?}", vector_ptr);
+
+                                        /*
+                                        let data: &Vector_Node = unsafe { &*(vector_ptr as *const Vector_Node) };
+                                        println!("=====> {:?}", data.length);
+                                        */
 
                                         vector_ptr
                                     }

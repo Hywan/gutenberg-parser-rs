@@ -3,10 +3,11 @@
 #include "gutenberg_post_parser.h"
 
 int main() {
-  char input[] = "<!-- wp:foo {\"abc\":true} /-->bar<!-- wp:baz -->qux<!-- /wp:baz -->";
-  Result output = parse(input);
+  const char input[] = "<!-- wp:foo {\"abc\":true} /-->bar<!-- wp:baz -->qux<!-- /wp:baz -->";
 
   printf("%s\n", input);
+
+  Result output = parse(input);
 
   if (output.tag == Err) {
     printf("Parse error\n");
@@ -14,13 +15,13 @@ int main() {
     return 1;
   }
 
-  uintptr_t number_of_nodes = output.ok._0.length;
+  const uintptr_t number_of_nodes = output.ok._0.length;
 
   for (uintptr_t nth = 0; nth < number_of_nodes; ++nth) {
-    Node node = output.ok._0.buffer[nth];
+    const Node node = output.ok._0.buffer[nth];
 
     if (node.tag == Block) {
-      Block_Body block = node.block;
+      const Block_Body block = node.block;
 
       printf("block\n");
       printf("  %s/%s\n", block.namespace, block.name);
@@ -31,7 +32,10 @@ int main() {
         printf("  %s\n", attributes);
       }
 
-      Vector_Node* children = (Vector_Node*) block.children;
+      printf(" ~~~> block.children = %p\n", block.children);
+      const Vector_Node* children = (const Vector_Node*) (block.children);
+      printf(" ===> %p\n", children);
+      printf(" ===> %lu\n", children->length);
     } else {
       const char *phrase = node.phrase._0;
 
