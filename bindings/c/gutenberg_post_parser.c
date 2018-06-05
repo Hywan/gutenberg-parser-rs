@@ -29,7 +29,7 @@ void print(const Vector_Node* nodes, int depth) {
       const Vector_Node* children = (const Vector_Node*) (block.children);
 
       print(children, depth + 4);
-    } else {
+    } else if (node.tag == Phrase) {
       const char *phrase = node.phrase._0;
 
       printf("%*.*sphrase\n", depth, depth, " ");
@@ -41,7 +41,7 @@ void print(const Vector_Node* nodes, int depth) {
 }
 
 int main() {
-  const char input[] = "<!-- wp:foo {\"abc\":true} /-->bar<!-- wp:baz -->qux<!-- /wp:baz -->";
+  const char input[] = "<!-- wp:foo {\"abc\":true} /-->bar<!-- wp:baz --><!-- wp:qu/xxx /-->xyz<!-- /wp:baz -->";
 
   printf("%s\n\n", input);
 
