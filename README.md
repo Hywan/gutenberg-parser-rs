@@ -65,7 +65,8 @@ To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
 $ just build-wasm
-$ open bindings/wasm/index.html # for a demonstration
+$ cd bindings/wasm/ && php -S localhost:8888 -t . server.php
+$ open localhost:8888
 ```
 
 #### NodeJS
@@ -74,7 +75,7 @@ To compile the parser to a [NodeJS] native module, run:
 
 ```sh
 $ just build-nodejs
-$ node bindings/nodejs/lib/index.js # for a demonstration
+$ node bindings/nodejs/lib/index.js
 ```
 
 #### C
