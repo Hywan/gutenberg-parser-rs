@@ -85,7 +85,7 @@ To compile the parser to a [C header][C], run:
 
 ```sh
 $ just build-c
-$ echo -n '<!-- wp:foo {"bar": "qux} /-->' > test
+$ echo -n '<!-- wp:foo {"bar": "qux"} /-->' > test
 $ ./bindings/c/gutenberg-post-parser test
 ```
 
