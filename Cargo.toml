@@ -14,7 +14,7 @@ required-features = ["bin"]
 
 [lib]
 name = "gutenberg_post_parser"
-crate-type = ["cdylib", "dylib", "staticlib"]
+crate-type = ["cdylib", "dylib", "lib", "staticlib"]
 path = "src/lib.rs"
 
 [profile.release]
