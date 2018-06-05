@@ -35,15 +35,15 @@ build-c:
 
 test-c:
 	cd {{c_directory}} && \
-	    clang \
-		-o gutenberg-post-parser \
-		gutenberg_post_parser.c \
-		-L {{cwd}}/target/release/ \
-		-l gutenberg_post_parser \
-		-l System \
-		-l pthread \
-		-l c \
-		-l m
+		clang \
+			-o gutenberg-post-parser \
+			gutenberg_post_parser.c \
+			-L {{cwd}}/target/release/ \
+			-l gutenberg_post_parser \
+			-l System \
+			-l pthread \
+			-l c \
+			-l m
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
