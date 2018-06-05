@@ -32,8 +32,6 @@ start-wasm-server:
 # Build the parser and produce a C binary.
 build-c:
 	cargo build --no-default-features --features "c" --release
-
-test-c:
 	cd {{c_directory}} && \
 		clang \
 			-o gutenberg-post-parser \

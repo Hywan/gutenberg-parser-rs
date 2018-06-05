@@ -29,8 +29,9 @@ Thus, the parser can be compiled as:
   * A [binary](#binary),
   * A [static library](#static-library),
   * Can be embedded in any Rust projects,
-  * A [WebAssemble binary](#webassembly),
+  * A [WebAssembly binary](#webassembly),
   * A [NodeJS native module](#nodejs),
+  * A [C header](#c),
   * And soon more.
 
 This project uses [Justfile] as an alternative to Makefile. Every
@@ -76,6 +77,16 @@ To compile the parser to a [NodeJS] native module, run:
 ```sh
 $ just build-nodejs
 $ node bindings/nodejs/lib/index.js # for a demonstration
+```
+
+### C
+
+To compile the parser to a [C header][C], run:
+
+```sh
+$ just build-c
+$ echo -n '<!-- wp:foo {"bar": "qux} /-->' > test
+$ ./bindings/c/gutenberg-post-parser test
 ```
 
 ## Performance and guarantee
@@ -141,6 +152,7 @@ The license is a classic `BSD-3-Clause`:
 [Justfile]: https://github.com/casey/just/
 [WebAssembly]: http://webassembly.org/
 [NodeJS]: https://nodejs.org/
+[C]: https://en.wikipedia.org/wiki/C_(programming_language)
 [gutenberg-parser-comparator]: https://github.com/dmsnell/gutenberg-parser-comparator
 [`demo-post.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html
 [`shortcode-shortcomings.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html

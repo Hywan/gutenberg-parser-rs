@@ -40,21 +40,48 @@ void print(const Vector_Node* nodes, int depth) {
   }
 }
 
-int main() {
-  const char input[] = "<!-- wp:foo {\"abc\":true} /-->bar<!-- wp:baz --><!-- wp:qu/xxx /-->xyz<!-- /wp:baz -->";
-
-  printf("%s\n\n", input);
-
-  Result output = parse(input);
-
-  if (output.tag == Err) {
-    printf("Parse error\n");
+int main(int argc, char **argv) {
+  if (argc < 2) {
+    printf("Filename is required.");
 
     return 1;
   }
 
+  FILE* file = fopen(argv[1], "rb");
+
+  if (file == NULL) {
+    printf("Cannot read given file.");
+
+    return 2;
+  }
+
+  fseek(file, 0, SEEK_END);
+  long file_size = ftell(file);
+  rewind(file);
+
+  char* file_content = (char*) malloc(sizeof(char) * file_size);
+  size_t result = fread(file_content, 1, file_size, file);
+
+  if (((long) result) != file_size) {
+    printf("Error while reading file content.");
+
+    return 3;
+  }
+
+  printf("%s\n", file_content);
+  Result output = parse(file_content);
+
+  if (output.tag == Err) {
+    printf("Parse error\n");
+
+    return 4;
+  }
+
   const Vector_Node nodes = output.ok._0;
   print(&nodes, 0);
+
+  fclose(file);
+  free(file_content);
 
   return 0;
 }
