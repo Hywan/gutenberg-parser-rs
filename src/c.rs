@@ -88,18 +88,11 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                                             buffer: vec![].as_slice().as_ptr(),
                                             length: 42,
                                         };
-                                        let vector_ptr = &vector as *const _ as *const c_void;
 
-                                        println!("(rust) ===> vector.length = {:?}", vector.length);
+                                        let boxed_vector = Box::new(vector);
+                                        let static_ref_vector: &'static mut Vector_Node = Box::leak(boxed_vector);
 
-                                        mem::forget(vector);
-
-                                        println!("(rust) ===> vector_ptr = {:?}", vector_ptr);
-
-                                        /*
-                                        let data: &Vector_Node = unsafe { &*(vector_ptr as *const Vector_Node) };
-                                        println!("=====> {:?}", data.length);
-                                        */
+                                        let vector_ptr = static_ref_vector as *const _ as *const c_void;
 
                                         vector_ptr
                                     }
