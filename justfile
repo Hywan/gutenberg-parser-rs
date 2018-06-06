@@ -50,7 +50,8 @@ build-nodejs:
 	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/
 
 # Build the parser and produce a PHP extension.
-build-php: build-c
+build-php:
+	cargo build --no-default-features --features "c" --release
 	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
 		phpize && \
 		./configure && \
