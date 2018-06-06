@@ -20,15 +20,15 @@ PHP_FUNCTION(gutenberg_post_parser)
 		return;
 	}
 
-        Result parser_result = parse(input);
+	Result parser_result = parse(input);
 
-        if (parser_result.tag == Err) {
-          RETURN_FALSE;
-        }
+	if (parser_result.tag == Err) {
+		RETURN_FALSE;
+	}
 
-        const Vector_Node nodes = parser_result.ok._0;
+	const Vector_Node nodes = parser_result.ok._0;
 
-        RETURN_LONG((int) (nodes.length));
+	RETURN_LONG((int) (nodes.length));
 }
 /* }}}*/
 
