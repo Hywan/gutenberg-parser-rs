@@ -30,6 +30,7 @@ Thus, the parser can be compiled as:
   * A [WebAssembly binary](#webassembly),
   * A [NodeJS native module](#nodejs),
   * A [C header](#c),
+  * A [PHP extension](#php),
   * And soon more.
 
 This project uses [Justfile] as an alternative to Makefile. Every
@@ -86,6 +87,15 @@ To compile the parser to a [C header][C], run:
 $ just build-c
 $ echo -n '<!-- wp:foo {"bar": "qux"} /-->' > test
 $ ./bindings/c/gutenberg-post-parser test
+```
+
+#### PHP
+
+To compile the parser to a [PHP extension][PHP], run:
+
+```sh
+$ just build-php
+$ php bindings/php/index.php
 ```
 
 ### Performance and guarantee
