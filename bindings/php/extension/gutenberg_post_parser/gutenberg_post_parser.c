@@ -11,7 +11,7 @@
 
 /* {{{ string gutenberg_post_parser( [ string $var ] )
  */
-PHP_FUNCTION(gutenberg_post_parser)
+PHP_FUNCTION(gutenberg_post_parse)
 {
 	char *input;
 	size_t input_len;
@@ -37,17 +37,17 @@ PHP_FUNCTION(gutenberg_post_parser)
 zend_class_entry *global_gutenberg_parser_block_class_entry;
 zend_class_entry *global_gutenberg_parser_phrase_class_entry;
 
-const zend_function_entry gutenberg_parser_functions[] = {
+const zend_function_entry gutenberg_post_parser_methods[] = {
 	PHP_FE_END
 };
 
 PHP_MINIT_FUNCTION(gutenberg_post_parser)
 {
 	zend_class_entry gutenberg_parser_block_class_entry;
-	INIT_CLASS_ENTRY(gutenberg_parser_block_class_entry, "Gutenberg_Parser_Block", gutenberg_parser_functions);
+	INIT_CLASS_ENTRY(gutenberg_parser_block_class_entry, "Gutenberg_Parser_Block", gutenberg_post_parser_methods);
 
 	zend_class_entry gutenberg_parser_phrase_class_entry;
-	INIT_CLASS_ENTRY(gutenberg_parser_phrase_class_entry, "Gutenberg_Parser_Phrase", gutenberg_parser_functions);
+	INIT_CLASS_ENTRY(gutenberg_parser_phrase_class_entry, "Gutenberg_Parser_Phrase", gutenberg_post_parser_methods);
 
 	global_gutenberg_parser_block_class_entry = zend_register_internal_class(&gutenberg_parser_block_class_entry TSRMLS_CC);
 	global_gutenberg_parser_phrase_class_entry = zend_register_internal_class(&gutenberg_parser_phrase_class_entry TSRMLS_CC);
@@ -89,7 +89,7 @@ ZEND_END_ARG_INFO()
 /* {{{ gutenberg_post_parser_functions[]
  */
 static const zend_function_entry gutenberg_post_parser_functions[] = {
-	PHP_FE(gutenberg_post_parser,		arginfo_gutenberg_post_parser)
+	PHP_FE(gutenberg_post_parse,		arginfo_gutenberg_post_parser)
 	PHP_FE_END
 };
 /* }}} */
