@@ -97,8 +97,12 @@ To compile the parser to a [PHP extension][PHP], run:
 
 ```sh
 $ just build-php
-$ php bindings/php/index.php
+$ php -d extension=gutenberg_post_parser bindings/php/index.php
 ```
+
+To replace the `-d extension=gutenberg_post_parser`, add
+`extension=gutenberg_post_parser` in the `php.ini` file (hint: Run
+`php --ini` to locate this configuration file).
 
 ## Performance and guarantee
 
