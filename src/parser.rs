@@ -35,7 +35,7 @@ A balanced block can have children, while a void block cannot.
 
 ```ebnf
 block =
-    block_balanced | block_void
+    block_balanced | block_void ;
 
 block_balanced =
     "<!--", [ wss ], "wp:", block_name, wss, block_attributes, [ wss ], "-->",
@@ -89,10 +89,10 @@ A phrase is anything that is not a block.
 
 ```ebnf
 phrase =
-    anything - "<!--"
+    anything - "<!--" ;
 
 anything =
-    ? any bytes ?
+    ? any bytes ? ;
 ```
 
 ## `wss`
@@ -101,13 +101,13 @@ Whitespace is shortened to `ws`, and whitespaces is shortened to `wss`.
 
 ```ebnf
 wss =
-    ws, { ws }
+    ws, { ws } ;
 
 ws =
     " "  (* U+0020 *)
   | "\n" (* U+000A *)
   | "\r" (* U+000D *)
-  | "\t" (* U+0009 *)
+  | "\t" (* U+0009 *) ;
 ```
 
 [nom]: https://github.com/Geal/nom/
