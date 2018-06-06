@@ -164,6 +164,7 @@ The license is a classic `BSD-3-Clause`:
 [WebAssembly]: http://webassembly.org/
 [NodeJS]: https://nodejs.org/
 [C]: https://en.wikipedia.org/wiki/C_(programming_language)
+[PHP]: https://php.net/
 [gutenberg-parser-comparator]: https://github.com/dmsnell/gutenberg-parser-comparator
 [`demo-post.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html
 [`shortcode-shortcomings.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html
