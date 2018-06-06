@@ -50,9 +50,9 @@ build-nodejs:
 	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/
 
 # Build the parser and produce a PHP extension.
-build-php:
-	cd {{php_directory}} && rustc gutenberg_post_parser.rs
+build-php: build-c
 	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
+		phpize && \
 		./configure && \
 		sudo make install
 

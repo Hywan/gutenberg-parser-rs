@@ -13,18 +13,49 @@
  */
 PHP_FUNCTION(gutenberg_post_parser)
 {
-	char *var;
-	size_t var_len;
+	char *input;
+	size_t input_len;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &var, &var_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &input, &input_len) == FAILURE) {
 		return;
 	}
 
-        const char* output = gutenberg_post_parser(var);
+        Result parser_result = parse(input);
 
-	RETURN_STRING(output);
+        if (parser_result.tag == Err) {
+          RETURN_FALSE;
+        }
+
+        const Vector_Node nodes = parser_result.ok._0;
+
+        RETURN_LONG((int) (nodes.length));
 }
 /* }}}*/
+
+/* {{{ PHP_MINIT_FUNCTION
+ */
+zend_class_entry *global_gutenberg_parser_block_class_entry;
+zend_class_entry *global_gutenberg_parser_phrase_class_entry;
+
+const zend_function_entry gutenberg_parser_functions[] = {
+	PHP_FE_END
+};
+
+PHP_MINIT_FUNCTION(gutenberg_post_parser)
+{
+	zend_class_entry gutenberg_parser_block_class_entry;
+	INIT_CLASS_ENTRY(gutenberg_parser_block_class_entry, "Gutenberg_Parser_Block", gutenberg_parser_functions);
+
+	zend_class_entry gutenberg_parser_phrase_class_entry;
+	INIT_CLASS_ENTRY(gutenberg_parser_phrase_class_entry, "Gutenberg_Parser_Phrase", gutenberg_parser_functions);
+
+	global_gutenberg_parser_block_class_entry = zend_register_internal_class(&gutenberg_parser_block_class_entry TSRMLS_CC);
+	global_gutenberg_parser_phrase_class_entry = zend_register_internal_class(&gutenberg_parser_phrase_class_entry TSRMLS_CC);
+
+
+	return SUCCESS;
+}
+/* }}} */
 
 /* {{{ PHP_RINIT_FUNCTION
  */
@@ -69,7 +100,7 @@ zend_module_entry gutenberg_post_parser_module_entry = {
 	STANDARD_MODULE_HEADER,
 	"gutenberg_post_parser",					/* Extension name */
 	gutenberg_post_parser_functions,			/* zend_function_entry */
-	NULL,							/* PHP_MINIT - Module initialization */
+	PHP_MINIT(gutenberg_post_parser),			/* PHP_MINIT - Module initialization */
 	NULL,							/* PHP_MSHUTDOWN - Module shutdown */
 	PHP_RINIT(gutenberg_post_parser),			/* PHP_RINIT - Request initialization */
 	NULL,							/* PHP_RSHUTDOWN - Request shutdown */
