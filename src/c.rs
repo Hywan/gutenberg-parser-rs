@@ -2,6 +2,18 @@
 
 C bindings.
 
+The workflow is basically the following:
+
+  1. In `build.rs`, `cbindgen` is run, and scans the code to generate a
+     C header file,
+  2. `rustc` compiles the code into a static library,
+  3. `clang` compiles a C program that preferably uses the C header
+     and links with the static library to generate a “C binary”.
+
+This module is responsible to map the AST into a C
+representation. Data are duplicated (most of them are stored on the
+stack).
+
 */
 
 use super::root;
@@ -50,7 +62,7 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                 .into_iter()
                 .map(
                     |node| {
-                        node.into_ffi()
+                        node.into_c()
                     }
                 )
                 .collect();
@@ -67,7 +79,7 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
 }
 
 impl<'a> ast::Node<'a> {
-    fn into_ffi(&self) -> Node {
+    fn into_c(&self) -> Node {
         match *self {
             ast::Node::Block { name, attributes, ref children } => {
                 Node::Block {
@@ -107,7 +119,7 @@ impl<'a> ast::Node<'a> {
                                 .into_iter()
                                 .map(
                                     |node| {
-                                        node.into_ffi()
+                                        node.into_c()
                                     }
                                 )
                                 .collect();
