@@ -100,9 +100,10 @@ $ just build-php
 $ ./bindings/php/gutenberg-post-parser --emit-debug <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
 ```
 
-To replace the `-d extension=gutenberg_post_parser`, add
-`extension=gutenberg_post_parser` in the `php.ini` file (hint: Run
-`php --ini` to locate this configuration file).
+To load the extension, add `extension=gutenberg_post_parser` in the
+`php.ini` file (hint: Run `php --ini` to locate this configuration
+file), or run PHP such as `php -d extension=gutenberg_post_parser
+file.php`.
 
 ## Performance and guarantee
 
