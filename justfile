@@ -1,6 +1,7 @@
 cwd = `pwd`
 c_directory = "bindings/c"
 nodejs_directory = "bindings/nodejs"
+php_directory = "bindings/php"
 wasm_directory = "bindings/wasm"
 
 # Build a regular library..
@@ -47,6 +48,13 @@ build-c:
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
 	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/
+
+# Build the parser and produce a PHP extension.
+build-php:
+	cd {{php_directory}} && rustc gutenberg_post_parser.rs
+	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
+		./configure && \
+		sudo make install
 
 # Run all tests.
 test: test-library-unit test-library-integration test-documentation

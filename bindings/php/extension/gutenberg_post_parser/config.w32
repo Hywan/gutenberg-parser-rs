@@ -1,0 +1,7 @@
+ARG_ENABLE('gutenberg_post_parser', 'gutenberg_post_parser support', 'no');
+
+if (PHP_GUTENBERG_POST_PARSER != 'no') {
+	AC_DEFINE('HAVE_GUTENBERG_POST_PARSER', 1, 'gutenberg_post_parser support enabled');
+
+	EXTENSION('gutenberg_post_parser', 'gutenberg_post_parser.c', null, '/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1');
+}
