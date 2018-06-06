@@ -33,6 +33,9 @@ PHP_MINIT_FUNCTION(gutenberg_post_parser)
 	// The class is final.
 	gutenberg_parser_block_class_entry->ce_flags |= ZEND_ACC_FINAL;
 
+	// Declare the `namespace` public attribute, with an empty string for the default value.
+	zend_declare_property_string(gutenberg_parser_block_class_entry, "namespace", sizeof("namespace") - 1, "", ZEND_ACC_PUBLIC);
+
 	// Declare the `name` public attribute, with an empty string for the default value.
 	zend_declare_property_string(gutenberg_parser_block_class_entry, "name", sizeof("name") - 1, "", ZEND_ACC_PUBLIC);
 	
@@ -130,10 +133,22 @@ void into_php_objects(zval *array, const Vector_Node* nodes)
 		const Node node = nodes->buffer[nth];
 
 		if (node.tag == Block) {
+			const Block_Body block = node.block;
+			zval php_block;
 
+			object_init_ex(&php_block, gutenberg_parser_block_class_entry);
+			add_property_string(&php_block, "namespace", block.namespace);
+			add_property_string(&php_block, "name", block.name);
+
+			if (block.attributes.tag == Some) {
+				const char *attributes = block.attributes.some._0;
+
+				add_property_string(&php_block, "attributes", attributes);
+			}
+
+			add_next_index_zval(array, &php_block);
 		} else if (node.tag == Phrase) {
 			const char *phrase = node.phrase._0;
-
 			zval php_phrase;
 
 			object_init_ex(&php_phrase, gutenberg_parser_phrase_class_entry);
