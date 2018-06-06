@@ -2,9 +2,92 @@
 <?php
 
 if (false === extension_loaded('gutenberg_post_parser')) {
-    die('The `gutenberg_post_parser` extension is not loaded.');
+    exit('The `gutenberg_post_parser` extension is not loaded.');
 }
 
-const POST = '<!-- wp:foo {"abc": "def"} /-->bar<!-- wp:b/az -->qux<!-- wp:hello /--><!-- /wp:b/az -->';
+function stderr(string $output)
+{
+    fwrite(STDERR, $output);
+}
 
-var_dump(gutenberg_post_parse(POST));
+function usage(): string
+{
+    return
+        'USAGE:' . "\n" .
+        '    ' . $_SERVER['argv'][0] . ' [FLAGS] [INPUT]' . "\n\n" .
+        'FLAGS:' . "\n" .
+        '    -d, --emit-debug    Compile the AST into PHP debug format (default).' . "\n" .
+        '    -j, --emit-json     Compile the AST into PHP debug format (default).' . "\n" .
+        '    -h, --help          Prints help information.' . "\n\n" .
+        'ARGS:' . "\n" .
+        '    <INPUT>    File containing the input.' . "\n";
+}
+
+if (1 >= $_SERVER['argc']) {
+    stderr(usage());
+
+    exit(1);
+}
+
+$input = null;
+$emit = 'debug';
+
+foreach (array_slice($_SERVER['argv'], 1) as $argument_value) {
+    switch ($argument_value) {
+        case '-h':
+        case '--help':
+            stderr(usage());
+
+            exit(2);
+
+        case '-d':
+        case '--emit-debug':
+            $emit = 'debug';
+
+            break;
+
+        case '-j':
+        case '--emit-json':
+            $emit = 'json';
+
+            break;
+
+        default:
+            if (!empty($argument_value) && '-' === $argument_value[0]) {
+                stderr('Argument `' . $argument_value . '` is invalid.' . "\n\n");
+                stderr(usage());
+
+                exit(3);
+            }
+
+            $input = $argument_value;
+    }
+}
+
+if (empty($input)) {
+    stderr('File is missing.' . "\n\n");
+    stderr(usage());
+
+    exit(4);
+}
+
+if (false === file_exists($input)) {
+    stderr('File `' . $input . '` does not exist.' . "\n");
+
+    exit(5);
+}
+
+$content = file_get_contents($input);
+$output = gutenberg_post_parse($content);
+
+switch ($emit) {
+    case 'debug':
+        var_dump($output);
+
+        break;
+
+    case 'json':
+        echo json_encode($output);
+
+        break;
+}
