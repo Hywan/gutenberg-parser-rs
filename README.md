@@ -95,7 +95,7 @@ To compile the parser to a [PHP extension][PHP], run:
 
 ```sh
 $ just build-php
-$ php -d extension=gutenberg_post_parser bindings/php/index.php
+$ ./bindings/php/gutenberg-post-parser --emit-debug <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
 ```
 
 To replace the `-d extension=gutenberg_post_parser`, add
