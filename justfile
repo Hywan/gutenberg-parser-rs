@@ -24,7 +24,8 @@ build-wasm:
 		wasm-opt -g -Oz -o gutenberg_post_parser.debug.wasm gutenberg_post_parser.wasm && \
 		wasm-opt -Oz -o gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
 		mv gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
-		gzip --best --stdout gutenberg_post_parser.wasm > gutenberg_post_parser.wasm.gz
+		gzip --best --stdout gutenberg_post_parser.wasm > gutenberg_post_parser.wasm.gz && \
+		brotli --best --stdout --lgwin=24 gutenberg_post_parser.wasm > gutenberg_post_parser.wasm.br
 
 # Start an HTTP server to serve WASM demo.
 start-wasm-server:
