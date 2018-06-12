@@ -32,6 +32,17 @@ build-wasm:
 start-wasm-server:
 	cd {{wasm_directory}} && php -S localhost:8888 -t . server.php
 
+# Build the parser and produce an ASM.js file.
+build-asmjs: build-wasm
+	wasm2es6js --wasm2asm --output {{asmjs_directory}}/gutenberg_post_parser.asm.js {{wasm_directory}}/gutenberg_post_parser.wasm
+	cd {{asmjs_directory}} && \
+		sed -i '' '1s/^/function GUTENBERG_POST_PARSER_ASM_MODULE() {/; s/export //; s/const /var /; s/let /var /' gutenberg_post_parser.asm.js && \
+		echo 'return { root: root, alloc: alloc, dealloc: dealloc, memory: memory }; }' >> gutenberg_post_parser.asm.js && \
+		uglifyjs --mangle --output .temp.asm.js gutenberg_post_parser.asm.js && \
+		mv .temp.asm.js gutenberg_post_parser.asm.js && \
+		gzip --best --stdout gutenberg_post_parser.asm.js > gutenberg_post_parser.asm.js.gz && \
+		brotli --best --stdout --lgwin=24 gutenberg_post_parser.asm.js > gutenberg_post_parser.asm.js.br
+
 # Build the parser and produce a C binary.
 build-c:
 	cargo build --no-default-features --features "c" --release
@@ -46,12 +57,6 @@ build-c:
 			-l pthread \
 			-l c \
 			-l m
-
-# Build the parser and produce an ASM.js file.
-build-asmjs: build-wasm
-	wasm2es6js --wasm2asm --output {{asmjs_directory}}/gutenberg_post_parser.asm.js {{wasm_directory}}/gutenberg_post_parser.wasm
-	cd {{asmjs_directory}} && \
-		sed -i '' -e 's/export //' gutenberg_post_parser.asm.js
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
