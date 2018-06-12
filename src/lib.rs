@@ -30,6 +30,7 @@ Thus, the parser can be compiled as:
   * A [static library](#static-library),
   * Can be embedded in any Rust projects,
   * A [WebAssembly binary](#webassembly),
+  * An [ASM.js module](#asmjs),
   * A [NodeJS native module](#nodejs),
   * A [C header](#c),
   * A [PHP extension](#php),
@@ -71,6 +72,20 @@ $ just build-wasm
 $ cd bindings/wasm/ && php -S localhost:8888 -t . server.php
 $ open localhost:8888
 ```
+
+### ASM.js
+
+To compile the parser to an [ASM.js] module, run:
+
+```sh
+$ just build-asmjs
+$ open bindings/asmjs/index.html
+```
+
+The ASM.js module is slower than the WebAssembly binary, but it is
+useful for Internet Explorer compatibility, or any browser that does
+not support WebAssembly. Remember that ASM.js is just a JavaScript
+file.
 
 ### NodeJS
 
@@ -167,6 +182,7 @@ The license is a classic `BSD-3-Clause`:
 [Electron]: https://github.com/electron/
 [Justfile]: https://github.com/casey/just/
 [WebAssembly]: http://webassembly.org/
+[ASM.js]: http://asmjs.org/spec/latest/
 [NodeJS]: https://nodejs.org/
 [C]: https://en.wikipedia.org/wiki/C_(programming_language)
 [PHP]: https://php.net/
