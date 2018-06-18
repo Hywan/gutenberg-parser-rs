@@ -78,6 +78,9 @@ build-java:
 		javac \
 			-d ../target \
 			-classpath ../dependencies/jna-4.5.1.jar \
+			com/wordpress/gutenberg/parser/RawNode.java \
+			com/wordpress/gutenberg/parser/Node.java \
+			com/wordpress/gutenberg/parser/NodeSet.java \
 			com/wordpress/gutenberg/parser/Parser.java \
 			com/wordpress/gutenberg/parser/Main.java
 	cd {{java_directory}} && \

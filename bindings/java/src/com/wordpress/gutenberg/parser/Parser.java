@@ -10,5 +10,7 @@ public interface Parser extends Library {
 
     Parser INSTANCE = (Parser) Native.loadLibrary(JNA_LIBRARY_NAME, Parser.class);
 
-    void root(String name);
+    NodeSet root();
+    void dropNodeSet(NodeSet nodeSet);
+    void dropNode(RawNode node);
 }
