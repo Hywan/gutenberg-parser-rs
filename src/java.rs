@@ -15,6 +15,14 @@ pub struct NodeSet {
     nodes: Box<[Node]>
 }
 
+impl NodeSet {
+    fn empty() -> Self {
+        NodeSet {
+            nodes: Vec::with_capacity(0).into_boxed_slice()
+        }
+    }
+}
+
 #[repr(C)]
 #[allow(non_snake_case)]
 pub struct Node {
@@ -22,7 +30,8 @@ pub struct Node {
     namespace: *const c_char,
     name: *const c_char,
     attributes: *const c_char,
-    content: *const c_char
+    content: *const c_char,
+    //children: Box<NodeSet>
 }
 
 #[no_mangle]
@@ -46,7 +55,7 @@ pub extern "C" fn root(pointer: *const c_char) -> Box<NodeSet> {
             }
         )
     } else {
-        Box::new(NodeSet { nodes: Vec::new().into_boxed_slice() })
+        Box::new(NodeSet::empty())
     }
 }
 
@@ -86,7 +95,20 @@ impl<'a> ast::Node<'a> {
                             null()
                         }
                     },
-                    content: null()
+                    content: null(),
+                    /*children: {
+                        let output: Vec<Node> =
+                            children
+                                .into_iter()
+                                .map(
+                                    |node| {
+                                        node.into_java()
+                                    }
+                                )
+                                .collect();
+
+                        Box::new(NodeSet::empty())
+                    }*/
                 }
             },
 
@@ -97,7 +119,8 @@ impl<'a> ast::Node<'a> {
                     namespace: null(),
                     name: null(),
                     attributes: null(),
-                    content: input.as_ptr()
+                    content: input.as_ptr(),
+                    //children: Box::new(NodeSet::empty())
                 };
 
                 mem::forget(input);

@@ -15,7 +15,7 @@ public class NodeSet extends Structure implements Closeable {
     public Vector<Node> getNodes() {
         Vector<Node> result = new Vector();
 
-        for (RawNode rawNode: (RawNode[]) this.nodes.toArray(numberOfNodes)) {
+        for (RawNode rawNode: (RawNode[]) this.nodes.toArray(this.numberOfNodes)) {
             if (0 == rawNode.nodeType) {
                 Node.Block block = new Node.Block();
                 block.namespace = rawNode.namespace;
@@ -36,7 +36,10 @@ public class NodeSet extends Structure implements Closeable {
 
     @Override
     protected List<String> getFieldOrder() {
-        return Arrays.asList("nodes", "numberOfNodes");
+        return Arrays.asList(
+            "nodes",
+            "numberOfNodes"
+        );
     }
 
     @Override

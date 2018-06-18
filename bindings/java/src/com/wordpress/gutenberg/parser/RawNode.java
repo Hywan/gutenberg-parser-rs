@@ -13,10 +13,18 @@ public class RawNode extends Structure implements Closeable {
     public String name;
     public String attributes;
     public String content;
+    //public NodeSet children;
 
     @Override
     protected List<String> getFieldOrder() {
-        return Arrays.asList("nodeType", "namespace", "name", "attributes", "content");
+        return Arrays.asList(
+            "nodeType",
+            "namespace",
+            "name",
+            "attributes",
+            "content"
+            //"children"
+        );
     }
 
     @Override

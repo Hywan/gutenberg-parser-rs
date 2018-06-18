@@ -130,11 +130,11 @@ impl<'a> ast::Node<'a> {
                                 length: output.len()
                             }
                         );
-                        let vector_ptr = Box::into_raw(vector) as *const _ as *const c_void;
+                        let vector_pointer = Box::into_raw(vector) as *const _ as *const c_void;
 
                         mem::forget(output);
 
-                        vector_ptr
+                        vector_pointer
                     }
                 }
             },
