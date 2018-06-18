@@ -24,10 +24,11 @@ opt-level = 3
 
 [features]
 default = ["nodejs"] # Because of a strange behavior, `nodejs` must be in `default`. Use `just --list` to compile correctly.
-wasm = ["wee_alloc"]
-c = ["cbindgen"]
-nodejs = ["neon", "neon-build", "serde_json", "neon-serde"]
 bin = ["failure", "clap"]
+c = ["cbindgen"]
+java = []
+nodejs = ["neon", "neon-build", "serde_json", "neon-serde"]
+wasm = ["wee_alloc"]
 
 [dependencies]
 nom = { version = "4.0.0", default-features = false, features = ["alloc"] }

@@ -4,6 +4,7 @@
 /bindings/asmjs/gutenberg_post_parser.asm.js.gz
 /bindings/c/gutenberg-post-parser
 /bindings/c/gutenberg_post_parser.h
+/bindings/java/target/
 /bindings/nodejs/native/Cargo.lock
 /bindings/nodejs/native/artifacts.json
 /bindings/nodejs/native/index.node

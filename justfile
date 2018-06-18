@@ -1,6 +1,7 @@
 cwd = `pwd`
 asmjs_directory = "bindings/asmjs"
 c_directory = "bindings/c"
+java_directory = "bindings/java"
 nodejs_directory = "bindings/nodejs"
 php_directory = "bindings/php"
 wasm_directory = "bindings/wasm"
@@ -69,6 +70,21 @@ build-php:
 		phpize && \
 		./configure && \
 		sudo make install
+
+# Build the parser and produce a Java binary.
+build-java:
+	cargo build --no-default-features --features "java" --release
+	cd {{java_directory}}/src && \
+		javac \
+			-d ../target \
+			-classpath ../dependencies/jna-4.5.1.jar \
+			com/wordpress/gutenberg/parser/Parser.java \
+			com/wordpress/gutenberg/parser/Main.java
+	cd {{java_directory}} && \
+		java \
+			-classpath target/:dependencies/jna-4.5.1.jar \
+			-Djna.library.path=../../target/release/ \
+			com.wordpress.gutenberg.parser.Main
 
 # Run all tests.
 test: test-library-unit test-library-integration test-documentation
