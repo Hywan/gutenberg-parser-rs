@@ -4,7 +4,8 @@ Java bindings.
 
 */
 
-use std::ffi::CString;
+use super::ast;
+use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_char;
 use std::ptr::null;
@@ -25,41 +26,86 @@ pub struct Node {
 }
 
 #[no_mangle]
-pub extern "C" fn root(_pointer: *const c_char) -> Box<NodeSet> {
-    let node = Node {
-        nodeType: 0,
-        namespace: {
-            let namespace = CString::new("foo").unwrap();
-            let pointer = namespace.as_ptr();
+pub extern "C" fn root(pointer: *const c_char) -> Box<NodeSet> {
+    let input = unsafe { CStr::from_ptr(pointer).to_bytes() };
 
-            mem::forget(namespace);
+    if let Ok((_remaining, nodes)) = super::root(input) {
+        let nodes: Vec<Node> =
+            nodes
+                .into_iter()
+                .map(
+                    |node| {
+                        node.into_java()
+                    }
+                )
+                .collect();
 
-            pointer
-        },
-        name: {
-            let name = CString::new("bar").unwrap();
-            let pointer = name.as_ptr();
+        Box::new(
+            NodeSet {
+                nodes: nodes.into_boxed_slice()
+            }
+        )
+    } else {
+        Box::new(NodeSet { nodes: Vec::new().into_boxed_slice() })
+    }
+}
 
-            mem::forget(name);
+impl<'a> ast::Node<'a> {
+    fn into_java(&self) -> Node {
+        match *self {
+            ast::Node::Block { name, attributes, children: _ } => {
+                Node {
+                    nodeType: 0,
+                    namespace: {
+                        let namespace = CString::new(name.0).unwrap();
+                        let pointer = namespace.as_ptr();
 
-            pointer
-        },
-        attributes: {
-            let attributes = CString::new("{}").unwrap();
-            let pointer = attributes.as_ptr();
+                        mem::forget(namespace);
 
-            mem::forget(attributes);
+                        pointer
+                    },
+                    name: {
+                        let name = CString::new(name.1).unwrap();
+                        let pointer = name.as_ptr();
 
-            pointer
-        },
-        content: null()
-    };
+                        mem::forget(name);
 
-    Box::new(
-        NodeSet {
-            nodes: vec![node].into_boxed_slice()
+                        pointer
+                    },
+                    attributes: match attributes {
+                        Some(attributes) => {
+                            let attributes = CString::new(attributes).unwrap();
+                            let pointer = attributes.as_ptr();
+
+                            mem::forget(attributes);
+
+                            pointer
+                        },
+
+                        None => {
+                            null()
+                        }
+                    },
+                    content: null()
+                }
+            },
+
+            ast::Node::Phrase(input) => {
+                let input = CString::new(input).unwrap();
+                let phrase = Node {
+                    nodeType: 1,
+                    namespace: null(),
+                    name: null(),
+                    attributes: null(),
+                    content: input.as_ptr()
+                };
+
+                mem::forget(input);
+
+                phrase
+            }
         }
-    )
+    }
 }
 
 #[no_mangle]
