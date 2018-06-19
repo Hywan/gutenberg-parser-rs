@@ -31,13 +31,13 @@ bin = ["failure", "clap"]
 
 [dependencies]
 nom = { version = "4.0.0", default-features = false, features = ["alloc"] }
-wee_alloc = { version = "0.4.0", optional = true }
-neon = { version = "0.1.22", optional = true }
-serde_json = { version = "1.0", optional = true }
+wee_alloc = { version = "0.4.1", optional = true }
+neon = { version = "0.1.23", optional = true }
+serde_json = { version = "1.0.21", optional = true }
 neon-serde = { version = "0.0.3", optional = true }
 failure = { version = "0.1.1", optional = true }
 clap = { version = "^2.31.2", optional = true }
 
 [build-dependencies]
 cbindgen = { version = "0.6.0", optional = true }
-neon-build = { version = "0.1.22", optional = true }
+neon-build = { version = "0.1.23", optional = true }
