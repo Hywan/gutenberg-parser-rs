@@ -13,7 +13,7 @@ public class RawNode extends Structure implements Closeable {
     public String name;
     public String attributes;
     public String content;
-    //public NodeSet children;
+    public NodeSet.ByReference children;
 
     @Override
     protected List<String> getFieldOrder() {
@@ -22,8 +22,8 @@ public class RawNode extends Structure implements Closeable {
             "namespace",
             "name",
             "attributes",
-            "content"
-            //"children"
+            "content",
+            "children"
         );
     }
 

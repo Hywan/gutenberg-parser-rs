@@ -31,7 +31,7 @@ pub struct Node {
     name: *const c_char,
     attributes: *const c_char,
     content: *const c_char,
-    //children: Box<NodeSet>
+    children: *const NodeSet
 }
 
 #[no_mangle]
@@ -62,7 +62,7 @@ pub extern "C" fn root(pointer: *const c_char) -> Box<NodeSet> {
 impl<'a> ast::Node<'a> {
     fn into_java(&self) -> Node {
         match *self {
-            ast::Node::Block { name, attributes, children: _ } => {
+            ast::Node::Block { name, attributes, ref children } => {
                 Node {
                     nodeType: 0,
                     namespace: {
@@ -96,8 +96,8 @@ impl<'a> ast::Node<'a> {
                         }
                     },
                     content: null(),
-                    /*children: {
-                        let output: Vec<Node> =
+                    children: {
+                        let nodes: Vec<Node> =
                             children
                                 .into_iter()
                                 .map(
@@ -107,8 +107,18 @@ impl<'a> ast::Node<'a> {
                                 )
                                 .collect();
 
-                        Box::new(NodeSet::empty())
-                    }*/
+                        let node_set = Box::new(
+                            NodeSet {
+                                nodes: nodes.into_boxed_slice()
+                            }
+                        );
+                        let node_set_pointer = Box::into_raw(node_set) as *const NodeSet;
+
+                        //mem::forget(nodes);
+
+                        //node_set_pointer
+                        null()
+                    }
                 }
             },
 
@@ -120,7 +130,7 @@ impl<'a> ast::Node<'a> {
                     name: null(),
                     attributes: null(),
                     content: input.as_ptr(),
-                    //children: Box::new(NodeSet::empty())
+                    children: null()
                 };
 
                 mem::forget(input);
