@@ -15,7 +15,7 @@ build-binary:
 
 # Build the parser and produce a WASM binary.
 build-wasm:
-	RUSTFLAGS='-g' cargo +nightly build --release --no-default-features --features "wasm" --target wasm32-unknown-unknown
+	RUSTFLAGS='-g' cargo +nightly build --no-default-features --features "wasm" --target wasm32-unknown-unknown --release
 	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser.wasm {{wasm_directory}}
 	cd {{wasm_directory}} && \
 		wasm-gc gutenberg_post_parser.wasm && \
