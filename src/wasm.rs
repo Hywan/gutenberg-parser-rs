@@ -21,8 +21,9 @@ use alloc::Vec;
 use core::{self, mem, slice};
 
 // This is required by `wee_alloc` and `no_std`.
-#[lang = "panic_fmt"]
-extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line: u32) -> ! {
+#[panic_implementation]
+#[no_mangle]
+pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe {
         core::intrinsics::abort();
     }
@@ -30,7 +31,8 @@ extern "C" fn panic_fmt(_args: core::fmt::Arguments, _file: &'static str, _line:
 
 // This is required by `no_std`.
 #[lang = "oom"]
-extern "C" fn oom() -> ! {
+#[no_mangle]
+pub extern "C" fn oom() -> ! {
     unsafe {
         core::intrinsics::abort();
     }

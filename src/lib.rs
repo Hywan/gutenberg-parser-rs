@@ -205,11 +205,11 @@ The license is a classic `BSD-3-Clause`:
         feature(
             alloc,
             core_intrinsics,
-            global_allocator,
             lang_items,
+            panic_implementation,
             proc_macro,
             wasm_custom_section,
-            wasm_import_module,
+            wasm_import_module
         )
     )
 ]
