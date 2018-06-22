@@ -11,21 +11,6 @@ wasm_directory = "bindings/wasm"
 build-library:
 	cargo build --manifest-path {{cargo_std}} --release
 
-# Run all tests for the parser.
-test: test-library-unit test-library-integration test-documentation
-
-# Run the unit tests of the parser.
-test-library-unit:
-	cargo test --manifest-path {{cargo_std}} --lib
-
-# Run the documentation tests.
-test-documentation:
-	cargo test --manifest-path {{cargo_std}} --doc
-
-# Run the integration tests of the parser.
-test-library-integration:
-	cargo test --manifest-path {{cargo_std}} --test integration
-
 # Build a regular binary.
 build-binary:
 	cargo build --manifest-path {{cargo_std}} --features "bin" --release
@@ -75,17 +60,6 @@ build-c:
 			-l c \
 			-l m
 
-# Run all tests for the C binding.
-test-c: test-c-unit test-c-integration
-
-# Run the unit tests of the C binding.
-test-c-unit:
-	cd {{c_directory}} && cargo test --lib
-
-# Run the integration tests of the C binding.
-test-c-integration: build-c
-	cd {{c_directory}} && cargo test --test integration
-
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
 	cd {{nodejs_directory}} && neon build
@@ -97,6 +71,35 @@ build-php:
 		phpize && \
 		./configure && \
 		sudo make install
+
+# Test everything.
+test: test-library test-c
+
+# Run all tests for the parser.
+test-library: build-library test-library-unit test-library-integration test-documentation
+
+# Run the unit tests of the parser.
+test-library-unit:
+	cargo test --manifest-path {{cargo_std}} --lib
+
+# Run the documentation tests.
+test-documentation:
+	cargo test --manifest-path {{cargo_std}} --doc
+
+# Run the integration tests of the parser.
+test-library-integration:
+	cargo test --manifest-path {{cargo_std}} --test integration
+
+# Run all tests for the C binding.
+test-c: build-c test-c-unit test-c-integration
+
+# Run the unit tests of the C binding.
+test-c-unit:
+	cd {{c_directory}} && cargo test --lib
+
+# Run the integration tests of the C binding.
+test-c-integration:
+	cd {{c_directory}} && cargo test --test integration
 
 # Build the documentation.
 build-doc:
