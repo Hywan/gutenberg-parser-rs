@@ -1,4 +1,6 @@
 cwd = `pwd`
+cargo_no_std = "cargo/no_std/Cargo.toml"
+cargo_std = "cargo/std/Cargo.toml"
 asmjs_directory = "bindings/asmjs"
 c_directory = "bindings/c"
 nodejs_directory = "bindings/nodejs"
@@ -7,15 +9,15 @@ wasm_directory = "bindings/wasm"
 
 # Build a regular library..
 build-library:
-	cargo build --no-default-features --release
+	cargo build --manifest-path {{cargo_std}} --no-default-features --release
 
 # Build a regular binary.
 build-binary:
-	cargo build --no-default-features --features "bin" --release
+	cargo build --manifest-path {{cargo_std}} --no-default-features --features "bin" --release
 
 # Build the parser and produce a WASM binary.
 build-wasm:
-	RUSTFLAGS='-g' cargo +nightly build --no-default-features --features "wasm" --target wasm32-unknown-unknown --release
+	RUSTFLAGS='-g' cargo +nightly build --manifest-path {{cargo_no_std}} --no-default-features --features "wasm" --target wasm32-unknown-unknown --release
 	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser.wasm {{wasm_directory}}
 	cd {{wasm_directory}} && \
 		wasm-gc gutenberg_post_parser.wasm && \
@@ -45,7 +47,7 @@ build-asmjs: build-wasm
 
 # Build the parser and produce a C binary.
 build-c:
-	cargo build --no-default-features --features "c" --release
+	cargo build --manifest-path {{cargo_std}} --no-default-features --features "c" --release
 	cd {{c_directory}} && \
 		clang \
 			-Wall \
@@ -60,11 +62,11 @@ build-c:
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
-	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --rust nightly --path {{nodejs_directory}}/
+	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --path {{nodejs_directory}}/
 
 # Build the parser and produce a PHP extension.
 build-php:
-	cargo build --no-default-features --features "c" --release
+	cargo build --manifest-path {{cargo_std}} --no-default-features --features "c" --release
 	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
 		phpize && \
 		./configure && \
@@ -75,19 +77,19 @@ test: test-library-unit test-library-integration test-documentation
 
 # Run the unit tests.
 test-library-unit:
-	cargo test --lib --no-default-features
+	cargo test --manifest-path {{cargo_std}} --lib --no-default-features
 
 # Run the integration tests.
 test-library-integration:
-	cargo test --test integration --no-default-features
+	cargo test --manifest-path {{cargo_std}} --test integration --no-default-features
 
 # Run the documentation tests.
 test-documentation:
-	cargo test --doc --no-default-features
+	cargo test --manifest-path {{cargo_std}} --doc --no-default-features
 
 # Build the documentation.
 build-doc:
-	cargo doc --release --no-default-features --package gutenberg_post_parser
+	cargo doc --manifest-path {{cargo_std}} --release --no-default-features --package gutenberg_post_parser
 
 # Open the documentation.
 open-doc: build-doc
