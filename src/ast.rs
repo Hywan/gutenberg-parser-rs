@@ -5,11 +5,11 @@ The Abstract Syntax Tree (AST), i.e. the output of the parser.
 */
 
 use super::Input;
-#[cfg(feature = "wasm")] use alloc::Vec;
+#[cfg(feature = "no_std")] use alloc::Vec;
 
 /// Represent a node in an AST.
 #[derive(PartialEq)]
-#[cfg_attr(not(feature = "wasm"), derive(Debug))]
+#[cfg_attr(not(feature = "no_std"), derive(Debug))]
 pub enum Node<'a> {
     /// A block is the elementary component of the post format.
     Block {

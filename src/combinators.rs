@@ -9,7 +9,7 @@ thus can be absent from the public documentation.
 
 use super::Input;
 use nom::IResult;
-#[cfg(feature = "wasm")] use alloc::Vec;
+#[cfg(feature = "no_std")] use alloc::Vec;
 
 /// `take_until_terminated(S, C)` is like `take_until` but with a
 /// lookahead combinator `C`. It's not similar to

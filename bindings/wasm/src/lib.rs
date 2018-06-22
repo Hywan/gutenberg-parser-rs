@@ -16,11 +16,28 @@ and deallocations, to panic, and to manage an out-of-memory situation.
 
 */
 
-use super::ast::Node;
-use alloc::Vec;
-use core::{self, mem, slice};
+#![no_std]
+#![feature(
+    alloc,
+    core_intrinsics,
+    lang_items,
+    panic_implementation,
+    proc_macro,
+    wasm_custom_section,
+    wasm_import_module
+)]
 
-// This is required by `wee_alloc` and `no_std`.
+extern crate gutenberg_post_parser;
+extern crate wee_alloc;
+#[macro_use] extern crate alloc;
+
+use gutenberg_post_parser::ast::Node;
+use alloc::Vec;
+use core::{mem, slice};
+
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 #[panic_implementation]
 #[no_mangle]
 pub fn panic(_info: &core::panic::PanicInfo) -> ! {
@@ -29,7 +46,6 @@ pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     }
 }
 
-// This is required by `no_std`.
 #[lang = "oom"]
 #[no_mangle]
 pub extern "C" fn oom() -> ! {
@@ -71,7 +87,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
         let input = slice::from_raw_parts(pointer, length);
         let mut output = vec![];
 
-        if let Ok((_remaining, nodes)) = super::root(input) {
+        if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
             let nodes_length = u32_to_u8s(nodes.len() as u32);
 
             output.push(nodes_length.0);
@@ -80,7 +96,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
             output.push(nodes_length.3);
 
             for node in nodes {
-                node.into_bytes(&mut output);
+                into_bytes(&node, &mut output);
             }
         }
 
@@ -91,58 +107,56 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     }
 }
 
-impl<'a> Node<'a> {
-    fn into_bytes(&self, output: &mut Vec<u8>) {
-        match *self {
-            Node::Block { name, attributes, ref children } => {
-                let node_type = 1u8;
-                let name_length = name.0.len() + name.1.len() + 1;
-                let attributes_length = match attributes {
-                    Some(attributes) => attributes.len(),
-                    None             => 4
-                };
-                let attributes_length_as_u8s = u32_to_u8s(attributes_length as u32);
+fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
+    match *node {
+        Node::Block { name, attributes, ref children } => {
+            let node_type = 1u8;
+            let name_length = name.0.len() + name.1.len() + 1;
+            let attributes_length = match attributes {
+                Some(attributes) => attributes.len(),
+                None             => 4
+            };
+            let attributes_length_as_u8s = u32_to_u8s(attributes_length as u32);
 
-                let number_of_children = children.len();
+            let number_of_children = children.len();
 
-                output.push(node_type);
-                output.push(name_length as u8);
-                output.push(attributes_length_as_u8s.0);
-                output.push(attributes_length_as_u8s.1);
-                output.push(attributes_length_as_u8s.2);
-                output.push(attributes_length_as_u8s.3);
-                output.push(number_of_children as u8);
+            output.push(node_type);
+            output.push(name_length as u8);
+            output.push(attributes_length_as_u8s.0);
+            output.push(attributes_length_as_u8s.1);
+            output.push(attributes_length_as_u8s.2);
+            output.push(attributes_length_as_u8s.3);
+            output.push(number_of_children as u8);
 
-                output.extend(name.0);
-                output.push(b'/');
-                output.extend(name.1);
+            output.extend(name.0);
+            output.push(b'/');
+            output.extend(name.1);
 
-                if let Some(attributes) = attributes {
-                    output.extend(attributes);
-                } else {
-                    output.extend(&b"null"[..]);
-                }
-
-                for child in children {
-                    child.into_bytes(output);
-                }
-            },
-
-            Node::Phrase(phrase) => {
-                let node_type = 2u8;
-                let phrase_length = phrase.len();
-
-                output.push(node_type);
-
-                let phrase_length_as_u8s = u32_to_u8s(phrase_length as u32);
-
-                output.push(phrase_length_as_u8s.0);
-                output.push(phrase_length_as_u8s.1);
-                output.push(phrase_length_as_u8s.2);
-                output.push(phrase_length_as_u8s.3);
-
-                output.extend(phrase);
+            if let Some(attributes) = attributes {
+                output.extend(attributes);
+            } else {
+                output.extend(&b"null"[..]);
             }
+
+            for child in children {
+                into_bytes(&child, output);
+            }
+        },
+
+        Node::Phrase(phrase) => {
+            let node_type = 2u8;
+            let phrase_length = phrase.len();
+
+            output.push(node_type);
+
+            let phrase_length_as_u8s = u32_to_u8s(phrase_length as u32);
+
+            output.push(phrase_length_as_u8s.0);
+            output.push(phrase_length_as_u8s.1);
+            output.push(phrase_length_as_u8s.2);
+            output.push(phrase_length_as_u8s.3);
+
+            output.extend(phrase);
         }
     }
 }

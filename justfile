@@ -17,9 +17,9 @@ build-binary:
 
 # Build the parser and produce a WASM binary.
 build-wasm:
-	RUSTFLAGS='-g' cargo +nightly build --manifest-path {{cargo_no_std}} --no-default-features --features "wasm" --target wasm32-unknown-unknown --release
-	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser.wasm {{wasm_directory}}
-	cd {{wasm_directory}} && \
+	cd {{wasm_directory}} && RUSTFLAGS='-g' cargo +nightly build --target wasm32-unknown-unknown --release
+	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser_wasm.wasm {{wasm_directory}}/bin/gutenberg_post_parser.wasm
+	cd {{wasm_directory}}/bin && \
 		wasm-gc gutenberg_post_parser.wasm && \
 		wasm-snip --snip-rust-fmt-code --snip-rust-panicking-code gutenberg_post_parser.wasm -o gutenberg_post_parser_snipped.wasm && \
 		mv gutenberg_post_parser_snipped.wasm gutenberg_post_parser.wasm && \
@@ -32,11 +32,11 @@ build-wasm:
 
 # Start an HTTP server to serve WASM demo.
 start-wasm-server:
-	cd {{wasm_directory}} && php -S localhost:8888 -t . server.php
+	cd {{wasm_directory}}/bin && php -S localhost:8888 -t . server.php
 
 # Build the parser and produce an ASM.js file.
 build-asmjs: build-wasm
-	wasm2es6js --wasm2asm --output {{asmjs_directory}}/gutenberg_post_parser.asm.js {{wasm_directory}}/gutenberg_post_parser.wasm
+	wasm2es6js --wasm2asm --output {{asmjs_directory}}/gutenberg_post_parser.asm.js {{wasm_directory}}/bin/gutenberg_post_parser.wasm
 	cd {{asmjs_directory}} && \
 		sed -i '' '1s/^/function GUTENBERG_POST_PARSER_ASM_MODULE() {/; s/export //; s/const /var /; s/let /var /' gutenberg_post_parser.asm.js && \
 		echo 'return { root: root, alloc: alloc, dealloc: dealloc, memory: memory }; }' >> gutenberg_post_parser.asm.js && \
@@ -47,14 +47,14 @@ build-asmjs: build-wasm
 
 # Build the parser and produce a C binary.
 build-c:
-	cargo build --manifest-path {{cargo_std}} --no-default-features --features "c" --release
-	cd {{c_directory}} && \
+	cd {{c_directory}} && cargo build --release
+	cd {{c_directory}}/bin && \
 		clang \
 			-Wall \
 			-o gutenberg-post-parser \
 			gutenberg_post_parser.c \
 			-L {{cwd}}/target/release/ \
-			-l gutenberg_post_parser \
+			-l gutenberg_post_parser_c \
 			-l System \
 			-l pthread \
 			-l c \
@@ -62,11 +62,11 @@ build-c:
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
-	RUSTFLAGS='--cfg feature="nodejs"' neon build --debug --path {{nodejs_directory}}/
+	cd {{nodejs_directory}} && neon build
 
 # Build the parser and produce a PHP extension.
 build-php:
-	cargo build --manifest-path {{cargo_std}} --no-default-features --features "c" --release
+	cd {{c_directory}} && cargo build --release
 	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
 		phpize && \
 		./configure && \

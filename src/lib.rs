@@ -198,48 +198,18 @@ The license is a classic `BSD-3-Clause`:
 */
 
 
-#![cfg_attr(feature = "wasm", no_std)]
-#![
-    cfg_attr(
-        feature = "wasm",
-        feature(
-            alloc,
-            core_intrinsics,
-            lang_items,
-            panic_implementation,
-            proc_macro,
-            wasm_custom_section,
-            wasm_import_module
-        )
-    )
-]
+#![cfg_attr(feature = "no_std", no_std)]
+#![cfg_attr(feature = "no_std", feature(alloc))]
 
-
-#[cfg(feature = "wasm")] #[macro_use] extern crate alloc;
+#[cfg(feature = "no_std")] #[macro_use] extern crate alloc;
 #[macro_use] extern crate nom;
-#[cfg(feature = "wasm")] extern crate wee_alloc;
-#[cfg(feature = "nodejs")] #[macro_use] extern crate neon;
-#[cfg(feature = "nodejs")] extern crate serde_json;
-#[cfg(feature = "nodejs")] extern crate neon_serde;
 
-
-#[cfg(feature = "wasm")]
-use alloc::Vec;
-
+#[cfg(feature = "no_std")] use alloc::Vec;
 
 // Export modules.
 pub mod ast;
 #[macro_use] pub mod combinators;
 pub mod parser;
-#[cfg(feature = "wasm")] pub mod wasm;
-#[cfg(feature = "c")] pub mod c;
-#[cfg(feature = "nodejs")] pub mod nodejs;
-
-
-// Configure `wee_alloc`.
-#[cfg(feature = "wasm")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 
 /// Represent the type of a parser input element. See

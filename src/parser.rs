@@ -121,7 +121,7 @@ ws =
 use super::Input;
 use super::ast::Node;
 use super::combinators;
-#[cfg(feature = "wasm")] use alloc::Vec;
+#[cfg(feature = "no_std")] use alloc::Vec;
 use nom::ErrorKind;
 
 const COMMENT_OPENING: &'static [u8] = b"<!--";

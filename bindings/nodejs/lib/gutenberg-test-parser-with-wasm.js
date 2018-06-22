@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const util = require('util');
-const buffer = fs.readFileSync(__dirname + '/../../wasm/gutenberg_post_parser.wasm');
+const buffer = fs.readFileSync(__dirname + '/../../wasm/bin/gutenberg_post_parser.wasm');
 
 const text_encoder = new function () {
     const encoder = new util.TextEncoder();
