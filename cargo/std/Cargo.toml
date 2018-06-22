@@ -22,23 +22,10 @@ lto = true
 opt-level = 3
 
 [features]
-#default = ["nodejs"] # Because of a strange behavior, `nodejs` must be in `default`. Use `just --list` to compile correctly.
-#nodejs = ["neon", "neon-build", "serde_json", "neon-serde"]
+default = []
 bin = ["failure", "clap"]
 
 [dependencies]
 nom = { version = "4.0.0" }
-neon = { version = "0.1.23", optional = true }
-serde_json = { version = "1.0.21", optional = true }
-neon-serde = { version = "0.0.3", optional = true }
 failure = { version = "0.1.1", optional = true }
 clap = { version = "^2.31.2", optional = true }
-
-[build-dependencies]
-neon-build = { version = "0.1.23", optional = true }
-
-[workspace]
-members = [
-        "../../bindings/c",
-        "../../bindings/nodejs"
-]

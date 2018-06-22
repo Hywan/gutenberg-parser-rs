@@ -9,11 +9,11 @@ wasm_directory = "bindings/wasm"
 
 # Build a regular library..
 build-library:
-	cargo build --manifest-path {{cargo_std}} --no-default-features --release
+	cargo build --manifest-path {{cargo_std}} --release
 
 # Build a regular binary.
 build-binary:
-	cargo build --manifest-path {{cargo_std}} --no-default-features --features "bin" --release
+	cargo build --manifest-path {{cargo_std}} --features "bin" --release
 
 # Build the parser and produce a WASM binary.
 build-wasm:

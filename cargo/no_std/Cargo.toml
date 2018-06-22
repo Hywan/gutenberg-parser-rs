@@ -21,8 +21,3 @@ no_std = ["nom/alloc"]
 
 [dependencies]
 nom = { version = "4.0.0", default-features = false }
-
-[workspace]
-members = [
-        "../../bindings/wasm"
-]
