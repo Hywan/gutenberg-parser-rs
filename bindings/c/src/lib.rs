@@ -164,3 +164,145 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    macro_rules! str_to_c_char {
+        ($input:expr) => (
+            {
+                ::std::ffi::CString::new($input).unwrap()
+            }
+        )
+    }
+
+    macro_rules! c_char_to_str {
+        ($input:ident) => (
+            {
+                unsafe { ::std::ffi::CStr::from_ptr(*$input) }.to_str().unwrap()
+            }
+        )
+    }
+
+    #[test]
+    fn test_root_with_a_phrase() {
+        let input = str_to_c_char!("foo");
+        let output = parse(input.as_ptr());
+
+        match output {
+            Result::Ok(result) => match result {
+                Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
+                    Node::Phrase(phrase) => {
+                        assert_eq!(c_char_to_str!(phrase), "foo");
+                    },
+
+                    _ => assert!(false)
+                },
+
+                _ => assert!(false)
+            },
+
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_root_with_a_block() {
+        let input = str_to_c_char!("<!-- wp:foo {bar} /-->");
+        let output = parse(input.as_ptr());
+
+        match output {
+            Result::Ok(result) => match result {
+                Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
+                    Node::Block { namespace, name, attributes, children } => {
+                        assert_eq!(c_char_to_str!(namespace), "core");
+                        assert_eq!(c_char_to_str!(name), "foo");
+
+                        match attributes {
+                            Option_c_char::Some(attributes) => {
+                                assert_eq!(c_char_to_str!(attributes), "{bar}");
+                            },
+
+                            _ => assert!(false)
+                        }
+
+                        let children = unsafe { &*(children as *const _ as *const Vector_Node) };
+
+                        assert_eq!(children.length, 0);
+                    },
+
+                    _ => assert!(false)
+                },
+
+                _ => assert!(false)
+            },
+
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_root_with_a_block_with_no_attributes() {
+        let input = str_to_c_char!("<!-- wp:foo /-->");
+        let output = parse(input.as_ptr());
+
+        match output {
+            Result::Ok(result) => match result {
+                Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
+                    Node::Block { namespace, name, attributes, children } => {
+                        assert_eq!(c_char_to_str!(namespace), "core");
+                        assert_eq!(c_char_to_str!(name), "foo");
+
+                        match attributes {
+                            Option_c_char::None => assert!(true),
+                            _ => assert!(false)
+                        }
+
+                        let children = unsafe { &*(children as *const _ as *const Vector_Node) };
+
+                        assert_eq!(children.length, 0);
+                    },
+
+                    _ => assert!(false)
+                },
+
+                _ => assert!(false)
+            },
+
+            _ => assert!(false)
+        }
+    }
+
+    #[test]
+    fn test_root_with_a_block_with_specific_namespace() {
+        let input = str_to_c_char!("<!-- wp:foo/bar /-->");
+        let output = parse(input.as_ptr());
+
+        match output {
+            Result::Ok(result) => match result {
+                Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
+                    Node::Block { namespace, name, attributes, children } => {
+                        assert_eq!(c_char_to_str!(namespace), "foo");
+                        assert_eq!(c_char_to_str!(name), "bar");
+
+                        match attributes {
+                            Option_c_char::None => assert!(true),
+                            _ => assert!(false)
+                        }
+
+                        let children = unsafe { &*(children as *const _ as *const Vector_Node) };
+
+                        assert_eq!(children.length, 0);
+                    },
+
+                    _ => assert!(false)
+                },
+
+                _ => assert!(false)
+            },
+
+            _ => assert!(false)
+        }
+    }
+}
