@@ -76,11 +76,15 @@ build-c:
 			-l m
 
 # Run all tests for the C binding.
-test-c: test-c-unit
+test-c: test-c-unit test-c-integration
 
 # Run the unit tests of the C binding.
 test-c-unit:
 	cd {{c_directory}} && cargo test --lib
+
+# Run the integration tests of the C binding.
+test-c-integration:
+	cd {{c_directory}} && cargo test --test integration
 
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
