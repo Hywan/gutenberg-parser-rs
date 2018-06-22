@@ -83,7 +83,7 @@ test-c-unit:
 	cd {{c_directory}} && cargo test --lib
 
 # Run the integration tests of the C binding.
-test-c-integration:
+test-c-integration: build-c
 	cd {{c_directory}} && cargo test --test integration
 
 # Build the parser and produce a NodeJS native module.
