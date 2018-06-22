@@ -11,6 +11,21 @@ wasm_directory = "bindings/wasm"
 build-library:
 	cargo build --manifest-path {{cargo_std}} --release
 
+# Run all tests for the parser.
+test: test-library-unit test-library-integration test-documentation
+
+# Run the unit tests of the parser.
+test-library-unit:
+	cargo test --manifest-path {{cargo_std}} --lib
+
+# Run the documentation tests.
+test-documentation:
+	cargo test --manifest-path {{cargo_std}} --doc
+
+# Run the integration tests of the parser.
+test-library-integration:
+	cargo test --manifest-path {{cargo_std}} --test integration
+
 # Build a regular binary.
 build-binary:
 	cargo build --manifest-path {{cargo_std}} --features "bin" --release
@@ -60,6 +75,13 @@ build-c:
 			-l c \
 			-l m
 
+# Run all tests for the C binding.
+test-c: test-c-unit
+
+# Run the unit tests of the C binding.
+test-c-unit:
+	cd {{c_directory}} && cargo test --lib
+
 # Build the parser and produce a NodeJS native module.
 build-nodejs:
 	cd {{nodejs_directory}} && neon build
@@ -71,21 +93,6 @@ build-php:
 		phpize && \
 		./configure && \
 		sudo make install
-
-# Run all tests.
-test: test-library-unit test-library-integration test-documentation
-
-# Run the unit tests.
-test-library-unit:
-	cargo test --manifest-path {{cargo_std}} --lib --no-default-features
-
-# Run the integration tests.
-test-library-integration:
-	cargo test --manifest-path {{cargo_std}} --test integration --no-default-features
-
-# Run the documentation tests.
-test-documentation:
-	cargo test --manifest-path {{cargo_std}} --doc --no-default-features
 
 # Build the documentation.
 build-doc:

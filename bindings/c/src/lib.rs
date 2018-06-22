@@ -23,14 +23,17 @@ use gutenberg_post_parser::ast;
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::{c_char, c_void};
+use std::ptr;
 
 #[repr(C)]
+#[derive(Debug, PartialEq)]
 pub enum Option_c_char {
     Some(*const c_char),
     None
 }
 
 #[repr(C)]
+#[derive(Debug, PartialEq)]
 pub enum Node {
     Block {
         namespace: *const c_char,
@@ -43,12 +46,14 @@ pub enum Node {
 }
 
 #[repr(C)]
+#[derive(Debug, PartialEq)]
 pub struct Vector_Node {
     buffer: *const Node,
     length: usize
 }
 
 #[repr(C)]
+#[derive(Debug, PartialEq)]
 pub enum Result {
     Ok(Vector_Node),
     Err
@@ -125,12 +130,21 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
                         )
                         .collect();
 
-                    let vector = Box::new(
-                        Vector_Node {
-                            buffer: output.as_slice().as_ptr(),
-                            length: output.len()
-                        }
-                    );
+                    let vector = if output.is_empty() {
+                        Box::new(
+                            Vector_Node {
+                                buffer: ptr::null(),
+                                length: 0
+                            }
+                        )
+                    } else {
+                        Box::new(
+                            Vector_Node {
+                                buffer: output.as_slice().as_ptr(),
+                                length: output.len()
+                            }
+                        )
+                    };
                     let vector_ptr = Box::into_raw(vector) as *const _ as *const c_void;
 
                     mem::forget(output);
