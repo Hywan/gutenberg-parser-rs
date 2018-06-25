@@ -24,24 +24,35 @@ void print(const Vector_Node* nodes, int depth) {
 
             printf("%*.*s    %s/%s\n", depth, depth, " ", namespace, name);
 
+            free((void*) namespace);
+            free((void*) name);
+
             if (block.attributes.tag == Some) {
                 const char *attributes = block.attributes.some._0;
 
                 printf("%*.*s    %s\n", depth, depth, " ", attributes);
+
+                free((void*) attributes);
             }
 
             const Vector_Node* children = (const Vector_Node*) (block.children);
 
             print(children, depth + 4);
+
+            free((void*) children);
         } else if (node.tag == Phrase) {
             const char *phrase = node.phrase._0;
 
             printf("%*.*sphrase\n", depth, depth, " ");
             printf("%*.*s    %s\n", depth, depth, " ", phrase);
+
+            free((void*) phrase);
         }
 
         printf("\n");
     }
+
+    free((void*) nodes->buffer);
 }
 
 int main(int argc, char **argv) {
@@ -63,7 +74,7 @@ int main(int argc, char **argv) {
     long file_size = ftell(file);
     rewind(file);
 
-    char* file_content = (char*) calloc(file_size, sizeof(char));
+    char* file_content = (char*) malloc(file_size * sizeof(char*));
     size_t result = fread(file_content, 1, file_size, file);
 
     if (((long) result) != file_size) {
@@ -71,10 +82,6 @@ int main(int argc, char **argv) {
 
         return 3;
     }
-
-    printf("content length %ld/%lu\n", file_size, strlen(file_content));
-
-    printf("%s\n", file_content);
 
     Result output = parse(file_content);
 
