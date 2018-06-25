@@ -132,7 +132,7 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
                         )
                         .collect();
 
-                    let vector = if output.is_empty() {
+                    let vector_node = if output.is_empty() {
                         Box::new(
                             Vector_Node {
                                 buffer: ptr::null(),
@@ -147,11 +147,11 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
                             }
                         )
                     };
-                    let vector_ptr = Box::into_raw(vector) as *const _ as *const c_void;
+                    let vector_node_pointer = Box::into_raw(vector_node) as *const _ as *const c_void;
 
                     mem::forget(output);
 
-                    vector_ptr
+                    vector_node_pointer
                 }
             }
         },
