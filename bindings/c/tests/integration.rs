@@ -30,7 +30,7 @@ fn run_all_fixtures() {
                             "Failed to parse {:?}\nStatus: {}\nOutput: {}",
                             input_path,
                             output.status,
-                            String::from_utf8_lossy(&output.stdout.as_slice()[..256])
+                            String::from_utf8_lossy(&output.stdout.as_slice())
                         )
                     );
                 }
