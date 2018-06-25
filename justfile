@@ -101,6 +101,13 @@ test-c-unit:
 test-c-integration:
 	cd {{c_directory}} && cargo test --test integration
 
+# Run all tests for the PHP binding.
+test-php: build-php test-php-integration
+
+# Run the integration tests of the PHP binding.
+test-php-integration:
+	cd {{php_directory}} && cargo test --test integration
+
 # Build the documentation.
 build-doc:
 	cargo doc --manifest-path {{cargo_std}} --release --no-default-features --package gutenberg_post_parser

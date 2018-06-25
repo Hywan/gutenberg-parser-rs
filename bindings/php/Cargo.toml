@@ -1,0 +1,7 @@
+[package]
+name = "gutenberg_post_parser_php"
+version = "0.10.0"
+authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+license = "BSD-3-Clause"
+readme = "../../README.md"
+repository = "https://github.com/Hywan/gutenberg-parser-rs"
