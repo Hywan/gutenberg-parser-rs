@@ -17,21 +17,23 @@ fn run_all_fixtures() {
 
         if let Some(extension) = input_path.extension() {
             if extension == html {
-                let output =
-                    Command::new("bin/gutenberg-post-parser")
-                        .arg(&input_path)
-                        .output()
-                        .expect("Failed to execute `gutenberg-post-parser`.");
+                for _ in 0..255 {
+                    let output =
+                        Command::new("bin/gutenberg-post-parser")
+                            .arg(&input_path)
+                            .output()
+                            .expect("Failed to execute `gutenberg-post-parser`.");
 
-                assert!(
-                    output.status.success(),
-                    format!(
-                        "Failed to parse {:?}\nStatus: {}\nOutput: {}",
-                        input_path,
-                        output.status,
-                        String::from_utf8_lossy(output.stdout.as_slice())
-                    )
-                );
+                    assert!(
+                        output.status.success(),
+                        format!(
+                            "Failed to parse {:?}\nStatus: {}\nOutput: {}",
+                            input_path,
+                            output.status,
+                            String::from_utf8_lossy(&output.stdout.as_slice()[..256])
+                        )
+                    );
+                }
             }
         }
     }
