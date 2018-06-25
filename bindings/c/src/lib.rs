@@ -74,12 +74,14 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
                 )
                 .collect();
 
-        Result::Ok(
-            Vector_Node {
-                buffer: output.as_slice().as_ptr(),
-                length: output.len()
-            }
-        )
+        let vector_node = Vector_Node {
+            buffer: output.as_slice().as_ptr(),
+            length: output.len()
+        };
+
+        mem::forget(output);
+
+        Result::Ok(vector_node)
     } else {
         Result::Err
     }
