@@ -65,11 +65,12 @@ build-nodejs:
 	cd {{nodejs_directory}} && neon build
 
 # Build the parser and produce a PHP extension.
-build-php:
+build-php php_prefix_bin='/usr/local/bin':
 	cd {{c_directory}} && cargo build --release
 	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
-		phpize && \
-		./configure && \
+		{{php_prefix_bin}}/phpize --clean && \
+		{{php_prefix_bin}}/phpize && \
+		./configure --with-php-config={{php_prefix_bin}}/php-config && \
 		sudo make install
 
 # Test everything.
@@ -102,7 +103,7 @@ test-c-integration:
 	cd {{c_directory}} && cargo test --test integration
 
 # Run all tests for the PHP binding.
-test-php: build-php test-php-integration
+test-php: test-php-integration
 
 # Run the integration tests of the PHP binding.
 test-php-integration:
