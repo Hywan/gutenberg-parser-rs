@@ -119,7 +119,7 @@ open-doc: build-doc
 
 # Build the readme automatically.
 build-readme:
-	cargo readme --input src/lib.rs --template README.tpl > README.md
+	cargo readme --project-root {{cargo_std}} --input src/lib.rs --template README.tpl > README.md
 
 # Local Variables:
 # mode: makefile

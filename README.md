@@ -38,9 +38,9 @@ This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
 
-**Note**: Right now, this project needs `rustc` nightly to compile
-most of the targets. The project should switch to stable in a couple
-of months. Since then, be sure to run the latest nightly version with
+**Note**: Right now, this project needs `rustc` nightly to compile the
+WASM target. This target should switch to stable in a couple of
+months. Since then, be sure to run the latest nightly version with
 `rustup update nightly`.
 
 #### Binary
