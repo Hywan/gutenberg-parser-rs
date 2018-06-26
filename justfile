@@ -73,7 +73,7 @@ build-php:
 		sudo make install
 
 # Test everything.
-test: test-library test-c
+test: test-library test-c test-php
 
 # Run all tests for the parser.
 test-library: build-library test-library-unit test-library-integration test-documentation
