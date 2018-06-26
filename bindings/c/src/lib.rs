@@ -61,6 +61,10 @@ pub enum Result {
 
 #[no_mangle]
 pub extern "C" fn parse(pointer: *const c_char) -> Result {
+    if pointer.is_null() {
+        return Result::Err;
+    }
+
     let input = unsafe { CStr::from_ptr(pointer).to_bytes() };
 
     if let Ok((_remaining, nodes)) = root(input) {
