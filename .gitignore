@@ -10,4 +10,5 @@ Cargo.lock
 /bindings/wasm/bin/gutenberg_post_parser.wasm
 /bindings/wasm/bin/gutenberg_post_parser.wasm.br
 /bindings/wasm/bin/gutenberg_post_parser.wasm.gz
+/fuzz/output
 /target/

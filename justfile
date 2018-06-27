@@ -6,6 +6,7 @@ c_directory = "bindings/c"
 nodejs_directory = "bindings/nodejs"
 php_directory = "bindings/php"
 wasm_directory = "bindings/wasm"
+fuzz_directory = "fuzz"
 
 # Build a regular library..
 build-library:
@@ -74,7 +75,7 @@ build-php php_prefix_bin='/usr/local/bin':
 		sudo make install
 
 # Test everything.
-test: test-library test-c test-php
+test: test-library fuzz-library test-c test-php
 
 # Run all tests for the parser.
 test-library: build-library test-library-unit test-library-integration test-documentation
@@ -90,6 +91,12 @@ test-documentation:
 # Run the integration tests of the parser.
 test-library-integration:
 	cargo test --manifest-path {{cargo_std}} --test integration
+
+# Run a fuzzer on the library.
+fuzz-library:
+	cd {{fuzz_directory}} && \
+		cargo afl build --release && \
+		cargo afl fuzz -i inputs -o output ../target/release/fuzz
 
 # Run all tests for the C binding.
 test-c: build-c test-c-unit test-c-integration
