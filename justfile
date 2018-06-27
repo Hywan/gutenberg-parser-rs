@@ -75,7 +75,7 @@ build-php php_prefix_bin='/usr/local/bin':
 		sudo make install
 
 # Test everything.
-test: test-library fuzz-library test-c test-php
+test: test-library test-c test-php
 
 # Run all tests for the parser.
 test-library: build-library test-library-unit test-library-integration test-documentation
@@ -91,12 +91,6 @@ test-documentation:
 # Run the integration tests of the parser.
 test-library-integration:
 	cargo test --manifest-path {{cargo_std}} --test integration
-
-# Run a fuzzer on the library.
-fuzz-library:
-	cd {{fuzz_directory}} && \
-		cargo afl build --release && \
-		cargo afl fuzz -i inputs -o output ../target/release/fuzz
 
 # Run all tests for the C binding.
 test-c: build-c test-c-unit test-c-integration
@@ -115,6 +109,12 @@ test-php: test-php-integration
 # Run the integration tests of the PHP binding.
 test-php-integration:
 	cd {{php_directory}} && cargo test --test integration
+
+# Run a fuzzer on the library.
+fuzz-library:
+	cd {{fuzz_directory}} && \
+		cargo afl build --release && \
+		cargo afl fuzz -i inputs -o output ../target/release/fuzz
 
 # Build the documentation.
 build-doc:

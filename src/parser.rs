@@ -124,11 +124,11 @@ use super::combinators;
 #[cfg(feature = "no_std")] use alloc::Vec;
 use nom::ErrorKind;
 
-const COMMENT_OPENING: &'static [u8] = b"<!--";
-const COMMENT_CLOSING: &'static [u8] = b"-->";
-const COMMENT_AUTO_CLOSING: &'static [u8] = b"/-->";
-const WP_OPENING: &'static [u8] = b"wp:";
-const WP_CLOSING: &'static [u8] = b"/wp:";
+const COMMENT_OPENING: &[u8] = b"<!--";
+const COMMENT_CLOSING: &[u8] = b"-->";
+const COMMENT_AUTO_CLOSING: &[u8] = b"/-->";
+const WP_OPENING: &[u8] = b"wp:";
+const WP_CLOSING: &[u8] = b"/wp:";
 
 named_attr!(
     #[doc="
@@ -189,7 +189,7 @@ named_attr!(
 );
 
 #[inline(always)]
-fn phrase_mapper<'a>(input: Input<'a>) -> Result<Node<'a>, ErrorKind> {
+fn phrase_mapper(input: Input) -> Result<Node, ErrorKind> {
     if input.is_empty() {
         Err(ErrorKind::Custom(42u32))
     } else {
@@ -259,9 +259,9 @@ named_attr!(
                 tag!(COMMENT_CLOSING) >>
                 (
                     Node::Block {
-                        name: name,
-                        attributes: attributes,
-                        children: children
+                        name,
+                        attributes,
+                        children
                     }
                 )
             )
@@ -270,8 +270,8 @@ named_attr!(
                 tag!(COMMENT_AUTO_CLOSING) >>
                 (
                     Node::Block {
-                        name: name,
-                        attributes: attributes,
+                        name,
+                        attributes,
                         children: vec![]
                     }
                 )

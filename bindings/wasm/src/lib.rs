@@ -71,7 +71,7 @@ pub extern "C" fn alloc(capacity: usize) -> *mut c_void {
     let pointer = buffer.as_mut_ptr();
     mem::forget(buffer);
 
-    return pointer as *mut c_void;
+    pointer as *mut c_void
 }
 
 #[no_mangle]
@@ -166,6 +166,6 @@ fn u32_to_u8s(x: u32) -> (u8, u8, u8, u8) {
         ((x & 0b_1111_1111_0000_0000_0000_0000_0000_0000_u32) >> 24) as u8,
         ((x & 0b_0000_0000_1111_1111_0000_0000_0000_0000_u32) >> 16) as u8,
         ((x & 0b_0000_0000_0000_0000_1111_1111_0000_0000_u32) >>  8) as u8,
-        ((x & 0b_0000_0000_0000_0000_0000_0000_1111_1111_u32)      ) as u8
+        ( x & 0b_0000_0000_0000_0000_0000_0000_1111_1111_u32       ) as u8
     )
 }
