@@ -120,10 +120,12 @@ To load the extension, add `extension=gutenberg_post_parser` in the
 file), or run PHP such as `php -d extension=gutenberg_post_parser
 file.php`.
 
-## Performance and guarantee
+### Performance and guarantee
 
 The parser guarantees to never copy the data in memory while
 analyzing, which makes it fast and memory efficient.
+
+#### WASM binary
 
 [A yet-to-be-official benchmark][gutenberg-parser-comparator] is used
 to compare the performance of the actual Javascript parser against the
@@ -141,7 +143,30 @@ browser. Here are the results:
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
 
 The WASM binary of the Rust parser is in average 67 times faster than
-the Javascript implementation.
+the actual Javascript implementation.
+
+#### PHP native extension
+
+Another benchmark has been used to compare the performance of the
+actual PHP parser against the Rust parser compiled as PHP native
+extension. Here are the results:
+
+| file | PHP parser (ms) | Rust parser as a PHP native extension (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 14.656 | 0.017 | × 862 |
+| [`shortcode-shortcomings.html`] | 38.624 | 0.029 | × 1332 |
+| [`redesigning-chrome-desktop.html`] | 109.377 | 0.110 | × 994 |
+| [`web-at-maximum-fps.html`] | 87.345 | 0.073 | × 1197 |
+| [`early-adopting-the-future.html`] | 137.056 | 0.084 | × 1632 |
+| [`pygmalian-raw-html.html`] | 165.072 | 0.024 | × 6905 |
+| [`moby-dick-parsed.html`] | 2,681.936 | 1.293 | × 2074 |
+
+The PHP extension of the Rust paresr is in average 2142 times faster
+than the actual PHP implementation.
+
+Note that memory limit has been hit very quickly with the PHP parser,
+while the Rust parser as a PHP native extension has a small memory
+footprint.
 
 ## License
 
