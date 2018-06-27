@@ -48,8 +48,6 @@ static void free_parser_node_object(zend_object *gutenberg_parser_node_object)
 {
 	// Call Zend's free handler, which will free the object properties.
 	zend_object_std_dtor(gutenberg_parser_node_object);
-
-	efree(gutenberg_parser_node_object);
 }
 
 /*
@@ -182,6 +180,8 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 
 				// Map [rust] `Node::Block.children` to [php] `Gutenberg_Parser_Block->children`.
 				add_property_zval(&php_block, "children", &php_children_array);
+
+				Z_DELREF(php_children_array);
 			}
 
 			// Insert `Gutenberg_Parser_Block` into the collection.
