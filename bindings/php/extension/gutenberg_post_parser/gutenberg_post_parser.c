@@ -17,7 +17,7 @@ zend_class_entry *gutenberg_parser_phrase_class_entry;
 zend_object_handlers gutenberg_parser_node_class_entry_handlers;
 
 /*
- *
+ * Custom object for Gutenberg parser nodes.
  */
 typedef struct _gutenberg_parser_block {
 	zend_object zobj;
