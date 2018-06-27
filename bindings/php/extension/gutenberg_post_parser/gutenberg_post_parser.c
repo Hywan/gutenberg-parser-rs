@@ -14,13 +14,43 @@
  */
 zend_class_entry *gutenberg_parser_block_class_entry;
 zend_class_entry *gutenberg_parser_phrase_class_entry;
+zend_object_handlers gutenberg_parser_node_class_entry_handlers;
 
 /*
- * Methods for `Gutenberg_Parser_*` classes. There is no method.
+ *
  */
-const zend_function_entry gutenberg_post_parser_methods[] = {
-	PHP_FE_END
-};
+typedef struct _gutenberg_parser_block {
+	zend_object zobj;
+} gutenberg_parser_node;
+
+
+static zend_object *create_parser_node_object(zend_class_entry *class_entry)
+{
+	gutenberg_parser_node *gutenberg_parser_node_object;
+
+	gutenberg_parser_node_object = ecalloc(1, sizeof(*gutenberg_parser_node_object) + zend_object_properties_size(class_entry));
+
+	zend_object_std_init(&gutenberg_parser_node_object->zobj, class_entry);
+	object_properties_init(&gutenberg_parser_node_object->zobj, class_entry);
+
+	gutenberg_parser_node_object->zobj.handlers = &gutenberg_parser_node_class_entry_handlers;
+
+	return &gutenberg_parser_node_object->zobj;
+}
+
+static void destroy_parser_node_object(zend_object *gutenberg_parser_node_object)
+{
+	// Call the `__destruct` object method on the userland.
+	zend_objects_destroy_object(gutenberg_parser_node_object);
+}
+
+static void free_parser_node_object(zend_object *gutenberg_parser_node_object)
+{
+	// Call Zend's free handler, which will free the object properties.
+	zend_object_std_dtor(gutenberg_parser_node_object);
+
+	efree(gutenberg_parser_node_object);
+}
 
 /*
  * Initialize the module.
@@ -29,9 +59,15 @@ PHP_MINIT_FUNCTION(gutenberg_post_parser)
 {
 	zend_class_entry class_entry;
 
-	// Declare the `Gutenberg_Parser_Block` class.
-	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Block", gutenberg_post_parser_methods);
+	//
+	// Declare `Gutenberg_Parser_Block`.
+	//
+
+	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Block", NULL);
 	gutenberg_parser_block_class_entry = zend_register_internal_class(&class_entry TSRMLS_CC);
+
+	// Declare the create handler.
+	gutenberg_parser_block_class_entry->create_object = create_parser_node_object;
 
 	// The class is final.
 	gutenberg_parser_block_class_entry->ce_flags |= ZEND_ACC_FINAL;
@@ -48,16 +84,31 @@ PHP_MINIT_FUNCTION(gutenberg_post_parser)
 	// Declare the `children` public attribute, with `NULL` for the default value.
 	zend_declare_property_null(gutenberg_parser_block_class_entry, "children", sizeof("children") - 1, ZEND_ACC_PUBLIC);
 
-
-	// Declare the `Gutenberg_Parser_Phrase` class.
-	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Phrase", gutenberg_post_parser_methods);
+	//
+	// Declare `Gutenberg_Parser_Phrase`.
+	//
+	
+	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Phrase", NULL);
 	gutenberg_parser_phrase_class_entry = zend_register_internal_class(&class_entry TSRMLS_CC);
+
+	// Declare the create handler.
+	gutenberg_parser_phrase_class_entry->create_object = create_parser_node_object;
 
 	// The class is final.
 	gutenberg_parser_phrase_class_entry->ce_flags |= ZEND_ACC_FINAL;
 
 	// Declare the `content` public attribute, with an empty string for the default value.
 	zend_declare_property_string(gutenberg_parser_phrase_class_entry, "content", sizeof("content") - 1, "", ZEND_ACC_PUBLIC);
+
+	//
+	// Declare Gutenberg parser node object handlers.
+	//
+
+	memcpy(&gutenberg_parser_node_class_entry_handlers, zend_get_std_object_handlers(), sizeof(gutenberg_parser_node_class_entry_handlers));
+
+	gutenberg_parser_node_class_entry_handlers.offset = XtOffsetOf(gutenberg_parser_node, zobj);
+	gutenberg_parser_node_class_entry_handlers.dtor_obj = destroy_parser_node_object;
+	gutenberg_parser_node_class_entry_handlers.free_obj = free_parser_node_object;
 
 	return SUCCESS;
 }
