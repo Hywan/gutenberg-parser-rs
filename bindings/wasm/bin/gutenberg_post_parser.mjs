@@ -1,4 +1,4 @@
-class Gutenberg_Post_Parser {
+export class Gutenberg_Post_Parser {
     constructor(Block, Phrase, wasmURL) {
         this.Block = Block;
         this.Phrase = Phrase;

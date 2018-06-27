@@ -34,8 +34,8 @@ switch ($_SERVER['REQUEST_URI']) {
 
         break;
 
-    case '/index.js':
-    case '/gutenberg_post_parser.js':
+    case '/index.mjs':
+    case '/gutenberg_post_parser.mjs':
         serve_javascript(__DIR__ . $_SERVER['REQUEST_URI']);
 
         break;
