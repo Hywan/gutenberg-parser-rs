@@ -159,7 +159,7 @@ extension. Here are the results:
 | [`pygmalian-raw-html.html`] | 165.072 | 0.024 | × 6905 |
 | [`moby-dick-parsed.html`] | 2,681.936 | 1.293 | × 2074 |
 
-The PHP extension of the Rust paresr is in average 2142 times faster
+The PHP extension of the Rust parser is in average 2142 times faster
 than the actual PHP implementation.
 
 Note that memory limit has been hit very quickly with the PHP parser,
