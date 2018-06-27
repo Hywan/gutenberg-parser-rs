@@ -148,7 +148,7 @@ the actual Javascript implementation.
 #### PHP native extension
 
 Another benchmark has been used to compare the performance of the
-actual PHP parser against the Rust parser compiled as PHP native
+actual PHP parser against the Rust parser compiled as a PHP native
 extension. Here are the results:
 
 | file | PHP parser (ms) | Rust parser as a PHP native extension (ms) | speedup |
