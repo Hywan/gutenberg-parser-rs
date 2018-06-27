@@ -1,6 +1,6 @@
 [package]
 name = "gutenberg_post_parser_c"
-version = "0.10.0"
+version = "0.11.0"
 authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
 license = "BSD-3-Clause"
 readme = "../../README.md"
@@ -13,7 +13,7 @@ crate-type = ["dylib", "staticlib"]
 path = "src/lib.rs"
 
 [dependencies]
-gutenberg_post_parser = { path = "../../cargo/std/", version = "=0.10.0" }
+gutenberg_post_parser = { path = "../../cargo/std/", version = "=0.11.0" }
 
 [build-dependencies]
 cbindgen = { version = "0.6.0" }
