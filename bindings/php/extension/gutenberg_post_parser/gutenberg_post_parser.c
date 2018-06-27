@@ -175,7 +175,7 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			if (children->length > 0) {
 				zval php_children_array;
 
-				array_init(&php_children_array);
+				array_init_size(&php_children_array, children->length);
 				into_php_objects(&php_children_array, children);
 
 				// Map [rust] `Node::Block.children` to [php] `Gutenberg_Parser_Block->children`.
@@ -230,7 +230,7 @@ PHP_FUNCTION(gutenberg_post_parse)
 	// Note: `return_value` is a “magic” variable that holds the value to be returned.
 	//
 	// Allocate an array.
-	array_init(return_value);
+	array_init_size(return_value, nodes.length);
 
 	// Map the Rust AST.
 	into_php_objects(return_value, &nodes);
