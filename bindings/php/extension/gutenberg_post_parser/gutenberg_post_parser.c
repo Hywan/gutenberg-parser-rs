@@ -24,6 +24,9 @@ typedef struct _gutenberg_parser_block {
 } gutenberg_parser_node;
 
 
+/*
+ * Function for a `zend_class_entry` to create a Gutenberg parser node object.
+ */
 static zend_object *create_parser_node_object(zend_class_entry *class_entry)
 {
 	gutenberg_parser_node *gutenberg_parser_node_object;
@@ -38,15 +41,20 @@ static zend_object *create_parser_node_object(zend_class_entry *class_entry)
 	return &gutenberg_parser_node_object->zobj;
 }
 
+/*
+ * Handler for a `zend_class_entry` to destroy (i.e. call the
+ * destructor on the userland for) a Gutenberg parser node object.
+ */
 static void destroy_parser_node_object(zend_object *gutenberg_parser_node_object)
 {
-	// Call the `__destruct` object method on the userland.
 	zend_objects_destroy_object(gutenberg_parser_node_object);
 }
 
+/*
+ * Handler for a `zend_class_entry` to free a Gutenberg parser node object.
+ */
 static void free_parser_node_object(zend_object *gutenberg_parser_node_object)
 {
-	// Call Zend's free handler, which will free the object properties.
 	zend_object_std_dtor(gutenberg_parser_node_object);
 }
 
