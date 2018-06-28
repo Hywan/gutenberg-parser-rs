@@ -17,7 +17,7 @@ function usage(): string
         '    ' . $_SERVER['argv'][0] . ' [FLAGS] [INPUT]' . "\n\n" .
         'FLAGS:' . "\n" .
         '    -d, --emit-debug    Compile the AST into PHP debug format (default).' . "\n" .
-        '    -j, --emit-json     Compile the AST into PHP debug format.' . "\n" .
+        '    -j, --emit-json     Compile the AST into JSON format.' . "\n" .
         '    -h, --help          Prints help information.' . "\n\n" .
         'ARGS:' . "\n" .
         '    <INPUT>    File containing the input.' . "\n";
