@@ -84,7 +84,8 @@ To compile the parser to an [ASM.js] module, run:
 
 ```sh
 $ just build-asmjs
-$ open bindings/asmjs/index.html
+$ just start-asmjs-server
+$ open localhost:8888
 ```
 
 The ASM.js module is slower than the WebAssembly binary, but it is
