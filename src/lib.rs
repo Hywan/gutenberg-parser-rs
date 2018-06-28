@@ -45,16 +45,16 @@ WASM target. This target should switch to stable in a couple of
 months. Since then, be sure to run the latest nightly version with
 `rustup update nightly`.
 
-### Binary
+#### Binary
 
 To compile the parser to a binary, run:
 
 ```sh
 $ just build-binary
-$ ./target/release/gutenberg-post-parser --emit-json <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
+$ ./target/release/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-### Static library
+#### Static library
 
 To compile the parser to a static library, run:
 
@@ -63,17 +63,24 @@ $ just build-library
 $ ls target/release/
 ```
 
-### WebAssembly
+#### WebAssembly
 
 To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
 $ just build-wasm
-$ cd bindings/wasm/ && php -S localhost:8888 -t . server.php
+$ ./bindings/wasm/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
+```
+
+If you would like to test directly in your browser, run:
+
+```sh
+$ just build-wasm
+$ just start-wasm-server
 $ open localhost:8888
 ```
 
-### ASM.js
+#### ASM.js
 
 To compile the parser to an [ASM.js] module, run:
 
@@ -87,7 +94,7 @@ useful for Internet Explorer compatibility, or any browser that does
 not support WebAssembly. Remember that ASM.js is just a JavaScript
 file.
 
-### NodeJS
+#### NodeJS
 
 To compile the parser to a [NodeJS] native module, run:
 
@@ -96,23 +103,22 @@ $ just build-nodejs
 $ node bindings/nodejs/lib/index.js
 ```
 
-### C
+#### C
 
 To compile the parser to a [C header][C], run:
 
 ```sh
 $ just build-c
-$ echo -n '<!-- wp:foo {"bar": "qux"} /-->' > test
-$ ./bindings/c/gutenberg-post-parser test
+$ ./bindings/c/bin/gutenberg-post-parser tests/fixtures/gutenberg-demo.html
 ```
 
-### PHP
+#### PHP
 
 To compile the parser to a [PHP extension][PHP], run:
 
 ```sh
 $ just build-php
-$ ./bindings/php/gutenberg-post-parser --emit-debug <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
+$ ./bindings/php/bin/gutenberg-post-parser --emit-debug tests/fixtures/gutenberg-demo.html
 ```
 
 To load the extension, add `extension=gutenberg_post_parser` in the
