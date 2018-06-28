@@ -1,3 +1,4 @@
+#!/usr/bin/env node --experimental-modules
 import {Gutenberg_Post_Parser} from './gutenberg_post_parser.mjs'
 import fs from 'fs';
 import util from 'util';
