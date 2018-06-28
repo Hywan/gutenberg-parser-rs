@@ -100,7 +100,7 @@ To compile the parser to a [NodeJS] native module, run:
 
 ```sh
 $ just build-nodejs
-$ node bindings/nodejs/lib/index.js
+$ ./bindings/nodejs/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
 #### C
