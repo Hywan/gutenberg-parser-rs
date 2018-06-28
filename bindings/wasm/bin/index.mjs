@@ -1,6 +1,7 @@
 #!/usr/bin/env node --experimental-modules
 import {Gutenberg_Post_Parser} from './gutenberg_post_parser.mjs'
 import fs from 'fs';
+import path from 'path';
 import util from 'util';
 import process from 'process';
 
@@ -51,7 +52,7 @@ if (2 >= process.argv.length) {
     process.exit(1);
 }
 
-const parser = new Gutenberg_Post_Parser_NodeJS(Block, Phrase, './gutenberg_post_parser.wasm');
+const parser = new Gutenberg_Post_Parser_NodeJS(Block, Phrase, path.dirname(process.argv[1]) + '/gutenberg_post_parser.wasm');
 
 let input = '';
 let emit = 'debug';
