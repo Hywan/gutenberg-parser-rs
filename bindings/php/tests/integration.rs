@@ -19,7 +19,7 @@ fn run_all_fixtures() {
             if extension == html {
                 for _ in 0..255 {
                     let output =
-                        Command::new("./gutenberg-post-parser")
+                        Command::new("./bin/gutenberg-post-parser")
                             .arg(&input_path)
                             .output()
                             .expect("Failed to execute `gutenberg-post-parser`.");
