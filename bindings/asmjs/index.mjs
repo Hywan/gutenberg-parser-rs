@@ -1,3 +1,5 @@
+import { Gutenberg_Post_Parser_ASM } from './gutenberg_post_parser.asm.mjs';
+
 class Block {
     constructor(name, attributes, children) {
         this.name = name;

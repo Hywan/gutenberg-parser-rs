@@ -46,6 +46,10 @@ build-asmjs: build-wasm
 		gzip --best --stdout gutenberg_post_parser.asm.js > gutenberg_post_parser.asm.js.gz && \
 		brotli --best --stdout --lgwin=24 gutenberg_post_parser.asm.js > gutenberg_post_parser.asm.js.br
 
+# Start an HTTP server to serve ASM.js demo.
+start-asmjs-server:
+	cd {{asmjs_directory}} && php -S localhost:8888 -t . server.php
+
 # Build the parser and produce a C binary.
 build-c:
 	cd {{c_directory}} && cargo build --release

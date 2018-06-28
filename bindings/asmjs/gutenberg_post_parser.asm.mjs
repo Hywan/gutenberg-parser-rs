@@ -1,4 +1,6 @@
-class Gutenberg_Post_Parser_ASM extends Gutenberg_Post_Parser {
+import { Gutenberg_Post_Parser } from './gutenberg_post_parser.mjs'
+
+export class Gutenberg_Post_Parser_ASM extends Gutenberg_Post_Parser {
     /**
      * `module` is an object containing the following keys:
      *     * `root`, the function to run the parser,
