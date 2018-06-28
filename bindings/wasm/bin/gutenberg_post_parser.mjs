@@ -1,5 +1,5 @@
 export class Gutenberg_Post_Parser {
-    constructor(Block, Phrase, wasmURL) {
+    constructor(Block, Phrase, wasmURL, textEncoder, textDecoder) {
         this.Block = Block;
         this.Phrase = Phrase;
 
@@ -7,8 +7,8 @@ export class Gutenberg_Post_Parser {
             this.instantiateWASM(wasmURL, {});
         }
 
-        this._encoder = new TextEncoder();
-        this._decoder = new TextDecoder('utf-8');
+        this._encoder = textEncoder || new TextEncoder();
+        this._decoder = textDecoder || new TextDecoder('utf-8');
 
         const self = this;
 
