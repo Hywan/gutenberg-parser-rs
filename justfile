@@ -33,7 +33,7 @@ build-wasm:
 
 # Start an HTTP server to serve WASM demo.
 start-wasm-server:
-	cd {{wasm_directory}}/bin && php -S localhost:8888 -t . server.php
+	cd {{wasm_directory}}/web && php -S localhost:8888 -t . server.php
 
 # Build the parser and produce an ASM.js file.
 build-asmjs: build-wasm
