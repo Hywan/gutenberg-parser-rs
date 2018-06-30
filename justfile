@@ -79,7 +79,7 @@ build-php php_prefix_bin='/usr/local/bin':
 		sudo make install
 
 # Test everything.
-test: test-library test-c test-php
+test: test-library test-wasm test-c test-php
 
 # Run all tests for the parser.
 test-library: build-library test-library-unit test-library-integration test-documentation
@@ -95,6 +95,13 @@ test-documentation:
 # Run the integration tests of the parser.
 test-library-integration:
 	cargo test --manifest-path {{cargo_std}} --test integration
+
+# Run all tests for the WASM binary.
+test-wasm: build-wasm test-wasm-integration
+
+# Run the integration tests of the WASM binary.
+test-wasm-integration:
+	cd {{wasm_directory}} && cargo +nightly test --test integration
 
 # Run all tests for the C binding.
 test-c: build-c test-c-unit test-c-integration
