@@ -17,8 +17,12 @@ fn run_all_fixtures() {
 
         if let Some(extension) = input_path.extension() {
             if extension == html {
+                let expected_path = input_path.as_path().with_extension("json");
+                let expected_content = fs::read_to_string(&expected_path).unwrap();
+
                 let output =
                     Command::new("./bin/gutenberg-post-parser")
+                    .arg("--emit-json")
                     .arg(&input_path)
                     .output()
                     .expect("Failed to execute `gutenberg-post-parser`.");
@@ -32,6 +36,10 @@ fn run_all_fixtures() {
                         String::from_utf8_lossy(&output.stdout.as_slice())
                     )
                 );
+
+                let mut output_content = String::from_utf8(output.stdout).unwrap();
+
+                assert!(expected_content == output_content);
             }
         }
     }

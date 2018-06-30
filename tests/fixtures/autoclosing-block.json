@@ -1,0 +1,9 @@
+[
+    {
+        "name": "core/block",
+        "attributes": {
+            "ref": 123
+        },
+        "children": []
+    }
+]
