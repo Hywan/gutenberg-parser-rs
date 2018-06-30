@@ -16,8 +16,41 @@ build-library:
 build-binary:
 	cargo build --manifest-path {{cargo_std}} --features "bin" --release
 
+# Check that the WASM binary can be build.
+check-wasm:
+	# Checking nightly toolchain is installed…
+	@rustup toolchain list | \
+		grep 'nightly-' > /dev/null || \
+		(echo 'Please, install the nightly toolchain for `rustc` with `rustup install nightly`.' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `wasm32-unknown-unknown` target is installed…
+	@rustup target list --toolchain nightly | \
+		grep 'wasm32-unknown-unknown (installed)' > /dev/null || \
+		(echo 'Please, install the `wasm32-unknown-unknown` target with `rustup target add --toolchain nightly wasm32-unknown-unknown.' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `wasm-gc` is installed…
+	@which wasm-gc > /dev/null || \
+		(echo 'Please, install `wasm-gc` with `cargo install wasm-gc`.' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `wasm-snip` is installed…
+	@which wasm-snip > /dev/null || \
+		(echo 'Please, install `wasm-snip` with `cargo install wasm-snip`.' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `wasm-opt` is installed…
+	@which wasm-opt > /dev/null || \
+		(echo 'Please, install `wasm-opt`, check https://github.com/WebAssembly/binaryen (prebuilds are attached to releases).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `gzip` is installed…
+	@which gzip > /dev/null || \
+		(echo 'Please, install `gzip`, check http://www.gzip.org/ (it is very likely that the package manager of your OS can install it).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `brotli` is installed…
+	@which brotli > /dev/null || \
+		(echo 'Please, install `brotli`, check https://github.com/google/brotli (it is very likely that the package manager of your OS can install it).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+
 # Build the parser and produce a WASM binary.
-build-wasm:
+build-wasm: check-wasm
 	cd {{wasm_directory}} && RUSTFLAGS='-g' cargo +nightly build --target wasm32-unknown-unknown --release
 	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser_wasm.wasm {{wasm_directory}}/bin/gutenberg_post_parser.wasm
 	cd {{wasm_directory}}/bin && \
@@ -35,8 +68,15 @@ build-wasm:
 start-wasm-server:
 	cd {{wasm_directory}}/web && php -S localhost:8888 -t . server.php
 
-# Build the parser and produce an ASM.js file.
-build-asmjs: build-wasm
+# Check that the ASM.js module can be build.
+check-asmjs:
+	# Checking `wasm2es6js` is installed…
+	@which wasm2es6js > /dev/null || \
+		(echo 'Please, install `wasm2es6js` with `cargo install wasm-bindgen-cli`.' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+
+# Build the parser and produce an ASM.js module.
+build-asmjs: check-asmjs build-wasm
 	wasm2es6js --wasm2asm --output {{asmjs_directory}}/gutenberg_post_parser.asm.js {{wasm_directory}}/bin/gutenberg_post_parser.wasm
 	cd {{asmjs_directory}} && \
 		sed -i '' '1s/^/function GUTENBERG_POST_PARSER_ASM_MODULE() {/; s/export //; s/const /var /; s/let /var /' gutenberg_post_parser.asm.js && \
@@ -50,8 +90,15 @@ build-asmjs: build-wasm
 start-asmjs-server:
 	cd {{asmjs_directory}} && php -S localhost:8888 -t . server.php
 
+# Check that the C binary can be build.
+check-c:
+	# Checking `clang` is installed…
+	@which clang > /dev/null || \
+		(echo 'Please, install `clang`, check https://clang.llvm.org/ (it is very likely that the package manager of your OS can install it).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+
 # Build the parser and produce a C binary.
-build-c:
+build-c: check-c
 	cd {{c_directory}} && cargo build --release
 	cd {{c_directory}}/bin && \
 		clang \
@@ -65,12 +112,30 @@ build-c:
 			-l c \
 			-l m
 
+# Check that the NodeJS native module can be build.
+check-nodejs:
+	# Checking `neon` is installed…
+	@which neon > /dev/null || \
+		(echo 'Please, install `neon` with `npm install --global neon-cli` (`npm` is the NodeJS Package Manager, see https://www.nodejs.org/).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+
 # Build the parser and produce a NodeJS native module.
-build-nodejs:
+build-nodejs: check-nodejs
 	cd {{nodejs_directory}} && neon build
 
+# Check that the PHP extension can be build.
+check-php:
+	# Checking `php` is installed…
+	@which php > /dev/null || \
+		(echo 'Please, install `php`, check http://php.net/ (it is very likely that the package manager of your OS can install it).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `make` is installed…
+	@which make > /dev/null || \
+		(echo 'Please, install `make` (it is very likely that the package manager of your OS can install it).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
+
 # Build the parser and produce a PHP extension.
-build-php php_prefix_bin='/usr/local/bin':
+build-php php_prefix_bin='/usr/local/bin': check-php
 	cd {{c_directory}} && cargo build --release
 	cd {{php_directory}}/extension/gutenberg_post_parser/ && \
 		{{php_prefix_bin}}/phpize --clean && \
