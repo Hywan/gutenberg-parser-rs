@@ -65,8 +65,6 @@ $ ls target/release/
 
 #### WebAssembly
 
-Learn more about the [WebAssembly binding](./bindings/wasm/).
-
 To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
@@ -82,6 +80,8 @@ $ just start-wasm-server
 $ open localhost:8888
 ```
 
+Learn more about the [WebAssembly binding](./bindings/wasm/).
+
 #### ASM.js
 
 To compile the parser to an [ASM.js] module, run:
@@ -96,6 +96,8 @@ The ASM.js module is slower than the WebAssembly binary, but it is
 useful for Internet Explorer compatibility, or any browser that does
 not support WebAssembly. Remember that ASM.js is just a JavaScript
 file.
+
+Learn more about the [ASM.js binding](./bindings/asmjs/).
 
 #### NodeJS
 

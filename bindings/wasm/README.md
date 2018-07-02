@@ -16,7 +16,8 @@ The [WebAssembly] binding of the Gutenberg post parser is designed as follows:
 
 ## Installation
 
-Please, see the [`README.md`](../../README.md) of the project, but basically, it reduces to:
+Please, see the [`README.md`](../../README.md) of the project, but
+basically, it reduces to:
 
 ```sh
 $ just build-wasm
