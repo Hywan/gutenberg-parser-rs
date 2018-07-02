@@ -167,6 +167,9 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			// Map [rust] `Node::Block.name.1` to [php] `Gutenberg_Parser_Block->name`.
 			add_property_string(&php_block, "name", block.name);
 
+			free((void*) block.namespace);
+			free((void*) block.name);
+
 			// Default value for `Gutenberg_Parser_Block->attributes` is `NULL`.
 			// Allocate a string only if some value.
 			if (block.attributes.tag == Some) {
@@ -174,6 +177,8 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 
 				// Map [rust] `Node::Block.attributes` to [php] `Gutenberg_Parser_Block->attributes`.
 				add_property_string(&php_block, "attributes", attributes);
+
+				free((void*) attributes);
 			}
 
 			const Vector_Node* children = (const Vector_Node*) (block.children);
@@ -190,6 +195,8 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 				add_property_zval(&php_block, "children", &php_children_array);
 
 				Z_DELREF(php_children_array);
+
+				free((void*) children);
 			}
 
 			// Insert `Gutenberg_Parser_Block` into the collection.
@@ -207,8 +214,12 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 
 			// Insert `Gutenberg_Parser_Phrase` into the collection.
 			add_next_index_zval(php_array, &php_phrase);
+
+			free((void*) phrase);
 		}
 	}
+
+	free((void*) nodes->buffer);
 }
 
 /*
