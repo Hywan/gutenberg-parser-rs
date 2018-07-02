@@ -157,15 +157,24 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 		// Map [rust] `Node::Block` to [php] `Gutenberg_Parser_Block`.
 		if (node.tag == Block) {
 			const Block_Body block = node.block;
-			zval php_block;
+			zval php_block, php_block_namespace, php_block_name;
 
+			// Prepare the PHP strings.
+			ZVAL_PSTRING(&php_block_namespace, block.namespace);
+			ZVAL_PSTRING(&php_block_name, block.name);
+
+			// Create the `Gutenberg_Parser_Block` object.
 			object_init_ex(&php_block, gutenberg_parser_block_class_entry);
 
 			// Map [rust] `Node::Block.name.0` to [php] `Gutenberg_Parser_Block->namespace`.
-			add_property_string(&php_block, "namespace", block.namespace);
+			add_property_zval(&php_block, "namespace", &php_block_namespace);
 
 			// Map [rust] `Node::Block.name.1` to [php] `Gutenberg_Parser_Block->name`.
-			add_property_string(&php_block, "name", block.name);
+			add_property_zval(&php_block, "name", &php_block_name);
+
+			// Writing the property adds 1 to refcount.
+			zval_ptr_dtor(&php_block_namespace);
+			zval_ptr_dtor(&php_block_name);
 
 			free((void*) block.namespace);
 			free((void*) block.name);
@@ -174,9 +183,16 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			// Allocate a string only if some value.
 			if (block.attributes.tag == Some) {
 				const char *attributes = block.attributes.some._0;
+				zval php_block_attributes;
+
+				// Prepare the PHP string.
+				ZVAL_PSTRING(&php_block_attributes, attributes);
 
 				// Map [rust] `Node::Block.attributes` to [php] `Gutenberg_Parser_Block->attributes`.
-				add_property_string(&php_block, "attributes", attributes);
+				add_property_zval(&php_block, "attributes", &php_block_attributes);
+
+				// Writing the property adds 1 to refcount.
+				zval_ptr_dtor(&php_block_attributes);
 
 				free((void*) attributes);
 			}
@@ -205,15 +221,22 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 		// Map [rust] `Node::Phrase` to [php] `Gutenberg_Parser_Phrase`.
 		else if (node.tag == Phrase) {
 			const char *phrase = node.phrase._0;
-			zval php_phrase;
+			zval php_phrase, php_phrase_content;
 
+			// Prepare the PHP string.
+			ZVAL_PSTRING(&php_phrase_content, phrase);
+
+			// Create the `Gutenberg_Parser_Phrase` object.
 			object_init_ex(&php_phrase, gutenberg_parser_phrase_class_entry);
 
 			// Map [rust] `Node::Phrase(content)` to [php] `Gutenberg_Parser_Phrase->content`.
-			add_property_string(&php_phrase, "content", phrase);
+			add_property_zval(&php_phrase, "content", &php_phrase_content);
 
 			// Insert `Gutenberg_Parser_Phrase` into the collection.
 			add_next_index_zval(php_array, &php_phrase);
+
+			// Writing the property adds 1 to refcount.
+			zval_ptr_dtor(&php_phrase_content);
 
 			free((void*) phrase);
 		}
