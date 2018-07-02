@@ -133,6 +133,8 @@ To load the extension, add `extension=gutenberg_post_parser` in the
 file), or run PHP such as `php -d extension=gutenberg_post_parser
 file.php`.
 
+Learn more about the [PHP binding](./bindings/php/).
+
 ### Performance and guarantee
 
 The parser guarantees to never copy the data in memory while
