@@ -9,7 +9,7 @@ const stderr = process.stderr;
 
 function usage() {
     return 'USAGE:' + "\n" +
-        '    ' + process.argv0 + ' [FLAGS] [INPUT]' + "\n\n" +
+        '    gutenberg-post-parser [FLAGS] [INPUT]' + "\n\n" +
         'FLAGS:' + "\n" +
         '    -d, --emit-debug    Compile the AST into JS debug format (default).' + "\n" +
         '    -j, --emit-json     Compile the AST into JSON format.' + "\n" +
