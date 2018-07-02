@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
     FILE* file = fopen(argv[1], "rb");
 
     if (file == NULL) {
-        printf("Cannot read given file.");
+        printf("Cannot read given file `%s`.", argv[1]);
 
         return 2;
     }
