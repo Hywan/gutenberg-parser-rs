@@ -1,1 +1,0 @@
-../wasm/bin/gutenberg_post_parser.mjs
