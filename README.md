@@ -1,4 +1,4 @@
-## The Gutenberg post parser.
+# The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
@@ -16,7 +16,7 @@ lorem ipsum
 The parser analyses a post and generates an Abstract Syntax Tree (AST)
 of it. The AST is then accessible to many languages through bindings.
 
-### Platforms and bindings, aka targets
+## Platforms and bindings, aka targets
 
 The parser aims at being used on different platforms, such as: the Web
 (within multiple browsers), Web applications like [Electron], native
@@ -43,7 +43,7 @@ WASM target. This target should switch to stable in a couple of
 months. Since then, be sure to run the latest nightly version with
 `rustup update nightly`.
 
-#### Binary
+### Binary
 
 To compile the parser to a binary, run:
 
@@ -52,7 +52,7 @@ $ just build-binary
 $ ./target/release/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-#### Static library
+### Static library
 
 To compile the parser to a static library, run:
 
@@ -61,7 +61,9 @@ $ just build-library
 $ ls target/release/
 ```
 
-#### WebAssembly
+### WebAssembly
+
+Learn more about the [WebAssembly binding](./bindings/wasm/).
 
 To compile the parser to a [WebAssembly] binary, run:
 
@@ -78,7 +80,7 @@ $ just start-wasm-server
 $ open localhost:8888
 ```
 
-#### ASM.js
+### ASM.js
 
 To compile the parser to an [ASM.js] module, run:
 
@@ -93,7 +95,7 @@ useful for Internet Explorer compatibility, or any browser that does
 not support WebAssembly. Remember that ASM.js is just a JavaScript
 file.
 
-#### NodeJS
+### NodeJS
 
 To compile the parser to a [NodeJS] native module, run:
 
@@ -102,7 +104,7 @@ $ just build-nodejs
 $ ./bindings/nodejs/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-#### C
+### C
 
 To compile the parser to a [C header][C], run:
 
@@ -111,7 +113,7 @@ $ just build-c
 $ ./bindings/c/bin/gutenberg-post-parser tests/fixtures/gutenberg-demo.html
 ```
 
-#### PHP
+### PHP
 
 To compile the parser to a [PHP extension][PHP], run:
 
@@ -125,12 +127,12 @@ To load the extension, add `extension=gutenberg_post_parser` in the
 file), or run PHP such as `php -d extension=gutenberg_post_parser
 file.php`.
 
-### Performance and guarantee
+## Performance and guarantee
 
 The parser guarantees to never copy the data in memory while
 analyzing, which makes it fast and memory efficient.
 
-#### WASM binary
+### WASM binary
 
 [A yet-to-be-official benchmark][gutenberg-parser-comparator] is used
 to compare the performance of the actual Javascript parser against the
@@ -150,7 +152,7 @@ browser. Here are the results:
 The WASM binary of the Rust parser is in average 67 times faster than
 the actual Javascript implementation.
 
-#### PHP native extension
+### PHP native extension
 
 Another benchmark has been used to compare the performance of the
 actual PHP parser against the Rust parser compiled as a PHP native
@@ -173,7 +175,7 @@ Note that memory limit has been hit very quickly with the PHP parser,
 while the Rust parser as a PHP native extension has a small memory
 footprint.
 
-### License
+## License
 
 The license is a classic `BSD-3-Clause`:
 

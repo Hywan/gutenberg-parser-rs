@@ -1,5 +1,5 @@
 #!/usr/bin/env node --experimental-modules
-import {Gutenberg_Post_Parser} from './gutenberg_post_parser.mjs'
+import { Gutenberg_Post_Parser } from './gutenberg_post_parser.mjs'
 import fs from 'fs';
 import path from 'path';
 import util from 'util';
@@ -37,7 +37,7 @@ const stderr = process.stderr;
 
 function usage() {
     return 'USAGE:' + "\n" +
-        '    ' + process.argv0 + ' [FLAGS] [INPUT]' + "\n\n" +
+        '    gutenberg-post-parser [FLAGS] [INPUT]' + "\n\n" +
         'FLAGS:' + "\n" +
         '    -d, --emit-debug    Compile the AST into JS debug format (default).' + "\n" +
         '    -j, --emit-json     Compile the AST into JSON format.' + "\n" +

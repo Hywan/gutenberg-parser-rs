@@ -1,6 +1,6 @@
 /*!
 
-# The Gutenberg post parser.
+# The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
@@ -64,6 +64,8 @@ $ ls target/release/
 ```
 
 #### WebAssembly
+
+Learn more about the [WebAssembly binding](./bindings/wasm/).
 
 To compile the parser to a [WebAssembly] binary, run:
 
