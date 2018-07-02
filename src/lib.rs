@@ -108,6 +108,8 @@ $ just build-nodejs
 $ ./bindings/nodejs/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
+Learn more about the [NodeJS binding](./bindings/nodejs/).
+
 #### C
 
 To compile the parser to a [C header][C], run:
