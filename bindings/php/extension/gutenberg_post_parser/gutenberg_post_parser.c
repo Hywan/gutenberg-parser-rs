@@ -160,8 +160,8 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			zval php_block, php_block_namespace, php_block_name;
 
 			// Prepare the PHP strings.
-			ZVAL_PSTRING(&php_block_namespace, block.namespace);
-			ZVAL_PSTRING(&php_block_name, block.name);
+			ZVAL_STRING(&php_block_namespace, block.namespace);
+			ZVAL_STRING(&php_block_name, block.name);
 
 			// Create the `Gutenberg_Parser_Block` object.
 			object_init_ex(&php_block, gutenberg_parser_block_class_entry);
@@ -186,7 +186,7 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 				zval php_block_attributes;
 
 				// Prepare the PHP string.
-				ZVAL_PSTRING(&php_block_attributes, attributes);
+				ZVAL_STRING(&php_block_attributes, attributes);
 
 				// Map [rust] `Node::Block.attributes` to [php] `Gutenberg_Parser_Block->attributes`.
 				add_property_zval(&php_block, "attributes", &php_block_attributes);
@@ -224,7 +224,7 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			zval php_phrase, php_phrase_content;
 
 			// Prepare the PHP string.
-			ZVAL_PSTRING(&php_phrase_content, phrase);
+			ZVAL_STRING(&php_phrase_content, phrase);
 
 			// Create the `Gutenberg_Parser_Phrase` object.
 			object_init_ex(&php_phrase, gutenberg_parser_phrase_class_entry);
