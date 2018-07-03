@@ -147,6 +147,8 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 	const uintptr_t number_of_nodes = nodes->length;
 
 	if (number_of_nodes == 0) {
+		free((void*) nodes->buffer);
+
 		return;
 	}
 
