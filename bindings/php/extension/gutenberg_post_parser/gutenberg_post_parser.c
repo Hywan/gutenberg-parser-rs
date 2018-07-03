@@ -182,7 +182,6 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			// Allocate a string only if some value.
 			if (block.attributes.tag == Some) {
 				Slice_c_char attributes = block.attributes.some._0;
-
 				zval php_block_attributes;
 
 				// Prepare the PHP string.
@@ -219,7 +218,6 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 		// Map [rust] `Node::Phrase` to [php] `Gutenberg_Parser_Phrase`.
 		else if (node.tag == Phrase) {
 			Slice_c_char phrase = node.phrase._0;
-
 			zval php_phrase, php_phrase_content;
 
 			// Prepare the PHP string.
