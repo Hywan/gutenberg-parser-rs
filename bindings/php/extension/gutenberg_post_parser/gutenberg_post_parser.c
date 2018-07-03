@@ -160,8 +160,8 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			zval php_block, php_block_namespace, php_block_name;
 
 			// Prepare the PHP strings.
-			ZVAL_STRING(&php_block_namespace, block.namespace);
-			ZVAL_STRING(&php_block_name, block.name);
+			ZVAL_STRINGL(&php_block_namespace, block.namespace.pointer, block.namespace.length);
+			ZVAL_STRINGL(&php_block_name, block.name.pointer, block.name.length);
 
 			// Create the `Gutenberg_Parser_Block` object.
 			object_init_ex(&php_block, gutenberg_parser_block_class_entry);
@@ -176,25 +176,21 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			zval_ptr_dtor(&php_block_namespace);
 			zval_ptr_dtor(&php_block_name);
 
-			free((void*) block.namespace);
-			free((void*) block.name);
-
 			// Default value for `Gutenberg_Parser_Block->attributes` is `NULL`.
 			// Allocate a string only if some value.
 			if (block.attributes.tag == Some) {
-				const char *attributes = block.attributes.some._0;
+				Slice_c_char attributes = block.attributes.some._0;
+
 				zval php_block_attributes;
 
 				// Prepare the PHP string.
-				ZVAL_STRING(&php_block_attributes, attributes);
+				ZVAL_STRINGL(&php_block_attributes, attributes.pointer, attributes.length);
 
 				// Map [rust] `Node::Block.attributes` to [php] `Gutenberg_Parser_Block->attributes`.
 				add_property_zval(&php_block, "attributes", &php_block_attributes);
 
 				// Writing the property adds 1 to refcount.
 				zval_ptr_dtor(&php_block_attributes);
-
-				free((void*) attributes);
 			}
 
 			const Vector_Node* children = (const Vector_Node*) (block.children);
@@ -220,11 +216,12 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 		}
 		// Map [rust] `Node::Phrase` to [php] `Gutenberg_Parser_Phrase`.
 		else if (node.tag == Phrase) {
-			const char *phrase = node.phrase._0;
+			Slice_c_char phrase = node.phrase._0;
+
 			zval php_phrase, php_phrase_content;
 
 			// Prepare the PHP string.
-			ZVAL_STRING(&php_phrase_content, phrase);
+			ZVAL_STRINGL(&php_phrase_content, phrase.pointer, phrase.length);
 
 			// Create the `Gutenberg_Parser_Phrase` object.
 			object_init_ex(&php_phrase, gutenberg_parser_phrase_class_entry);
@@ -237,8 +234,6 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 
 			// Writing the property adds 1 to refcount.
 			zval_ptr_dtor(&php_phrase_content);
-
-			free((void*) phrase);
 		}
 	}
 
