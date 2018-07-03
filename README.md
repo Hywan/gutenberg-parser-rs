@@ -155,7 +155,7 @@ browser. Here are the results:
 | [`pygmalian-raw-html.html`] | 311.416 | 2.894 | × 108 |
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
 
-The WASM binary of the Rust parser is in average 67 times faster than
+The WASM binary of the Rust parser is in average 67 times faster than
 the actual Javascript implementation.
 
 ### PHP native extension
@@ -166,15 +166,15 @@ extension. Here are the results:
 
 | file | PHP parser (ms) | Rust parser as a PHP native extension (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 14.656 | 0.017 | × 862 |
-| [`shortcode-shortcomings.html`] | 38.624 | 0.029 | × 1332 |
-| [`redesigning-chrome-desktop.html`] | 109.377 | 0.110 | × 994 |
-| [`web-at-maximum-fps.html`] | 87.345 | 0.073 | × 1197 |
-| [`early-adopting-the-future.html`] | 137.056 | 0.084 | × 1632 |
-| [`pygmalian-raw-html.html`] | 165.072 | 0.024 | × 6905 |
-| [`moby-dick-parsed.html`] | 2,681.936 | 1.293 | × 2074 |
+| [`demo-post.html`] | 14.656 | 0.019 | × 771 |
+| [`shortcode-shortcomings.html`] | 38.624 | 0.022 | × 1756 |
+| [`redesigning-chrome-desktop.html`] | 109.377 | 0.090 | × 1215 |
+| [`web-at-maximum-fps.html`] | 87.345 | 0.061 | × 1432 |
+| [`early-adopting-the-future.html`] | 137.056 | 0.074 | × 1852 |
+| [`pygmalian-raw-html.html`] | 165.072 | 0.009 | × 18341 |
+| [`moby-dick-parsed.html`] | 2,681.936 | 0.993 | × 2701 |
 
-The PHP extension of the Rust parser is in average 2142 times faster
+The PHP extension of the Rust parser is in average 4010 times faster
 than the actual PHP implementation.
 
 Note that memory limit has been hit very quickly with the PHP parser,
