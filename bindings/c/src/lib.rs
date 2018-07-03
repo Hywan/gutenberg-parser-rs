@@ -20,15 +20,22 @@ extern crate gutenberg_post_parser;
 
 use gutenberg_post_parser::root;
 use gutenberg_post_parser::ast;
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::mem;
 use std::os::raw::{c_char, c_void};
 use std::ptr;
 
 #[repr(C)]
 #[derive(Debug, PartialEq)]
+pub struct Slice_c_char {
+    pointer: *const c_char,
+    length: usize
+}
+
+#[repr(C)]
+#[derive(Debug, PartialEq)]
 pub enum Option_c_char {
-    Some(*const c_char),
+    Some(Slice_c_char),
     None
 }
 
@@ -36,13 +43,13 @@ pub enum Option_c_char {
 #[derive(Debug, PartialEq)]
 pub enum Node {
     Block {
-        namespace: *const c_char,
-        name: *const c_char,
+        namespace: Slice_c_char,
+        name: Slice_c_char,
         attributes: Option_c_char,
         // Cannot type to `*const Vector_Node` here because of https://github.com/eqrion/cbindgen/issues/43.
         children: *const c_void
     },
-    Phrase(*const c_char)
+    Phrase(Slice_c_char)
 }
 
 #[repr(C)]
@@ -95,30 +102,22 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
     match *node {
         ast::Node::Block { name, attributes, ref children } => {
             Node::Block {
-                namespace: {
-                    let namespace = CString::new(name.0).unwrap();
-                    let pointer = namespace.as_ptr();
-
-                    mem::forget(namespace);
-
-                    pointer
+                namespace: Slice_c_char {
+                    pointer: name.0.as_ptr() as *const c_char,
+                    length: name.0.len()
                 },
-                name: {
-                    let name = CString::new(name.1).unwrap();
-                    let pointer = name.as_ptr();
-
-                    mem::forget(name);
-
-                    pointer
+                name: Slice_c_char {
+                    pointer: name.1.as_ptr() as *const c_char,
+                    length: name.1.len()
                 },
                 attributes: match attributes {
                     Some(attributes) => {
-                        let attributes = CString::new(attributes).unwrap();
-                        let some = Option_c_char::Some(attributes.as_ptr());
-
-                        mem::forget(attributes);
-
-                        some
+                        Option_c_char::Some(
+                            Slice_c_char {
+                                pointer: attributes.as_ptr() as *const c_char,
+                                length: attributes.len()
+                            }
+                        )
                     },
 
                     None => {
@@ -161,12 +160,12 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
         },
 
         ast::Node::Phrase(input) => {
-            let input = CString::new(input).unwrap();
-            let phrase = Node::Phrase(input.as_ptr());
-
-            mem::forget(input);
-
-            phrase
+            Node::Phrase(
+                Slice_c_char {
+                    pointer: input.as_ptr() as *const c_char,
+                    length: input.len()
+                }
+            )
         }
     }
 }
@@ -183,10 +182,14 @@ mod tests {
         )
     }
 
-    macro_rules! c_char_to_str {
+    macro_rules! slice_c_char_to_str {
         ($input:ident) => (
             {
-                unsafe { ::std::ffi::CStr::from_ptr(*$input) }.to_str().unwrap()
+                unsafe {
+                    ::std::ffi::CStr::from_bytes_with_nul_unchecked(
+                        ::std::slice::from_raw_parts($input.pointer as *const u8, $input.length + 1)
+                    ).to_str().unwrap()
+                }
             }
         )
     }
@@ -200,7 +203,7 @@ mod tests {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
                     Node::Phrase(phrase) => {
-                        assert_eq!(c_char_to_str!(phrase), "foo");
+                        assert_eq!(slice_c_char_to_str!(phrase), "foo");
                     },
 
                     _ => assert!(false)
@@ -222,12 +225,12 @@ mod tests {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
                     Node::Block { namespace, name, attributes, children } => {
-                        assert_eq!(c_char_to_str!(namespace), "core");
-                        assert_eq!(c_char_to_str!(name), "foo");
+                        assert_eq!(slice_c_char_to_str!(namespace), "core");
+                        assert_eq!(slice_c_char_to_str!(name), "foo");
 
                         match attributes {
                             Option_c_char::Some(attributes) => {
-                                assert_eq!(c_char_to_str!(attributes), "{bar}");
+                                assert_eq!(slice_c_char_to_str!(attributes), "{bar}");
                             },
 
                             _ => assert!(false)
@@ -257,8 +260,8 @@ mod tests {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
                     Node::Block { namespace, name, attributes, children } => {
-                        assert_eq!(c_char_to_str!(namespace), "core");
-                        assert_eq!(c_char_to_str!(name), "foo");
+                        assert_eq!(slice_c_char_to_str!(namespace), "core");
+                        assert_eq!(slice_c_char_to_str!(name), "foo");
 
                         match attributes {
                             Option_c_char::None => assert!(true),
@@ -289,8 +292,8 @@ mod tests {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
                     Node::Block { namespace, name, attributes, children } => {
-                        assert_eq!(c_char_to_str!(namespace), "foo");
-                        assert_eq!(c_char_to_str!(name), "bar");
+                        assert_eq!(slice_c_char_to_str!(namespace), "foo");
+                        assert_eq!(slice_c_char_to_str!(name), "bar");
 
                         match attributes {
                             Option_c_char::None => assert!(true),

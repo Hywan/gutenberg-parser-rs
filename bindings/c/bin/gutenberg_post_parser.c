@@ -17,22 +17,25 @@ void print(const Vector_Node* nodes, int depth) {
 
         if (node.tag == Block) {
             const Block_Body block = node.block;
-            const char *namespace = block.namespace;
-            const char *name = block.name;
+            const Slice_c_char namespace = block.namespace;
+            const Slice_c_char name = block.name;
 
             printf("%*.*sblock\n", depth, depth, " ");
-
-            printf("%*.*s    %s/%s\n", depth, depth, " ", namespace, name);
-
-            free((void*) namespace);
-            free((void*) name);
+            printf(
+                "%*.*s    %.*s/%.*s\n",
+                depth, depth, " ",
+                (int) namespace.length, namespace.pointer,
+                (int) name.length, name.pointer
+            );
 
             if (block.attributes.tag == Some) {
-                const char *attributes = block.attributes.some._0;
+                const Slice_c_char attributes = block.attributes.some._0;
 
-                printf("%*.*s    %s\n", depth, depth, " ", attributes);
-
-                free((void*) attributes);
+                printf(
+                    "%*.*s    %.*s\n",
+                    depth, depth, " ",
+                    (int) attributes.length, attributes.pointer
+                );
             }
 
             const Vector_Node* children = (const Vector_Node*) (block.children);
@@ -41,12 +44,14 @@ void print(const Vector_Node* nodes, int depth) {
 
             free((void*) children);
         } else if (node.tag == Phrase) {
-            const char *phrase = node.phrase._0;
+            const Slice_c_char phrase = node.phrase._0;
 
             printf("%*.*sphrase\n", depth, depth, " ");
-            printf("%*.*s    %s\n", depth, depth, " ", phrase);
-
-            free((void*) phrase);
+            printf(
+                "%*.*s    %.*s\n",
+                depth, depth, " ",
+                (int) phrase.length, phrase.pointer
+            );
         }
 
         printf("\n");
