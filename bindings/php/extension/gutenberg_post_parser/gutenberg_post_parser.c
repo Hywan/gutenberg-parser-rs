@@ -209,9 +209,9 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 				add_property_zval(&php_block, "children", &php_children_array);
 
 				Z_DELREF(php_children_array);
-
-				free((void*) children);
 			}
+
+			free((void*) children);
 
 			// Insert `Gutenberg_Parser_Block` into the collection.
 			add_next_index_zval(php_array, &php_block);
