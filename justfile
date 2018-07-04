@@ -154,9 +154,9 @@ test-library-unit:
 	cargo test --manifest-path {{cargo_std}} --lib
 
 # Run an HTTP server to test the library.
-test-library-with-web-api:
+test-library-with-web-api server_address='localhost:8900':
 	cd tests/web-api/ && \
-		GUTENBERG_TEST_SERVER_ADDRESS="localhost:8900" \
+		GUTENBERG_TEST_SERVER_ADDRESS="{{server_address}}" \
 		cargo run --release
 
 # Run the documentation tests.
@@ -173,6 +173,11 @@ test-wasm: build-wasm test-wasm-integration
 # Run the integration tests of the WASM binary.
 test-wasm-integration:
 	cd {{wasm_directory}} && cargo +nightly test --test integration
+
+# Run an HTTP server to test the WASM binary.
+test-wasm-with-web-api server_address='localhost:8902':
+	GUTENBERG_TEST_SERVER_ADDRESS="{{server_address}}" \
+		./bindings/wasm/tests/web-api/index.mjs
 
 # Run all tests for the C binding.
 test-c: build-c test-c-unit test-c-integration
@@ -193,9 +198,9 @@ test-php-integration:
 	cd {{php_directory}} && cargo test --test integration
 
 # Run an HTTP server to test the PHP binding.
-test-php-with-web-api:
+test-php-with-web-api server_address='localhost:8901':
 	cd bindings/php/tests/web-api/ && \
-		php -d extension=gutenberg_post_parser -S localhost:8901 -t . server.php
+		php -d extension=gutenberg_post_parser -S {{server_address}} -t . server.php
 
 # Run a fuzzer on the library.
 fuzz-library:
