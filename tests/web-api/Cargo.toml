@@ -1,0 +1,9 @@
+[package]
+name = "gutenberg_post_parser_"
+version = "0.0.1"
+authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+publish = false
+
+[dependencies]
+gutenberg_post_parser = { path = "../../cargo/std/", version = "=0.13.0" }
+actix-web = "^0.6.14"

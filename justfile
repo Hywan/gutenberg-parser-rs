@@ -153,6 +153,12 @@ test-library: build-library test-library-unit test-library-integration test-docu
 test-library-unit:
 	cargo test --manifest-path {{cargo_std}} --lib
 
+# Run an HTTP server to test the library.
+test-library-with-web-api:
+	cd tests/web-api/ && \
+		GUTENBERG_TEST_SERVER_ADDRESS="localhost:8900" \
+		cargo run --release
+
 # Run the documentation tests.
 test-documentation:
 	cargo test --manifest-path {{cargo_std}} --doc
