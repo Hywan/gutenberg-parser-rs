@@ -192,6 +192,11 @@ test-php: test-php-integration
 test-php-integration:
 	cd {{php_directory}} && cargo test --test integration
 
+# Run an HTTP server to test the PHP binding.
+test-php-with-web-api:
+	cd bindings/php/tests/web-api/ && \
+		php -d extension=gutenberg_post_parser -S localhost:8901 -t . server.php
+
 # Run a fuzzer on the library.
 fuzz-library:
 	cd {{fuzz_directory}} && \
