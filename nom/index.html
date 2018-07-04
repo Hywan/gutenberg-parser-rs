@@ -392,7 +392,7 @@ parser, allowing byte-slice parsers to work on bit streams.</p>
                            <td><a class="macro" href="macro.char.html"
                                   title='macro nom::char'>char</a></td>
                            <td class='docblock-short'>
-                                <p>matches one character: `char!(char) =&gt; &amp;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="u8">u8</a> -&gt; IResult&lt;&amp;<a href="https://doc.rust-lang.org/nightly/std/primitive.u8.html" title="u8">u8</a>, char&gt;</p>
+                                <p>matches one character: `char!(char) =&gt; &amp;[u8] -&gt; IResult&lt;&amp;[u8], char&gt;</p>
 
                            </td>
                        </tr>
@@ -1443,6 +1443,13 @@ if more data was needed</p>
                            </td>
                        </tr>
                        <tr class=' module-item'>
+                           <td><a class="trait" href="trait.HexDisplay.html"
+                                  title='trait nom::HexDisplay'>HexDisplay</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
                            <td><a class="trait" href="trait.InputIter.html"
                                   title='trait nom::InputIter'>InputIter</a></td>
                            <td class='docblock-short'>
@@ -2018,6 +2025,20 @@ accept a <code>str</code>, but not a <code>&amp;[u8]</code>, unlike many other n
                            <td class='docblock-short'>
                                 <p>Recognizes one or more octal characters: 0-7</p>
 
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.print.html"
+                                  title='fn nom::print'>print</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.print_codes.html"
+                                  title='fn nom::print_codes'>print_codes</a></td>
+                           <td class='docblock-short'>
+                                
                            </td>
                        </tr>
                        <tr class=' module-item'>

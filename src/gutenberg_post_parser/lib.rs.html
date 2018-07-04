@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `../../src/lib.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>lib.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form js-only"><div class="search-container"><input class="search-input" name="search" autocomplete="off" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -252,10 +252,66 @@
 <span id="252">252</span>
 <span id="253">253</span>
 <span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><pre class="rust ">
 <span class="doccomment">/*!
 
-# The Gutenberg post parser.
+# The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
@@ -284,29 +340,32 @@ Thus, the parser can be compiled as:
   * A [binary](#binary),
   * A [static library](#static-library),
   * Can be embedded in any Rust projects,
-  * A [WebAssemble binary](#webassembly),
+  * A [WebAssembly binary](#webassembly),
+  * An [ASM.js module](#asmjs),
   * A [NodeJS native module](#nodejs),
+  * A [C header](#c),
+  * A [PHP extension](#php),
   * And soon more.
 
 This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
 
-**Note**: Right now, this project needs `rustc` nightly to compile
-most of the targets. The project should switch to stable in a couple
-of months. Since then, be sure to run the latest nightly version with
+**Note**: Right now, this project needs `rustc` nightly to compile the
+WASM target. This target should switch to stable in a couple of
+months. Since then, be sure to run the latest nightly version with
 `rustup update nightly`.
 
-### Binary
+#### Binary
 
 To compile the parser to a binary, run:
 
 ```sh
 $ just build-binary
-$ ./target/release/gutenberg-post-parser --emit-json &lt;( echo -n &#39;&lt;!-- wp:foo {&quot;bar&quot;: &quot;qux&quot;} /--&gt;&#39; )
+$ ./target/release/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-### Static library
+#### Static library
 
 To compile the parser to a static library, run:
 
@@ -315,28 +374,84 @@ $ just build-library
 $ ls target/release/
 ```
 
-### WebAssembly
+#### WebAssembly
 
 To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
 $ just build-wasm
-$ open bindings/wasm/index.html # for a demonstration
+$ ./bindings/wasm/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-### NodeJS
+If you would like to test directly in your browser, run:
+
+```sh
+$ just build-wasm
+$ just start-wasm-server
+$ open localhost:8888
+```
+
+Learn more about the [WebAssembly binding](./bindings/wasm/).
+
+#### ASM.js
+
+To compile the parser to an [ASM.js] module, run:
+
+```sh
+$ just build-asmjs
+$ just start-asmjs-server
+$ open localhost:8888
+```
+
+The ASM.js module is slower than the WebAssembly binary, but it is
+useful for Internet Explorer compatibility, or any browser that does
+not support WebAssembly. Remember that ASM.js is just a JavaScript
+file.
+
+Learn more about the [ASM.js binding](./bindings/asmjs/).
+
+#### NodeJS
 
 To compile the parser to a [NodeJS] native module, run:
 
 ```sh
 $ just build-nodejs
-$ node bindings/nodejs/lib/index.js # for a demonstration
+$ ./bindings/nodejs/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-## Performance and guarantee
+Learn more about the [NodeJS binding](./bindings/nodejs/).
+
+#### C
+
+To compile the parser to a [C header][C], run:
+
+```sh
+$ just build-c
+$ ./bindings/c/bin/gutenberg-post-parser tests/fixtures/gutenberg-demo.html
+```
+
+#### PHP
+
+To compile the parser to a [PHP extension][PHP], run:
+
+```sh
+$ just build-php
+$ ./bindings/php/bin/gutenberg-post-parser --emit-debug tests/fixtures/gutenberg-demo.html
+```
+
+To load the extension, add `extension=gutenberg_post_parser` in the
+`php.ini` file (hint: Run `php --ini` to locate this configuration
+file), or run PHP such as `php -d extension=gutenberg_post_parser
+file.php`.
+
+Learn more about the [PHP binding](./bindings/php/).
+
+### Performance and guarantee
 
 The parser guarantees to never copy the data in memory while
 analyzing, which makes it fast and memory efficient.
+
+#### WASM binary
 
 [A yet-to-be-official benchmark][gutenberg-parser-comparator] is used
 to compare the performance of the actual Javascript parser against the
@@ -353,8 +468,31 @@ browser. Here are the results:
 | [`pygmalian-raw-html.html`] | 311.416 | 2.894 | × 108 |
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
 
-The WASM binary of the Rust parser is in average 67 times faster than
-the Javascript implementation.
+The WASM binary of the Rust parser is in average 67 times faster than
+the actual Javascript implementation.
+
+#### PHP native extension
+
+Another benchmark has been used to compare the performance of the
+actual PHP parser against the Rust parser compiled as a PHP native
+extension. Here are the results:
+
+| file | PHP parser (ms) | Rust parser as a PHP native extension (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 14.656 | 0.019 | × 771 |
+| [`shortcode-shortcomings.html`] | 38.624 | 0.022 | × 1756 |
+| [`redesigning-chrome-desktop.html`] | 109.377 | 0.090 | × 1215 |
+| [`web-at-maximum-fps.html`] | 87.345 | 0.061 | × 1432 |
+| [`early-adopting-the-future.html`] | 137.056 | 0.074 | × 1852 |
+| [`pygmalian-raw-html.html`] | 165.072 | 0.009 | × 18341 |
+| [`moby-dick-parsed.html`] | 2,681.936 | 0.993 | × 2701 |
+
+The PHP extension of the Rust parser is in average 4010 times faster
+than the actual PHP implementation.
+
+Note that memory limit has been hit very quickly with the PHP parser,
+while the Rust parser as a PHP native extension has a small memory
+footprint.
 
 ## License
 
@@ -395,7 +533,10 @@ The license is a classic `BSD-3-Clause`:
 [Electron]: https://github.com/electron/
 [Justfile]: https://github.com/casey/just/
 [WebAssembly]: http://webassembly.org/
+[ASM.js]: http://asmjs.org/spec/latest/
 [NodeJS]: https://nodejs.org/
+[C]: https://en.wikipedia.org/wiki/C_(programming_language)
+[PHP]: https://php.net/
 [gutenberg-parser-comparator]: https://github.com/dmsnell/gutenberg-parser-comparator
 [`demo-post.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html
 [`shortcode-shortcomings.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html
@@ -408,47 +549,18 @@ The license is a classic `BSD-3-Clause`:
 */</span>
 
 
-<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>, <span class="ident">no_std</span>)]</span>
-<span class="attribute">#![
-    <span class="ident">cfg_attr</span>(
-        <span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>,
-        <span class="ident">feature</span>(
-            <span class="ident">alloc</span>,
-            <span class="ident">core_intrinsics</span>,
-            <span class="ident">global_allocator</span>,
-            <span class="ident">lang_items</span>,
-            <span class="ident">proc_macro</span>,
-            <span class="ident">wasm_custom_section</span>,
-            <span class="ident">wasm_import_module</span>,
-        )
-    )
-]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;no_std&quot;</span>, <span class="ident">no_std</span>)]</span>
+<span class="attribute">#![<span class="ident">cfg_attr</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;no_std&quot;</span>, <span class="ident">feature</span>(<span class="ident">alloc</span>))]</span>
 
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>)]</span> <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;no_std&quot;</span>)]</span> <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">alloc</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">nom</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>)]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">wee_alloc</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nodejs&quot;</span>)]</span> <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">neon</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nodejs&quot;</span>)]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">serde_json</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nodejs&quot;</span>)]</span> <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">neon_serde</span>;
 
-
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>)]</span>
-<span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">Vec</span>;
-
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;no_std&quot;</span>)]</span> <span class="kw">use</span> <span class="ident">alloc</span>::<span class="ident">Vec</span>;
 
 <span class="comment">// Export modules.</span>
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ast</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span> <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">combinators</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">parser</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>)]</span> <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">wasm</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;nodejs&quot;</span>)]</span> <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">nodejs</span>;
-
-
-<span class="comment">// Configure `wee_alloc`.</span>
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;wasm&quot;</span>)]</span>
-<span class="attribute">#[<span class="ident">global_allocator</span>]</span>
-<span class="kw">static</span> <span class="ident">ALLOC</span>: <span class="ident">wee_alloc</span>::<span class="ident">WeeAlloc</span> <span class="op">=</span> <span class="ident">wee_alloc</span>::<span class="ident">WeeAlloc</span>::<span class="ident">INIT</span>;
 
 
 <span class="doccomment">/// Represent the type of a parser input element. See</span>
