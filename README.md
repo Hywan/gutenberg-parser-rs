@@ -156,7 +156,7 @@ browser. Here are the results:
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
 
 The WASM binary of the Rust parser is in average 67 times faster than
-the actual Javascript implementation.
+the actual Javascript implementation. The median of the speedup is 63.
 
 ### PHP native extension
 
@@ -175,7 +175,7 @@ extension. Here are the results:
 | [`moby-dick-parsed.html`] | 2,681.936 | 0.993 | × 2701 |
 
 The PHP extension of the Rust parser is in average 4010 times faster
-than the actual PHP implementation.
+than the actual PHP implementation. The median of the speedup is 1756.
 
 Note that memory limit has been hit very quickly with the PHP parser,
 while the Rust parser as a PHP native extension has a small memory
