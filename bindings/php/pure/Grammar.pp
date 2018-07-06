@@ -11,19 +11,19 @@
 #block_list:
     ( block() | phrase() )* tail()?
 
-#block:
-    block_balanced() | block_void()
-
-#block_balanced:
-    ::comment_opening:: <name[0]> ::ws:: block_attributes()? ::ws::? ::comment_closing::
-    block_list()
-    ::comment_opening:: ::name[0]:: ::ws::? ::comment_closing::
-
-#block_void:
-    ::comment_opening:: <name> ::ws:: block_attributes()? ::ws::? ::comment_auto_closing::
-
-#block_attributes:
-    <attributes>
+block:
+    ::comment_opening:: <name[0]> ::ws:: <attributes>? ::ws::? 
+    (
+        ::comment_closing::
+        block_list()
+        ::comment_opening:: ::name[0]:: ::ws::? ::comment_closing::
+        #block_balanced
+    )
+    |
+    (
+        ::comment_auto_closing::
+        #block_void
+    )
 
 #phrase:
     <phrase>
