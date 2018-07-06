@@ -1,5 +1,6 @@
 {
     "require": {
-        "hoa/compiler": "^3.17"
+        "hoa/compiler": "^3.17",
+        "hoa/visitor": "^2.17"
     }
 }
