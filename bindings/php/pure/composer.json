@@ -1,0 +1,5 @@
+{
+    "require": {
+        "hoa/compiler": "^3.17"
+    }
+}
