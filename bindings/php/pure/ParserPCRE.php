@@ -15,7 +15,7 @@ const EXPRESSION = <<<'PCRE'
             [ \n\r\t]+
             (?<block_attributes>{[^}]+})?
             [ \n\r\t]*
-            (
+            (?:
                 ## Void
 
                 /-->
@@ -88,6 +88,7 @@ class Phrase
 function parse(string $data)
 {
     $offset = 0;
+    $max_offset = strlen($data);
 
     do {
         $preg = preg_match(
@@ -98,7 +99,7 @@ function parse(string $data)
             $offset
         );
 
-        if (0 === $preg) {
+        if (0 === $preg || empty($matches)) {
             break;
         }
 
@@ -142,7 +143,7 @@ function parse(string $data)
         }
 
         $offset += strlen($matches[0]);
-    } while (true);
+    } while ($offset < $max_offset);
 }
 
 function unfold(string $data, int $depth = 0)
