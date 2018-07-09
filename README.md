@@ -164,18 +164,18 @@ Another benchmark has been used to compare the performance of the
 actual PHP parser against the Rust parser compiled as a PHP native
 extension. Here are the results:
 
-| file | PHP parser (ms) | Rust parser as a PHP native extension (ms) | speedup |
+| file | PHP parser (ms) | Rust parser as a PHP extension (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 14.656 | 0.019 | × 771 |
-| [`shortcode-shortcomings.html`] | 38.624 | 0.022 | × 1756 |
-| [`redesigning-chrome-desktop.html`] | 109.377 | 0.090 | × 1215 |
-| [`web-at-maximum-fps.html`] | 87.345 | 0.061 | × 1432 |
-| [`early-adopting-the-future.html`] | 137.056 | 0.074 | × 1852 |
-| [`pygmalian-raw-html.html`] | 165.072 | 0.009 | × 18341 |
-| [`moby-dick-parsed.html`] | 2,681.936 | 0.993 | × 2701 |
+| [`demo-post.html`] | 30.409 | 0.127 | × 239 |
+| [`shortcode-shortcomings.html`] | 76.39 | 0.220 | × 347 |
+| [`redesigning-chrome-desktop.html`] | 225.824 | 0.911 | × 248 |
+| [`web-at-maximum-fps.html`] | 173.495 | 0.647 | × 268 |
+| [`early-adopting-the-future.html`] | 280.433 | 0.707 | × 397 |
+| [`pygmalian-raw-html.html`] | 377.392 | 0.051 | × 7400 |
+| [`moby-dick-parsed.html`] | 5,437.630 | 11.113 | × 489 |
 
-The PHP extension of the Rust parser is in average 4010 times faster
-than the actual PHP implementation. The median of the speedup is 1756.
+The PHP extension of the Rust parser is in average 1341 times faster
+than the actual PHP implementation. The median of the speedup is 347.
 
 Note that memory limit has been hit very quickly with the PHP parser,
 while the Rust parser as a PHP native extension has a small memory
