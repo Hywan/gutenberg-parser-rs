@@ -32,7 +32,7 @@ extern crate wee_alloc;
 #[macro_use] extern crate alloc;
 
 use gutenberg_post_parser::ast::Node;
-use alloc::Vec;
+use alloc::vec::Vec;
 use core::{mem, slice};
 
 #[global_allocator]

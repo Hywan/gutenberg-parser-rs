@@ -121,8 +121,8 @@ ws =
 use super::Input;
 use super::ast::Node;
 use super::combinators;
-#[cfg(feature = "no_std")] use alloc::Vec;
 use nom::ErrorKind;
+use std::vec::Vec;
 
 const COMMENT_OPENING: &[u8] = b"<!--";
 const COMMENT_CLOSING: &[u8] = b"-->";

@@ -5,7 +5,7 @@ The Abstract Syntax Tree (AST), i.e. the output of the parser.
 */
 
 use super::Input;
-#[cfg(feature = "no_std")] use alloc::Vec;
+use std::vec::Vec;
 
 /// Represent a node in an AST.
 #[derive(PartialEq)]
