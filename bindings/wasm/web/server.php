@@ -41,7 +41,23 @@ switch ($_SERVER['REQUEST_URI']) {
         break;
 
     case '/gutenberg_post_parser.wasm':
-        serve_wasm(__DIR__ . $_SERVER['REQUEST_URI']);
+        $accepting = preg_split('/\s*,\s*/', $_SERVER['HTTP_ACCEPT_ENCODING']);
+        $encoding = null;
+        $file = $_SERVER['REQUEST_URI'];
+
+        if (true === in_array('br', $accepting)) {
+            $file .= '.br';
+            $encoding = 'br';
+        } elseif (true === in_array('gzip', $accepting)) {
+            $file .= '.gz';
+            $encoding = 'gzip';
+        }
+
+        if (!empty($encoding)) {
+            header('Content-Encoding: ' . $encoding);
+        }
+
+        serve_wasm(__DIR__ . $file, $encoding);
 
         break;
 
