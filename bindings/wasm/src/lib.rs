@@ -83,28 +83,26 @@ pub extern "C" fn dealloc(pointer: *mut c_void, capacity: usize) {
 
 #[no_mangle]
 pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
-    unsafe {
-        let input = slice::from_raw_parts(pointer, length);
-        let mut output = vec![];
+    let input = unsafe { slice::from_raw_parts(pointer, length) };
+    let mut output = vec![];
 
-        if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
-            let nodes_length = u32_to_u8s(nodes.len() as u32);
+    if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
+        let nodes_length = u32_to_u8s(nodes.len() as u32);
 
-            output.push(nodes_length.0);
-            output.push(nodes_length.1);
-            output.push(nodes_length.2);
-            output.push(nodes_length.3);
+        output.push(nodes_length.0);
+        output.push(nodes_length.1);
+        output.push(nodes_length.2);
+        output.push(nodes_length.3);
 
-            for node in nodes {
-                into_bytes(&node, &mut output);
-            }
+        for node in nodes {
+            into_bytes(&node, &mut output);
         }
-
-        let pointer = output.as_mut_ptr();
-        mem::forget(output);
-
-        pointer
     }
+
+    let pointer = output.as_mut_ptr();
+    mem::forget(output);
+
+    pointer
 }
 
 fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
