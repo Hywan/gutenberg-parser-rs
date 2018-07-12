@@ -45,15 +45,13 @@ export class Gutenberg_Post_Parser {
 
     _writeString(module, string_buffer) {
         const string_length = string_buffer.length;
-        const pointer = module.alloc(string_length + 1);
+        const pointer = module.alloc(string_length);
 
         const buffer = new Uint8Array(module.memory.buffer);
 
         for (let i = 0; i < string_length; i++) {
             buffer[pointer + i] = string_buffer[i]
         }
-
-        buffer[pointer + string_length] = 0;
 
         return pointer;
     }
