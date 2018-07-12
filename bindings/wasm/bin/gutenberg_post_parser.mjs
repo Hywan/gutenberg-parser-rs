@@ -39,8 +39,8 @@ export class Gutenberg_Post_Parser {
         return this._decoder.decode(array_buffer);
     }
 
-    u8s_to_u32(p, o, q, r) {
-        return (p << 24) | (o << 16) | (q << 8) | r;
+    u8s_to_u32(o, p, q, r) {
+        return (o << 24) | (p << 16) | (q << 8) | r;
     }
 
     _writeString(module, string_buffer) {
