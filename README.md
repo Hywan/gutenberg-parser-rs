@@ -1,3 +1,9 @@
+<p align="center">
+    <img src="./resource/Gutenberg_logo.png" width="250px" alt="The Gutenberg logo" />
+</p>
+
+---
+
 # The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
