@@ -19,6 +19,7 @@ and deallocations, to panic, and to manage an out-of-memory situation.
 #![no_std]
 #![feature(
     alloc,
+    alloc_error_handler,
     core_intrinsics,
     lang_items,
     panic_implementation,
@@ -46,9 +47,9 @@ pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     }
 }
 
-#[lang = "oom"]
+#[alloc_error_handler]
 #[no_mangle]
-pub extern "C" fn oom() -> ! {
+pub extern "C" fn oom(_: core::alloc::Layout) -> ! {
     unsafe {
         core::intrinsics::abort();
     }
