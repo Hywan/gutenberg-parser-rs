@@ -23,6 +23,7 @@ function serve_javascript(string $file): void {
 
 function serve_wasm(string $file): void {
     header('Content-Type: application/wasm');
+    header('Access-Control-Allow-Origin: *');
 
     echo file_get_contents($file);
 }
