@@ -90,7 +90,7 @@ build-asmjs: check-asmjs build-wasm
 	cd {{asmjs_directory}}/bin/ && \
 		sed -i '' '1s/^/function GUTENBERG_POST_PARSER_ASM_MODULE() {/; s/export //; s/const /var /; s/let /var /' gutenberg_post_parser.asm.js && \
 		echo 'return { root: root, alloc: alloc, dealloc: dealloc, memory: memory }; }' >> gutenberg_post_parser.asm.js && \
-		uglifyjs --mangle --output .temp.asm.js gutenberg_post_parser.asm.js && \
+		uglifyjs --compress --mangle --output .temp.asm.js gutenberg_post_parser.asm.js && \
 		mv .temp.asm.js gutenberg_post_parser.asm.js && \
 		gzip --best --stdout gutenberg_post_parser.asm.js > gutenberg_post_parser.asm.js.gz && \
 		brotli --best --stdout --lgwin=24 gutenberg_post_parser.asm.js > gutenberg_post_parser.asm.js.br
