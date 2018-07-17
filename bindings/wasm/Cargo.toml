@@ -13,4 +13,4 @@ path = "src/lib.rs"
 
 [dependencies]
 gutenberg_post_parser = { path = "../../cargo/no_std/", version = "=0.13.0" }
-wee_alloc = { version = "0.4.1" }
+wee_alloc = { version = "0.4.2" }

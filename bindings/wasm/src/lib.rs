@@ -23,7 +23,6 @@ and deallocations, to panic, and to manage an out-of-memory situation.
     core_intrinsics,
     lang_items,
     panic_implementation,
-    proc_macro,
     wasm_custom_section,
     wasm_import_module
 )]
