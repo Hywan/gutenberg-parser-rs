@@ -4,5 +4,5 @@ version = "0.1.0"
 authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
 
 [dependencies]
-gutenberg_post_parser = { path = "../cargo/std/", version = "=0.13.0" }
+gutenberg_post_parser = { path = "../cargo/std/", version = "=0.14.0" }
 afl = "^0.4"
