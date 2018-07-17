@@ -77,6 +77,12 @@ check-asmjs:
 	@which wasm2es6js > /dev/null || \
 		(echo 'Please, install `wasm2es6js` with `cargo install wasm-bindgen-cli`.' && exit 1)
 	# ^^^^^^^^ ~~> [32mOK[0m
+	# Checking `uglify-es` is installed…
+	@which uglifyjs > /dev/null && \
+		uglifyjs --version | \
+		grep 'uglify-es' > /dev/null || \
+		(echo 'Please, install `uglifyjs` with `npm install --global uglify-es` (`npm` is the NodeJS Package Manager, see https://www.nodejs.org/).' && exit 1)
+	# ^^^^^^^^ ~~> [32mOK[0m
 
 # Build the parser and produce an ASM.js module.
 build-asmjs: check-asmjs build-wasm
