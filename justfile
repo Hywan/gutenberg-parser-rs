@@ -18,6 +18,9 @@ build-binary:
 
 # Check that the WASM binary can be build.
 check-wasm:
+	# Checking `rustup` is installed…
+	@which rustup > /dev/null || \
+		(echo 'Please, install `rustup`, check https://rustup.rs/.' && exit 1)
 	# Checking nightly toolchain is installed…
 	@rustup toolchain list | \
 		grep 'nightly-' > /dev/null || \
