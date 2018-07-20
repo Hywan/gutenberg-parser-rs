@@ -164,6 +164,28 @@ browser. Here are the results:
 The WASM binary of the Rust parser is in average 67 times faster than
 the actual Javascript implementation. The median of the speedup is 63.
 
+### ASM.js module
+
+ASM.js is a fallback for environments that do not support WebAssembly,
+like Internet Explorer. The same benchmark is used for ASM.js than for
+WASM, and compares the performance of the actual Javascript parser
+against the Rust parser compiled as a ASM.js module so that it can run
+in the browser. Here are the results:
+
+| file | Javascript parser (ms) | Rust parser as an ASM.js module (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 15.368 | 8.556 | × 2 |
+| [`shortcode-shortcomings.html`] | 31.022 | 12.146 | × 3 |
+| [`redesigning-chrome-desktop.html`] | 106.416 | 388.438 | × 0.27 |
+| [`web-at-maximum-fps.html`] | 82.92 | 97.898 | × 0.84 |
+| [`early-adopting-the-future.html`] | 119.88 | 177.89 | × 0.67 |
+| [`pygmalian-raw-html.html`] | 349.075 | 24 | × 15 |
+| [`moby-dick-parsed.html`] | 2,543.75 | 1360.5 | × 2 |
+
+The ASM.js module version of the Rust parser is in average 3 times
+faster than the actual Javascript implementation. The median of the
+speedup is 2.
+
 ### PHP native extension
 
 Another benchmark has been used to compare the performance of the
