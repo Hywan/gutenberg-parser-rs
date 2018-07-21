@@ -213,6 +213,10 @@ open-doc: build-doc
 build-readme:
 	cargo readme --project-root {{cargo_std}} --input src/lib.rs --template README.tpl > README.md
 
+# Run the benchmarks.
+bench:
+	cargo bench --manifest-path {{cargo_std}}
+
 # Local Variables:
 # mode: makefile
 # End:
