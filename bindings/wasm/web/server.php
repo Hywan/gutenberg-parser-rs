@@ -42,7 +42,7 @@ switch ($_SERVER['REQUEST_URI']) {
         break;
 
     case '/gutenberg_post_parser.wasm':
-        $accepting = preg_split('/\s*,\s*/', $_SERVER['HTTP_ACCEPT_ENCODING']);
+        $accepting = preg_split('/\s*,\s*/', $_SERVER['HTTP_ACCEPT_ENCODING'] ?? '');
         $encoding = null;
         $file = $_SERVER['REQUEST_URI'];
 
