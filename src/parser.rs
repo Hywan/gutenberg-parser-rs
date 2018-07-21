@@ -483,7 +483,7 @@ named_attr!(
         ```
     "],
     pub whitespaces,
-    is_a!(" \n\r\t")
+    take_while!(combinators::is_whitespace)
 );
 
 

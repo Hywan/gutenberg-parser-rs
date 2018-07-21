@@ -154,6 +154,11 @@ pub(crate) fn is_alphanumeric_extended(chr: u8) -> bool {
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
 }
 
+/// Check whether a character is a whitespace, i.e. `[ \n\r\t]`.
+pub(crate) fn is_whitespace(chr: u8) -> bool {
+    chr == b' ' || chr == b'\n' || chr == b'\r' || chr == b'\t'
+}
+
 /// The `id` combinator consumes the entire given input as the output.
 pub(crate) fn id(input: Input) -> IResult<Input, Input> {
     Ok((&b""[..], input))
