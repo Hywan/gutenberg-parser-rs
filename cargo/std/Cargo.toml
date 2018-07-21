@@ -15,6 +15,7 @@ required-features = ["bin"]
 name = "gutenberg_post_parser"
 crate-type = ["cdylib", "dylib", "lib", "staticlib"]
 path = "../../src/lib.rs"
+bench = false
 
 [[bench]]
 name = "benchmark"

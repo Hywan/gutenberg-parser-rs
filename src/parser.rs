@@ -410,7 +410,7 @@ named_attr!(
     pub block_name_part,
     recognize!(
         pair!(
-            is_a!("abcdefghijklmnopqrstuvwxyz"),
+            take_while!(combinators::is_alpha),
             take_while!(combinators::is_alphanumeric_extended)
         )
     )

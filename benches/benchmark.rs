@@ -4,7 +4,6 @@ extern crate gutenberg_post_parser as parser;
 use criterion::Criterion;
 use std::{fs, path::Path};
 
-
 macro_rules! criterion_for (
     ($name:ident, $input_path:expr) => (
         fn $name(c: &mut Criterion) {
