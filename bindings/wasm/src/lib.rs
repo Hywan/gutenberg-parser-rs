@@ -39,16 +39,14 @@ use core::{mem, slice};
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[panic_implementation]
-#[no_mangle]
-pub fn panic(_info: &core::panic::PanicInfo) -> ! {
+fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe {
         core::intrinsics::abort();
     }
 }
 
 #[alloc_error_handler]
-#[no_mangle]
-pub extern "C" fn oom(_: core::alloc::Layout) -> ! {
+fn oom(_: core::alloc::Layout) -> ! {
     unsafe {
         core::intrinsics::abort();
     }
