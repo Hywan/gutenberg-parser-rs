@@ -213,9 +213,14 @@ open-doc: build-doc
 build-readme:
 	cargo readme --project-root {{cargo_std}} --input src/lib.rs --template README.tpl > README.md
 
-# Run the benchmarks.
+# Run the benchmarks on the library.
 bench:
 	cargo bench --manifest-path {{cargo_std}}
+
+# Run the benchmarks on the WASM binary.
+bench-wasm:
+	node --experimental-modules --max_old_space_size=65536 bindings/wasm/benches/index.mjs
+
 
 # Local Variables:
 # mode: makefile
