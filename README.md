@@ -194,16 +194,16 @@ extension. Here are the results:
 
 | file | PHP parser (ms) | Rust parser as a PHP extension (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 30.409 | 0.127 | × 239 |
-| [`shortcode-shortcomings.html`] | 76.39 | 0.220 | × 347 |
-| [`redesigning-chrome-desktop.html`] | 225.824 | 0.911 | × 248 |
-| [`web-at-maximum-fps.html`] | 173.495 | 0.647 | × 268 |
-| [`early-adopting-the-future.html`] | 280.433 | 0.707 | × 397 |
-| [`pygmalian-raw-html.html`] | 377.392 | 0.051 | × 7400 |
-| [`moby-dick-parsed.html`] | 5,437.630 | 11.113 | × 489 |
+| [`demo-post.html`] | 30.409 | 0.0012 | × 25341 |
+| [`shortcode-shortcomings.html`] | 76.39 | 0.096 | × 796 |
+| [`redesigning-chrome-desktop.html`] | 225.824 | 0.399 | × 566 |
+| [`web-at-maximum-fps.html`] | 173.495 | 0.275 | × 631 |
+| [`early-adopting-the-future.html`] | 280.433 | 0.298 | × 941 |
+| [`pygmalian-raw-html.html`] | 377.392 | 0.052 | × 7258 |
+| [`moby-dick-parsed.html`] | 5,437.630 | 5.037 | × 1080 |
 
-The PHP extension of the Rust parser is in average 1341 times faster
-than the actual PHP implementation. The median of the speedup is 347.
+The PHP extension of the Rust parser is in average 5230 times faster
+than the actual PHP implementation. The median of the speedup is 941.
 
 Note that memory limit has been hit very quickly with the PHP parser,
 while the Rust parser as a PHP native extension has a small memory
