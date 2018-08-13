@@ -6,6 +6,8 @@ Cargo.lock
 /bindings/c/bin/gutenberg_post_parser.h
 /bindings/nodejs/native/artifacts.json
 /bindings/nodejs/native/index.node
+/bindings/php/benches/composer.lock
+/bindings/php/benches/vendor/
 /bindings/wasm/benches/node_modules/
 /bindings/wasm/benches/package-lock.json
 /bindings/wasm/bin/gutenberg_post_parser.debug.wasm

@@ -1,0 +1,5 @@
+{
+    "require": {
+        "phpbench/phpbench": "~0.14.0"
+    }
+}

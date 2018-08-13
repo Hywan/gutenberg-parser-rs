@@ -219,7 +219,18 @@ bench:
 
 # Run the benchmarks on the WASM binary.
 bench-wasm:
-	node --experimental-modules --max_old_space_size=65536 bindings/wasm/benches/index.mjs
+	cd {(wasm_directory}}/benches && ( test -f package-lock.json || npm install )
+	cd {{wasm_directory}}/benches && node --experimental-modules --max_old_space_size=65536 index.mjs
+
+# Run the benchmarks on the PHP extension.
+bench-php php_prefix_bin='/usr/local/bin':
+	cd {{php_directory}}/benches && ( test -f composer.lock || composer install )
+	cd {{php_directory}}/benches && \
+		./vendor/bin/phpbench \
+			run \
+			--php-binary={{php_prefix_bin}}/php \
+			--report='extends: "aggregate", cols: ["subject", "params", "revs", "its", "mem_peak", "mean", "mode", "best", "worst", "rstdev"]' \
+			benchmark.php
 
 
 # Local Variables:
