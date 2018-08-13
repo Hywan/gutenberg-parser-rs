@@ -220,7 +220,7 @@ bench:
 # Run the benchmarks on the WASM binary.
 bench-wasm:
 	cd {{wasm_directory}}/benches && ( test -f package-lock.json || npm install )
-	cd {{wasm_directory}}/benches && node --experimental-modules --max_old_space_size=65536 index.mjs
+	cd {{wasm_directory}}/benches && node --experimental-modules index.mjs
 
 # Run the benchmarks on the PHP extension.
 bench-php php_prefix_bin='/usr/local/bin':
