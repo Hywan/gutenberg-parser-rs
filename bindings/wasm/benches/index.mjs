@@ -42,8 +42,11 @@ function bench(suite, name, file) {
 
     suite.add(
         name,
-        () => {
-            parser.root(content);
+        (deferred) => {
+            parser.root(content).then((output) => { deferred.resolve() });
+        },
+        {
+            defer: true
         }
     );
 }
@@ -63,7 +66,7 @@ suite
 
         let output = bench.name + ' x ' +
             Benchmark.formatNumber(bench.hz.toFixed(0)) + ' ops/sec ' +
-            '(' + (bench.stats.mean / 1e-6).toFixed(3) + 'μs) ' +
+            '(' + (bench.stats.mean / 1e-3).toFixed(3) + 'ms) ' +
             '±' + bench.stats.rme.toFixed(2) + '% ' +
             '(' + bench.stats.sample.length + ' runs sampled)';
         
@@ -82,8 +85,7 @@ suite
         average /= suite.length;
 
         process.stdout.write(
-            '\nMean is ' + (average / 1e-6).toFixed(3) + 'μs.\n' +
-            'The bench can be stopped with Ctrl+C now.\n'
+            '\nMean is ' + (average / 1e-3).toFixed(3) + 'ms.\n'
         );
     })
     .run();
