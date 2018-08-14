@@ -22,9 +22,7 @@ and deallocations, to panic, and to manage an out-of-memory situation.
     alloc_error_handler,
     core_intrinsics,
     lang_items,
-    panic_implementation,
-    wasm_custom_section,
-    wasm_import_module
+    panic_implementation
 )]
 
 extern crate gutenberg_post_parser;
