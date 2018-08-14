@@ -20,7 +20,7 @@ class Benches
         $this->content = file_get_contents(__DIR__ . '/../../../tests/fixtures/' . $parameters['subject'] . '.html');
     }
 
-    public function input_path() {
+    public function input_path(): array {
         return [
             ['subject' => 'autoclosing-block'],
             ['subject' => 'early-adopting-the-future'],
