@@ -100,7 +100,7 @@ export class Gutenberg_Post_Parser {
             payload_offset = next_payload_offset;
             next_payload_offset += attributes_length;
 
-            const attributes = JSON.parse(this.text_decoder(buffer.slice(payload_offset, next_payload_offset)));
+            const attributes = JSON.parse(this.text_decoder(buffer.slice(payload_offset, next_payload_offset)) || 'null');
 
             payload_offset = next_payload_offset;
             let end_offset = payload_offset;

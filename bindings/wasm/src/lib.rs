@@ -119,7 +119,7 @@ fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
             let name_length = name.0.len() + name.1.len() + 1;
             let attributes_length = match attributes {
                 Some(attributes) => attributes.len(),
-                None             => 4
+                None             => 0
             };
             let attributes_length_as_u8s = u32_to_u8s(attributes_length as u32);
 
@@ -140,7 +140,7 @@ fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
             if let Some(attributes) = attributes {
                 output.extend(attributes);
             } else {
-                output.extend(&b"null"[..]);
+                output.extend(&b""[..]);
             }
 
             for child in children {
