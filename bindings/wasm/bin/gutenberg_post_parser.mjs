@@ -57,7 +57,11 @@ export class Gutenberg_Post_Parser {
     }
 
     _readNodes(module, start_pointer) {
-        const buffer = new Uint8Array(module.memory.buffer.slice(start_pointer));
+        const buffer_length = this.u8s_to_u32(...new Uint8Array(module.memory.buffer.slice(start_pointer, start_pointer + 4)));
+
+        const payload_pointer = start_pointer + 4;
+
+        const buffer = new Uint8Array(module.memory.buffer.slice(payload_pointer, payload_pointer + buffer_length));
         const number_of_nodes = this.u8s_to_u32(buffer[0], buffer[1], buffer[2], buffer[3]);
 
         if (0 >= number_of_nodes) {
