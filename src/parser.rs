@@ -308,8 +308,8 @@ named_attr!(
     "],
     pub block_name<Input, (Input, Input)>,
     alt!(
-        namespaced_block_name |
-        core_block_name
+        namespaced_block_name
+      | core_block_name
     )
 );
 
@@ -342,7 +342,7 @@ named_attr!(
     tuple!(
         block_name_part,
         preceded!(
-            tag!("/"),
+            tag!(b"/"),
             block_name_part
         )
     )
