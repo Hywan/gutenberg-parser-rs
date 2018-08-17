@@ -70,15 +70,12 @@ export class Gutenberg_Post_Parser {
 
         const nodes = [];
         let offset = 4;
-        let end_offset;
 
         for (let i = 0; i < number_of_nodes; ++i) {
-            const last_offset = this._readNode(buffer, offset, nodes);
-
-            offset = end_offset = last_offset;
+            offset = this._readNode(buffer, offset, nodes);
         }
 
-        module.dealloc(start_pointer, start_pointer + end_offset);
+        module.dealloc(start_pointer, start_pointer + offset);
 
         return nodes;
     }
