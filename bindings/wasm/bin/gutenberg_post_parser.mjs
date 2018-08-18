@@ -90,18 +90,18 @@ export class Gutenberg_Post_Parser {
             const number_of_children = buffer[offset + 6];
 
             let payload_offset = offset + 7;
-            let next_payload_offset = payload_offset + name_length;
+            let next_payload_offset = payload_offset + name_length + attributes_length;
 
-            const name = this.text_decoder(buffer.slice(payload_offset, next_payload_offset));
+            const name_and_attributes = this.text_decoder(buffer.slice(payload_offset, next_payload_offset));
 
-            payload_offset = next_payload_offset;
-            next_payload_offset += attributes_length;
-
+            const name =
+                0 === attributes_length
+                    ? name_and_attributes
+                    : name_and_attributes.substring(0, name_length);
             const attributes =
-                (payload_offset === next_payload_offset)
+                0 === attributes_length
                     ? null
-                    : JSON.parse(this.text_decoder(buffer.slice(payload_offset, next_payload_offset)) || 'null');
-
+                    : JSON.parse(name_and_attributes.substring(name_length));
 
             payload_offset = next_payload_offset;
             let end_offset = payload_offset;
