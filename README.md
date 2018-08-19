@@ -174,17 +174,17 @@ in the browser. Here are the results:
 
 | file | Javascript parser (ms) | Rust parser as an ASM.js module (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 15.368 | 4.445 | × 3 |
-| [`shortcode-shortcomings.html`] | 31.022 | 6.023 | × 5 |
-| [`redesigning-chrome-desktop.html`] | 106.416 | 91.522 | × 1.16 |
-| [`web-at-maximum-fps.html`] | 82.92 | 36.121 | × 2 |
-| [`early-adopting-the-future.html`] | 119.880 | 109.333 | × 1.09 |
-| [`pygmalian-raw-html.html`] | 349.075 | 30.516 | × 11 |
-| [`moby-dick-parsed.html`] | 2,543.75 | 548.118 | × 5 |
+| [`demo-post.html`] | 15.368 | 2.718 | × 6 |
+| [`shortcode-shortcomings.html`] | 31.022 | 8.004 | × 4 |
+| [`redesigning-chrome-desktop.html`] | 106.416 | 19.223 | × 6 |
+| [`web-at-maximum-fps.html`] | 82.920 | 27.197 | × 3 |
+| [`early-adopting-the-future.html`] | 119.880 | 38.321 | × 3 |
+| [`pygmalian-raw-html.html`] | 349.075 | 23.656 | × 15 |
+| [`moby-dick-parsed.html`] | 2,543.750 | 361.423 | × 7 |
 
-The ASM.js module version of the Rust parser is in average 4 times
+The ASM.js module version of the Rust parser is in average 6 times
 faster than the actual Javascript implementation. The median of the
-speedup is 3.
+speedup is 6.
 
 ### PHP native extension
 
