@@ -252,10 +252,6 @@ pub mod ast;
 pub mod parser;
 
 
-/// Represent the type of a parser input element. See
-/// [`Input`](./type.Input.html) for more information.
-pub type InputElement = u8;
-
 /// Represent the type of a parser input.
 ///
 /// The parser does not analyse a `String` nor a `&str`, but a slice
@@ -266,7 +262,45 @@ pub type InputElement = u8;
 /// JSON has a weird encoding format for strings (e.g. surrogate
 /// pairs), which might not be compatible with UTF-8. Other arguments
 /// are mostly related to memory efficiency.
-pub type Input<'a> = &'a [InputElement];
+pub trait InputElement: std::cmp::PartialEq + std::cmp::PartialOrd {}
+
+pub trait Input<'a, I: 'a + InputElement>:
+    nom::AsBytes +
+    nom::AtEof +
+    nom::Compare<&'a [I]> +
+    nom::FindSubstring<&'a [I]> +
+    nom::InputLength +
+    nom::InputTake +
+    nom::InputIter<Item = I, RawItem = I> +
+    nom::InputTakeAtPosition<Item = I> +
+    nom::Offset +
+    nom::Slice<std::ops::Range<usize>> +
+    nom::Slice<std::ops::RangeFrom<usize>> +
+    nom::Slice<std::ops::RangeFull> +
+    nom::Slice<std::ops::RangeTo<usize>> +
+    std::clone::Clone +
+    std::cmp::PartialEq
+{
+    type Element;
+
+    const EMPTY: Self;
+    const CORE: Self;
+
+    fn is_empty(&self) -> bool;
+}
+
+impl<'a, 'b> Input<'a, u8> for &'b [u8] {
+    type Element = &'static [u8];
+
+    const EMPTY: Self = &b""[..];
+    const CORE: Self = &b"core"[..];
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+}
+
+impl InputElement for u8 {}
 
 /// The `root` function represents the axiom of the grammar, i.e. the top rule.
 ///
@@ -305,6 +339,10 @@ pub type Input<'a> = &'a [InputElement];
 ///
 /// assert_eq!(root(input), output);
 /// ```
-pub fn root(input: Input) -> Result<(Input, Vec<ast::Node>), nom::Err<Input>> {
+pub fn root<'a, I, T>(input: T) -> Result<(T, Vec<ast::Node<'a, I, T>>), nom::Err<T>>
+where
+    I: 'a + InputElement,
+    T: Input<'a, I>
+{
     parser::block_list(input)
 }

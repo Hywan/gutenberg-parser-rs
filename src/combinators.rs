@@ -7,7 +7,7 @@ thus can be absent from the public documentation.
 
 */
 
-use super::Input;
+use super::{Input, InputElement};
 use nom::IResult;
 use std::vec::Vec;
 
@@ -144,24 +144,37 @@ pub fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
 }
 
 /// Check whether a character is in the set of alpha characters, i.e. `[a-z]`.
-pub(crate) fn is_alpha(chr: u8) -> bool {
+pub(crate) fn is_alpha<I>(chr: I) -> bool
+where
+    I: InputElement
+{
     chr >= 0x61 && chr <= 0x7a
 }
 
 /// Check whether a character is in the set of alphanumeric extended
 /// characters, i.e. `[a-z0-9_-]`.
-pub(crate) fn is_alphanumeric_extended(chr: u8) -> bool {
+pub(crate) fn is_alphanumeric_extended<I>(chr: I) -> bool
+where
+    I: InputElement
+{
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
 }
 
 /// Check whether a character is a whitespace, i.e. `[ \n\r\t]`.
-pub(crate) fn is_whitespace(chr: u8) -> bool {
+pub(crate) fn is_whitespace<I>(chr: I) -> bool
+where
+    I: InputElement
+{
     chr == b' ' || chr == b'\n' || chr == b'\r' || chr == b'\t'
 }
 
 /// The `id` combinator consumes the entire given input as the output.
-pub(crate) fn id(input: Input) -> IResult<Input, Input> {
-    Ok((&b""[..], input))
+pub(crate) fn id<'a, I, T>(input: T) -> IResult<T, T>
+where
+    I: 'a + InputElement,
+    T: Input<'a, I>
+{
+    Ok((T::EMPTY, input))
 }
 
 #[cfg(test)]
