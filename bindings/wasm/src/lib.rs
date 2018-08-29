@@ -22,7 +22,7 @@ and deallocations, to panic, and to manage an out-of-memory situation.
     alloc_error_handler,
     core_intrinsics,
     lang_items,
-    panic_implementation
+    panic_handler
 )]
 
 extern crate gutenberg_post_parser;
@@ -36,7 +36,7 @@ use core::{mem, slice};
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[panic_implementation]
+#[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe {
         core::intrinsics::abort();
