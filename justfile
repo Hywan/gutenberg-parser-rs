@@ -58,6 +58,9 @@ build-wasm: check-wasm
 	cp target/wasm32-unknown-unknown/release/gutenberg_post_parser_wasm.wasm {{wasm_directory}}/bin/gutenberg_post_parser.wasm
 	cd {{wasm_directory}}/bin && \
 		wasm-gc gutenberg_post_parser.wasm && \
+		wasm-snip --snip-rust-fmt-code --snip-rust-panicking-code -o gutenberg_post_parser_snipped.wasm gutenberg_post_parser.wasm && \
+		mv gutenberg_post_parser_snipped.wasm gutenberg_post_parser.wasm && \
+		wasm-gc gutenberg_post_parser.wasm && \
 		wasm-opt -g -Oz -o gutenberg_post_parser.debug.wasm gutenberg_post_parser.wasm && \
 		wasm-opt -Oz -o gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
 		mv gutenberg_post_parser_opt.wasm gutenberg_post_parser.wasm && \
