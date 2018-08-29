@@ -77,6 +77,15 @@ pub extern "C" fn dealloc(pointer: *mut c_void, capacity: usize) {
     }
 }
 
+macro_rules! push_u8s {
+    ($u8s:ident in $output:ident) => (
+        $output.push($u8s.0);
+        $output.push($u8s.1);
+        $output.push($u8s.2);
+        $output.push($u8s.3);
+    )
+}
+
 #[no_mangle]
 pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     let input = unsafe { slice::from_raw_parts(pointer, length) };
@@ -87,10 +96,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
         let nodes_length = u32_to_u8s(nodes.len() as u32);
 
-        output.push(nodes_length.0);
-        output.push(nodes_length.1);
-        output.push(nodes_length.2);
-        output.push(nodes_length.3);
+        push_u8s!(nodes_length in output);
 
         for node in nodes {
             into_bytes(&node, &mut output);
@@ -125,10 +131,7 @@ fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
 
             output.push(node_type);
             output.push(name_length as u8);
-            output.push(attributes_length_as_u8s.0);
-            output.push(attributes_length_as_u8s.1);
-            output.push(attributes_length_as_u8s.2);
-            output.push(attributes_length_as_u8s.3);
+            push_u8s!(attributes_length_as_u8s in output);
             output.push(number_of_children as u8);
 
             output.extend(name.0);
@@ -149,16 +152,10 @@ fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
         Node::Phrase(phrase) => {
             let node_type = 2u8;
             let phrase_length = phrase.len();
-
-            output.push(node_type);
-
             let phrase_length_as_u8s = u32_to_u8s(phrase_length as u32);
 
-            output.push(phrase_length_as_u8s.0);
-            output.push(phrase_length_as_u8s.1);
-            output.push(phrase_length_as_u8s.2);
-            output.push(phrase_length_as_u8s.3);
-
+            output.push(node_type);
+            push_u8s!(phrase_length_as_u8s in output);
             output.extend(phrase);
         }
     }
