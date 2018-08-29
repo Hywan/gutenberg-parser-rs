@@ -5,3 +5,6 @@ authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
 license = "BSD-3-Clause"
 readme = "../../README.md"
 repository = "https://github.com/Hywan/gutenberg-parser-rs"
+
+[dev-dependencies]
+rayon = "^1.0"
