@@ -47,7 +47,7 @@ export class Gutenberg_Post_Parser {
         const string_length = string_buffer.length;
         const pointer = module.alloc(string_length);
 
-        const buffer = new Uint8Array(module.memory.buffer);
+        const buffer = new Uint8ClampedArray(module.memory.buffer);
 
         for (let i = 0; i < string_length; i++) {
             buffer[pointer + i] = string_buffer[i]
@@ -57,11 +57,11 @@ export class Gutenberg_Post_Parser {
     }
 
     _readNodes(module, start_pointer) {
-        const buffer_length = this.u8s_to_u32(...new Uint8Array(module.memory.buffer.slice(start_pointer, start_pointer + 4)));
+        const buffer_length = this.u8s_to_u32(...new Uint8ClampedArray(module.memory.buffer.slice(start_pointer, start_pointer + 4)));
 
         const payload_pointer = start_pointer + 4;
 
-        const buffer = new Uint8Array(module.memory.buffer.slice(payload_pointer, payload_pointer + buffer_length));
+        const buffer = new Uint8ClampedArray(module.memory.buffer.slice(payload_pointer, payload_pointer + buffer_length));
         const number_of_nodes = this.u8s_to_u32(buffer[0], buffer[1], buffer[2], buffer[3]);
 
         if (0 >= number_of_nodes) {
@@ -92,7 +92,7 @@ export class Gutenberg_Post_Parser {
             let payload_offset = offset + 7;
             let next_payload_offset = payload_offset + name_length + attributes_length;
 
-            const name_and_attributes = this.text_decoder(buffer.slice(payload_offset, next_payload_offset));
+            const name_and_attributes = this.text_decoder(buffer.subarray(payload_offset, next_payload_offset));
 
             const name =
                 0 === attributes_length
@@ -122,7 +122,7 @@ export class Gutenberg_Post_Parser {
         else if (2 === node_type) {
             const phrase_length = this.u8s_to_u32(buffer[offset + 1], buffer[offset + 2], buffer[offset + 3], buffer[offset + 4]);
             const phrase_offset = offset + 5;
-            const phrase = this.text_decoder(buffer.slice(phrase_offset, phrase_offset + phrase_length));
+            const phrase = this.text_decoder(buffer.subarray(phrase_offset, phrase_offset + phrase_length));
 
             nodes.push(new this.Phrase(phrase));
 
