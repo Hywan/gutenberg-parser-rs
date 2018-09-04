@@ -73,9 +73,9 @@ start-wasm-server:
 
 # Check that the ASM.js module can be build.
 check-asmjs:
-	# Checking `wasm2es6js` is installed…
-	@which wasm2es6js > /dev/null || \
-		(echo 'Please, install `wasm2es6js` with `cargo install wasm-bindgen-cli`.' && exit 1)
+	# Checking `wasm2js` is installed…
+	@which wasm2js > /dev/null || \
+		(echo 'Please, install `wasm2js` check https://github.com/WebAssembly/binaryen (prebuilds are attached to releases).' && exit 1)
 	# ^^^^^^^^ ~~> [32mOK[0m
 	# Checking `uglify-es` is installed…
 	@which uglifyjs > /dev/null && \
@@ -86,7 +86,7 @@ check-asmjs:
 
 # Build the parser and produce an ASM.js module.
 build-asmjs: check-asmjs build-wasm
-	wasm2es6js --wasm2asm --output {{asmjs_directory}}/bin/gutenberg_post_parser.asm.js {{wasm_directory}}/bin/gutenberg_post_parser.wasm
+	wasm2js --pedantic --output {{asmjs_directory}}/bin/gutenberg_post_parser.asm.js {{wasm_directory}}/bin/gutenberg_post_parser.wasm
 	cd {{asmjs_directory}}/bin/ && \
 		sed -i '' '1s/^/function GUTENBERG_POST_PARSER_ASM_MODULE() {/; s/export //' gutenberg_post_parser.asm.js && \
 		echo 'return { root, alloc, dealloc, memory }; }' >> gutenberg_post_parser.asm.js && \
