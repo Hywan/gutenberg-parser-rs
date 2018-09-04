@@ -99,7 +99,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
         push_u8s!(nodes_length in output);
 
         for node in nodes {
-            into_bytes(&node, &mut output);
+            into_bytes(&input, &node, &mut output);
         }
     }
 
@@ -116,47 +116,53 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     pointer
 }
 
-fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
+fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
     match *node {
         Node::Block { name, attributes, ref children } => {
             let node_type = 1u8;
-            let name_length = name.0.len() + name.1.len() + 1;
-            let attributes_length = match attributes {
-                Some(attributes) => attributes.len(),
-                None             => 0
-            };
-            let attributes_length_as_u8s = u32_to_u8s(attributes_length as u32);
-
-            let number_of_children = children.len();
 
             output.push(node_type);
-            output.push(name_length as u8);
-            push_u8s!(attributes_length_as_u8s in output);
-            output.push(number_of_children as u8);
 
+            let name_length = name.0.len() + name.1.len() + 1;
+
+            output.push(name_length as u8);
             output.extend(name.0);
             output.push(b'/');
             output.extend(name.1);
 
-            if let Some(attributes) = attributes {
-                output.extend(attributes);
-            } else {
-                output.extend(&b""[..]);
-            }
+            let attributes_offset_as_u8s = u32_to_u8s(
+                match attributes {
+                    Some(attributes) => input.offset(&attributes) as u32,
+                    None             => 0u32
+                }
+            );
+            let attributes_length_as_u8s = u32_to_u8s(
+                match attributes {
+                    Some(attributes) => attributes.len() as u32,
+                    None             => 0u32
+                }
+            );
+
+            push_u8s!(attributes_offset_as_u8s in output);
+            push_u8s!(attributes_length_as_u8s in output);
+
+            let number_of_children = children.len();
+
+            output.push(number_of_children as u8);
 
             for child in children {
-                into_bytes(&child, output);
+                into_bytes(input, &child, output);
             }
         },
 
         Node::Phrase(phrase) => {
             let node_type = 2u8;
-            let phrase_length = phrase.len();
-            let phrase_length_as_u8s = u32_to_u8s(phrase_length as u32);
+            let phrase_offset_as_u8s = u32_to_u8s(input.offset(&phrase) as u32);
+            let phrase_length_as_u8s = u32_to_u8s(phrase.len() as u32);
 
             output.push(node_type);
+            push_u8s!(phrase_offset_as_u8s in output);
             push_u8s!(phrase_length_as_u8s in output);
-            output.extend(phrase);
         }
     }
 }
@@ -168,4 +174,14 @@ fn u32_to_u8s(x: u32) -> (u8, u8, u8, u8) {
         ((x >>  8) & 0xff) as u8,
         ( x        & 0xff) as u8
     )
+}
+
+trait Offset {
+    fn offset(&self, second: &Self) -> usize;
+}
+
+impl<'a> Offset for &'a [u8] {
+    fn offset(&self, second: &Self) -> usize {
+        second.as_ptr() as usize - self.as_ptr() as usize
+    }
 }
