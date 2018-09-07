@@ -26,21 +26,18 @@ use std::os::raw::{c_char, c_void};
 use std::ptr;
 
 #[repr(C)]
-#[derive(Debug, PartialEq)]
 pub struct Slice_c_char {
     pointer: *const c_char,
     length: usize
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq)]
 pub enum Option_c_char {
     Some(Slice_c_char),
     None
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq)]
 pub enum Node {
     Block {
         namespace: Slice_c_char,
@@ -53,14 +50,12 @@ pub enum Node {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq)]
 pub struct Vector_Node {
     buffer: *const Node,
     length: usize
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq)]
 pub enum Result {
     Ok(Vector_Node),
     Err
@@ -150,7 +145,7 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
                             }
                         )
                     };
-                    let vector_node_pointer = Box::into_raw(vector_node) as *const _ as *const c_void;
+                    let vector_node_pointer = Box::into_raw(vector_node) as *const c_void;
 
                     mem::forget(output);
 
@@ -184,12 +179,10 @@ mod tests {
 
     macro_rules! slice_c_char_to_str {
         ($input:ident) => (
-            {
-                unsafe {
-                    ::std::ffi::CStr::from_bytes_with_nul_unchecked(
-                        ::std::slice::from_raw_parts($input.pointer as *const u8, $input.length + 1)
-                    ).to_str().unwrap()
-                }
+            unsafe {
+                ::std::ffi::CStr::from_bytes_with_nul_unchecked(
+                    ::std::slice::from_raw_parts($input.pointer as *const u8, $input.length + 1)
+                ).to_str().unwrap()
             }
         )
     }
