@@ -2,7 +2,7 @@ package com.wordpress.gutenberg.parser;
 
 public class Main {
     public static void main(String[] arguments) {
-        NodeSet.ByReference nodeSet = Parser.INSTANCE.root("<!-- wp:foo /-->hello");
+        NodeSet.ByReference nodeSet = Parser.INSTANCE.parse("<!-- wp:foo /-->hello");
 
         for (Node node: nodeSet.getNodes()) {
             if (node instanceof Node.Block) {

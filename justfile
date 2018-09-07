@@ -155,9 +155,10 @@ build-php php_prefix_bin='/usr/local/bin': check-php
 
 # Build the parser and produce a Java binary.
 build-java:
-	cargo build --no-default-features --features "java" --release
-	cd {{java_directory}}/src && \
+	cd {{java_directory}} && cargo build --release
+	cd {{java_directory}}/java-src && \
 		javac \
+			-Xlint:unchecked \
 			-d ../target \
 			-classpath ../dependencies/jna-4.5.1.jar \
 			com/wordpress/gutenberg/parser/RawNode.java \
