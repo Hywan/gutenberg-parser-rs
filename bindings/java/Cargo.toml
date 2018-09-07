@@ -8,7 +8,7 @@ repository = "https://github.com/Hywan/gutenberg-parser-rs"
 
 [lib]
 name = "gutenberg_post_parser_java"
-crate-type = ["dylib", "staticlib"]
+crate-type = ["dylib"]
 path = "src/lib.rs"
 
 [dependencies]
