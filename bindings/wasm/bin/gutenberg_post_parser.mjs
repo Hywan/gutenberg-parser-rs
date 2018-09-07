@@ -89,12 +89,11 @@ export class Gutenberg_Post_Parser {
         // Block.
         if (1 === node_type) {
             const name_length = buffer[offset + 1];
-            let payload_offset = offset + 2;
-            let next_payload_offset = payload_offset + name_length;
+            offset += 2;
 
-            const name = this.text_decoder(buffer.subarray(payload_offset, next_payload_offset));
+            const name = this.text_decoder(buffer.subarray(offset, offset + name_length));
 
-            offset = next_payload_offset;
+            offset += name_length;
             const attributes_offset = this.u8s_to_u32(buffer[offset    ], buffer[offset + 1], buffer[offset + 2], buffer[offset + 3]);
             const attributes_length = this.u8s_to_u32(buffer[offset + 4], buffer[offset + 5], buffer[offset + 6], buffer[offset + 7]);
 
@@ -105,17 +104,17 @@ export class Gutenberg_Post_Parser {
 
             offset += 8;
             const number_of_children = buffer[offset];
-            payload_offset = offset + 1;
+            offset += 1;
 
             const children = [];
 
             for (let i = 0; i < number_of_children; ++i) {
-                payload_offset = this._readNode(buffer, payload_offset, children);
+                offset = this._readNode(buffer, offset, children);
             }
 
             nodes.push(new this.Block(name, attributes, children));
 
-            return payload_offset;
+            return offset;
         }
         // Phrase.
         else if (2 === node_type) {
