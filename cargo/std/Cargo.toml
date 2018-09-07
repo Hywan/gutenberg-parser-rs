@@ -1,0 +1,40 @@
+[package]
+name = "gutenberg_post_parser"
+version = "0.14.0"
+authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+license = "BSD-3-Clause"
+readme = "../../README.md"
+repository = "https://github.com/Hywan/gutenberg-parser-rs"
+
+[[bin]]
+name = "gutenberg-post-parser"
+path = "../../src/main.rs"
+required-features = ["bin"]
+
+[lib]
+name = "gutenberg_post_parser"
+crate-type = ["cdylib", "dylib", "lib", "staticlib"]
+path = "../../src/lib.rs"
+bench = false
+
+[[bench]]
+name = "benchmark"
+path = "../../benches/benchmark.rs"
+harness = false
+
+[profile.release]
+debug = false
+lto = true
+opt-level = 3
+
+[features]
+default = []
+bin = ["failure", "clap"]
+
+[dependencies]
+nom = "4.0.0"
+failure = { version = "0.1.1", optional = true }
+clap = { version = "^2.31.2", optional = true }
+
+[dev-dependencies]
+criterion = "0.2"

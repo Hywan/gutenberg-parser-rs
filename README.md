@@ -1,4 +1,10 @@
-## The Gutenberg post parser.
+<p align="center">
+    <img src="./resource/Gutenberg_logo.png" width="250px" alt="The Gutenberg logo" />
+</p>
+
+---
+
+# The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
@@ -16,7 +22,7 @@ lorem ipsum
 The parser analyses a post and generates an Abstract Syntax Tree (AST)
 of it. The AST is then accessible to many languages through bindings.
 
-### Platforms and bindings, aka targets
+## Platforms and bindings, aka targets
 
 The parser aims at being used on different platforms, such as: the Web
 (within multiple browsers), Web applications like [Electron], native
@@ -38,21 +44,21 @@ This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
 
-**Note**: Right now, this project needs `rustc` nightly to compile
-most of the targets. The project should switch to stable in a couple
-of months. Since then, be sure to run the latest nightly version with
+**Note**: Right now, this project needs `rustc` nightly to compile the
+WASM target. This target should switch to stable in a couple of
+months. Since then, be sure to run the latest nightly version with
 `rustup update nightly`.
 
-#### Binary
+### Binary
 
 To compile the parser to a binary, run:
 
 ```sh
 $ just build-binary
-$ ./target/release/gutenberg-post-parser --emit-json <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
+$ ./target/release/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-#### Static library
+### Static library
 
 To compile the parser to a static library, run:
 
@@ -61,23 +67,33 @@ $ just build-library
 $ ls target/release/
 ```
 
-#### WebAssembly
+### WebAssembly
 
 To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
 $ just build-wasm
-$ cd bindings/wasm/ && php -S localhost:8888 -t . server.php
+$ ./bindings/wasm/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
+```
+
+If you would like to test directly in your browser, run:
+
+```sh
+$ just build-wasm
+$ just start-wasm-server
 $ open localhost:8888
 ```
 
-#### ASM.js
+Learn more about the [WebAssembly binding](./bindings/wasm/).
+
+### ASM.js
 
 To compile the parser to an [ASM.js] module, run:
 
 ```sh
 $ just build-asmjs
-$ open bindings/asmjs/index.html
+$ just start-asmjs-server
+$ open localhost:8888
 ```
 
 The ASM.js module is slower than the WebAssembly binary, but it is
@@ -85,32 +101,35 @@ useful for Internet Explorer compatibility, or any browser that does
 not support WebAssembly. Remember that ASM.js is just a JavaScript
 file.
 
-#### NodeJS
+Learn more about the [ASM.js binding](./bindings/asmjs/).
+
+### NodeJS
 
 To compile the parser to a [NodeJS] native module, run:
 
 ```sh
 $ just build-nodejs
-$ node bindings/nodejs/lib/index.js
+$ ./bindings/nodejs/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-#### C
+Learn more about the [NodeJS binding](./bindings/nodejs/).
+
+### C
 
 To compile the parser to a [C header][C], run:
 
 ```sh
 $ just build-c
-$ echo -n '<!-- wp:foo {"bar": "qux"} /-->' > test
-$ ./bindings/c/gutenberg-post-parser test
+$ ./bindings/c/bin/gutenberg-post-parser tests/fixtures/gutenberg-demo.html
 ```
 
-#### PHP
+### PHP
 
 To compile the parser to a [PHP extension][PHP], run:
 
 ```sh
 $ just build-php
-$ ./bindings/php/gutenberg-post-parser --emit-debug <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
+$ ./bindings/php/bin/gutenberg-post-parser --emit-debug tests/fixtures/gutenberg-demo.html
 ```
 
 To load the extension, add `extension=gutenberg_post_parser` in the
@@ -118,10 +137,14 @@ To load the extension, add `extension=gutenberg_post_parser` in the
 file), or run PHP such as `php -d extension=gutenberg_post_parser
 file.php`.
 
-### Performance and guarantee
+Learn more about the [PHP binding](./bindings/php/).
+
+## Performance and guarantee
 
 The parser guarantees to never copy the data in memory while
 analyzing, which makes it fast and memory efficient.
+
+### WASM binary
 
 [A yet-to-be-official benchmark][gutenberg-parser-comparator] is used
 to compare the performance of the actual Javascript parser against the
@@ -130,18 +153,63 @@ browser. Here are the results:
 
 | file | Javascript parser (ms) | Rust parser as a WASM binary (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 13.167 | 0.43 | × 31 |
-| [`shortcode-shortcomings.html`] | 26.784 | 0.476 | × 56 |
-| [`redesigning-chrome-desktop.html`] | 75.500 | 1.811 | × 42 |
-| [`web-at-maximum-fps.html`] | 88.118 | 1.334 | × 66 |
-| [`early-adopting-the-future.html`] | 201.011 | 3.171 | × 63 |
-| [`pygmalian-raw-html.html`] | 311.416 | 2.894 | × 108 |
-| [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
+| [`demo-post.html`] | 13.167 | 0.137 | × 96 |
+| [`shortcode-shortcomings.html`] | 26.784 | 0.225 | × 119 |
+| [`redesigning-chrome-desktop.html`] | 75.500 | 0.905 | × 83 |
+| [`web-at-maximum-fps.html`] | 88.118 | 0.698 | × 126 |
+| [`early-adopting-the-future.html`] | 201.011 | 0.927 | × 217 |
+| [`pygmalian-raw-html.html`] | 311.416 | 1.016 | × 307 |
+| [`moby-dick-parsed.html`] | 2,466.533 | 14.673 | × 168 |
 
-The WASM binary of the Rust parser is in average 67 times faster than
-the Javascript implementation.
+The WASM binary of the Rust parser is in average 159 times faster than
+the actual Javascript implementation. The median of the speedup is 126.
 
-### License
+### ASM.js module
+
+ASM.js is a fallback for environments that do not support WebAssembly,
+like Internet Explorer. The same benchmark is used for ASM.js than for
+WASM, and compares the performance of the actual Javascript parser
+against the Rust parser compiled as a ASM.js module so that it can run
+in the browser. Here are the results:
+
+| file | Javascript parser (ms) | Rust parser as an ASM.js module (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 15.368 | 2.718 | × 6 |
+| [`shortcode-shortcomings.html`] | 31.022 | 8.004 | × 4 |
+| [`redesigning-chrome-desktop.html`] | 106.416 | 19.223 | × 6 |
+| [`web-at-maximum-fps.html`] | 82.920 | 27.197 | × 3 |
+| [`early-adopting-the-future.html`] | 119.880 | 38.321 | × 3 |
+| [`pygmalian-raw-html.html`] | 349.075 | 23.656 | × 15 |
+| [`moby-dick-parsed.html`] | 2,543.750 | 361.423 | × 7 |
+
+The ASM.js module version of the Rust parser is in average 6 times
+faster than the actual Javascript implementation. The median of the
+speedup is 6.
+
+### PHP native extension
+
+Another benchmark has been used to compare the performance of the
+actual PHP parser against the Rust parser compiled as a PHP native
+extension. Here are the results:
+
+| file | PHP parser (ms) | Rust parser as a PHP extension (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 30.409 | 0.0012 | × 25341 |
+| [`shortcode-shortcomings.html`] | 76.39 | 0.096 | × 796 |
+| [`redesigning-chrome-desktop.html`] | 225.824 | 0.399 | × 566 |
+| [`web-at-maximum-fps.html`] | 173.495 | 0.275 | × 631 |
+| [`early-adopting-the-future.html`] | 280.433 | 0.298 | × 941 |
+| [`pygmalian-raw-html.html`] | 377.392 | 0.052 | × 7258 |
+| [`moby-dick-parsed.html`] | 5,437.630 | 5.037 | × 1080 |
+
+The PHP extension of the Rust parser is in average 5230 times faster
+than the actual PHP implementation. The median of the speedup is 941.
+
+Note that memory limit has been hit very quickly with the PHP parser,
+while the Rust parser as a PHP native extension has a small memory
+footprint.
+
+## License
 
 The license is a classic `BSD-3-Clause`:
 

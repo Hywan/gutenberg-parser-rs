@@ -1,0 +1,1 @@
+../bin/gutenberg_post_parser.asm.js

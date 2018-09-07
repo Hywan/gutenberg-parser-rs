@@ -1,0 +1,23 @@
+[package]
+name = "gutenberg_post_parser"
+version = "0.14.0"
+authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+license = "BSD-3-Clause"
+readme = "../../README.md"
+repository = "https://github.com/Hywan/gutenberg-parser-rs"
+
+[lib]
+name = "gutenberg_post_parser"
+path = "../../src/lib.rs"
+
+[profile.release]
+debug = false
+lto = true
+opt-level = 3
+
+[features]
+default = ["no_std"]
+no_std = ["nom/alloc"]
+
+[dependencies]
+nom = { version = "4.0.0", default-features = false }

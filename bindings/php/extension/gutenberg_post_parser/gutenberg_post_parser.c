@@ -14,13 +14,49 @@
  */
 zend_class_entry *gutenberg_parser_block_class_entry;
 zend_class_entry *gutenberg_parser_phrase_class_entry;
+zend_object_handlers gutenberg_parser_node_class_entry_handlers;
 
 /*
- * Methods for `Gutenberg_Parser_*` classes. There is no method.
+ * Custom object for Gutenberg parser nodes.
  */
-const zend_function_entry gutenberg_post_parser_methods[] = {
-	PHP_FE_END
-};
+typedef struct _gutenberg_parser_block {
+	zend_object zobj;
+} gutenberg_parser_node;
+
+
+/*
+ * Function for a `zend_class_entry` to create a Gutenberg parser node object.
+ */
+static zend_object *create_parser_node_object(zend_class_entry *class_entry)
+{
+	gutenberg_parser_node *gutenberg_parser_node_object;
+
+	gutenberg_parser_node_object = ecalloc(1, sizeof(*gutenberg_parser_node_object) + zend_object_properties_size(class_entry));
+
+	zend_object_std_init(&gutenberg_parser_node_object->zobj, class_entry);
+	object_properties_init(&gutenberg_parser_node_object->zobj, class_entry);
+
+	gutenberg_parser_node_object->zobj.handlers = &gutenberg_parser_node_class_entry_handlers;
+
+	return &gutenberg_parser_node_object->zobj;
+}
+
+/*
+ * Handler for a `zend_class_entry` to destroy (i.e. call the
+ * destructor on the userland for) a Gutenberg parser node object.
+ */
+static void destroy_parser_node_object(zend_object *gutenberg_parser_node_object)
+{
+	zend_objects_destroy_object(gutenberg_parser_node_object);
+}
+
+/*
+ * Handler for a `zend_class_entry` to free a Gutenberg parser node object.
+ */
+static void free_parser_node_object(zend_object *gutenberg_parser_node_object)
+{
+	zend_object_std_dtor(gutenberg_parser_node_object);
+}
 
 /*
  * Initialize the module.
@@ -29,9 +65,15 @@ PHP_MINIT_FUNCTION(gutenberg_post_parser)
 {
 	zend_class_entry class_entry;
 
-	// Declare the `Gutenberg_Parser_Block` class.
-	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Block", gutenberg_post_parser_methods);
+	//
+	// Declare `Gutenberg_Parser_Block`.
+	//
+
+	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Block", NULL);
 	gutenberg_parser_block_class_entry = zend_register_internal_class(&class_entry TSRMLS_CC);
+
+	// Declare the create handler.
+	gutenberg_parser_block_class_entry->create_object = create_parser_node_object;
 
 	// The class is final.
 	gutenberg_parser_block_class_entry->ce_flags |= ZEND_ACC_FINAL;
@@ -48,16 +90,31 @@ PHP_MINIT_FUNCTION(gutenberg_post_parser)
 	// Declare the `children` public attribute, with `NULL` for the default value.
 	zend_declare_property_null(gutenberg_parser_block_class_entry, "children", sizeof("children") - 1, ZEND_ACC_PUBLIC);
 
-
-	// Declare the `Gutenberg_Parser_Phrase` class.
-	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Phrase", gutenberg_post_parser_methods);
+	//
+	// Declare `Gutenberg_Parser_Phrase`.
+	//
+	
+	INIT_CLASS_ENTRY(class_entry, "Gutenberg_Parser_Phrase", NULL);
 	gutenberg_parser_phrase_class_entry = zend_register_internal_class(&class_entry TSRMLS_CC);
+
+	// Declare the create handler.
+	gutenberg_parser_phrase_class_entry->create_object = create_parser_node_object;
 
 	// The class is final.
 	gutenberg_parser_phrase_class_entry->ce_flags |= ZEND_ACC_FINAL;
 
 	// Declare the `content` public attribute, with an empty string for the default value.
 	zend_declare_property_string(gutenberg_parser_phrase_class_entry, "content", sizeof("content") - 1, "", ZEND_ACC_PUBLIC);
+
+	//
+	// Declare Gutenberg parser node object handlers.
+	//
+
+	memcpy(&gutenberg_parser_node_class_entry_handlers, zend_get_std_object_handlers(), sizeof(gutenberg_parser_node_class_entry_handlers));
+
+	gutenberg_parser_node_class_entry_handlers.offset = XtOffsetOf(gutenberg_parser_node, zobj);
+	gutenberg_parser_node_class_entry_handlers.dtor_obj = destroy_parser_node_object;
+	gutenberg_parser_node_class_entry_handlers.free_obj = free_parser_node_object;
 
 	return SUCCESS;
 }
@@ -100,23 +157,39 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 		// Map [rust] `Node::Block` to [php] `Gutenberg_Parser_Block`.
 		if (node.tag == Block) {
 			const Block_Body block = node.block;
-			zval php_block;
+			zval php_block, php_block_namespace, php_block_name;
 
+			// Prepare the PHP strings.
+			ZVAL_STRINGL(&php_block_namespace, block.namespace.pointer, block.namespace.length);
+			ZVAL_STRINGL(&php_block_name, block.name.pointer, block.name.length);
+
+			// Create the `Gutenberg_Parser_Block` object.
 			object_init_ex(&php_block, gutenberg_parser_block_class_entry);
 
 			// Map [rust] `Node::Block.name.0` to [php] `Gutenberg_Parser_Block->namespace`.
-			add_property_string(&php_block, "namespace", block.namespace);
+			add_property_zval(&php_block, "namespace", &php_block_namespace);
 
 			// Map [rust] `Node::Block.name.1` to [php] `Gutenberg_Parser_Block->name`.
-			add_property_string(&php_block, "name", block.name);
+			add_property_zval(&php_block, "name", &php_block_name);
+
+			// Writing the property adds 1 to refcount.
+			zval_ptr_dtor(&php_block_namespace);
+			zval_ptr_dtor(&php_block_name);
 
 			// Default value for `Gutenberg_Parser_Block->attributes` is `NULL`.
 			// Allocate a string only if some value.
 			if (block.attributes.tag == Some) {
-				const char *attributes = block.attributes.some._0;
+				Slice_c_char attributes = block.attributes.some._0;
+				zval php_block_attributes;
+
+				// Prepare the PHP string.
+				ZVAL_STRINGL(&php_block_attributes, attributes.pointer, attributes.length);
 
 				// Map [rust] `Node::Block.attributes` to [php] `Gutenberg_Parser_Block->attributes`.
-				add_property_string(&php_block, "attributes", attributes);
+				add_property_zval(&php_block, "attributes", &php_block_attributes);
+
+				// Writing the property adds 1 to refcount.
+				zval_ptr_dtor(&php_block_attributes);
 			}
 
 			const Vector_Node* children = (const Vector_Node*) (block.children);
@@ -126,30 +199,43 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			if (children->length > 0) {
 				zval php_children_array;
 
-				array_init(&php_children_array);
+				array_init_size(&php_children_array, children->length);
 				into_php_objects(&php_children_array, children);
 
 				// Map [rust] `Node::Block.children` to [php] `Gutenberg_Parser_Block->children`.
 				add_property_zval(&php_block, "children", &php_children_array);
+
+				Z_DELREF(php_children_array);
 			}
+
+			free((void*) children);
 
 			// Insert `Gutenberg_Parser_Block` into the collection.
 			add_next_index_zval(php_array, &php_block);
 		}
 		// Map [rust] `Node::Phrase` to [php] `Gutenberg_Parser_Phrase`.
 		else if (node.tag == Phrase) {
-			const char *phrase = node.phrase._0;
-			zval php_phrase;
+			Slice_c_char phrase = node.phrase._0;
+			zval php_phrase, php_phrase_content;
 
+			// Prepare the PHP string.
+			ZVAL_STRINGL(&php_phrase_content, phrase.pointer, phrase.length);
+
+			// Create the `Gutenberg_Parser_Phrase` object.
 			object_init_ex(&php_phrase, gutenberg_parser_phrase_class_entry);
 
 			// Map [rust] `Node::Phrase(content)` to [php] `Gutenberg_Parser_Phrase->content`.
-			add_property_string(&php_phrase, "content", phrase);
+			add_property_zval(&php_phrase, "content", &php_phrase_content);
 
 			// Insert `Gutenberg_Parser_Phrase` into the collection.
 			add_next_index_zval(php_array, &php_phrase);
+
+			// Writing the property adds 1 to refcount.
+			zval_ptr_dtor(&php_phrase_content);
 		}
 	}
+
+	free((void*) nodes->buffer);
 }
 
 /*
@@ -179,7 +265,7 @@ PHP_FUNCTION(gutenberg_post_parse)
 	// Note: `return_value` is a “magic” variable that holds the value to be returned.
 	//
 	// Allocate an array.
-	array_init(return_value);
+	array_init_size(return_value, nodes.length);
 
 	// Map the Rust AST.
 	into_php_objects(return_value, &nodes);

@@ -1,1 +1,22 @@
-../../../Cargo.toml
+[package]
+name = "gutenberg_post_parser_nodejs"
+version = "0.14.0"
+authors = ["Ivan Enderlin <ivan.enderlin@hoa-project.net>"]
+license = "BSD-3-Clause"
+readme = "../../README.md"
+repository = "https://github.com/Hywan/gutenberg-parser-rs"
+build = "build.rs"
+
+[lib]
+name = "gutenberg_post_parser_nodejs"
+crate-type = ["dylib"]
+path = "src/lib.rs"
+
+[dependencies]
+gutenberg_post_parser = { path = "../../../cargo/std/", version = "=0.14.0" }
+neon = { version = "0.1.23" }
+serde_json = { version = "1.0.21" }
+neon-serde = { version = "0.0.3" }
+
+[build-dependencies]
+neon-build = { version = "0.1.23" }

@@ -1,6 +1,6 @@
 /*!
 
-# The Gutenberg post parser.
+# The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
 has always been HTML, and it continues to be. The difference is that
@@ -40,21 +40,21 @@ This project uses [Justfile] as an alternative to Makefile. Every
 following command will use `just`, you might consider to install
 it. To learn about all the commands, just `just --list`.
 
-**Note**: Right now, this project needs `rustc` nightly to compile
-most of the targets. The project should switch to stable in a couple
-of months. Since then, be sure to run the latest nightly version with
+**Note**: Right now, this project needs `rustc` nightly to compile the
+WASM target. This target should switch to stable in a couple of
+months. Since then, be sure to run the latest nightly version with
 `rustup update nightly`.
 
-### Binary
+#### Binary
 
 To compile the parser to a binary, run:
 
 ```sh
 $ just build-binary
-$ ./target/release/gutenberg-post-parser --emit-json <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
+$ ./target/release/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-### Static library
+#### Static library
 
 To compile the parser to a static library, run:
 
@@ -63,23 +63,33 @@ $ just build-library
 $ ls target/release/
 ```
 
-### WebAssembly
+#### WebAssembly
 
 To compile the parser to a [WebAssembly] binary, run:
 
 ```sh
 $ just build-wasm
-$ cd bindings/wasm/ && php -S localhost:8888 -t . server.php
+$ ./bindings/wasm/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
+```
+
+If you would like to test directly in your browser, run:
+
+```sh
+$ just build-wasm
+$ just start-wasm-server
 $ open localhost:8888
 ```
 
-### ASM.js
+Learn more about the [WebAssembly binding](./bindings/wasm/).
+
+#### ASM.js
 
 To compile the parser to an [ASM.js] module, run:
 
 ```sh
 $ just build-asmjs
-$ open bindings/asmjs/index.html
+$ just start-asmjs-server
+$ open localhost:8888
 ```
 
 The ASM.js module is slower than the WebAssembly binary, but it is
@@ -87,32 +97,35 @@ useful for Internet Explorer compatibility, or any browser that does
 not support WebAssembly. Remember that ASM.js is just a JavaScript
 file.
 
-### NodeJS
+Learn more about the [ASM.js binding](./bindings/asmjs/).
+
+#### NodeJS
 
 To compile the parser to a [NodeJS] native module, run:
 
 ```sh
 $ just build-nodejs
-$ node bindings/nodejs/lib/index.js
+$ ./bindings/nodejs/bin/gutenberg-post-parser --emit-json tests/fixtures/gutenberg-demo.html
 ```
 
-### C
+Learn more about the [NodeJS binding](./bindings/nodejs/).
+
+#### C
 
 To compile the parser to a [C header][C], run:
 
 ```sh
 $ just build-c
-$ echo -n '<!-- wp:foo {"bar": "qux"} /-->' > test
-$ ./bindings/c/gutenberg-post-parser test
+$ ./bindings/c/bin/gutenberg-post-parser tests/fixtures/gutenberg-demo.html
 ```
 
-### PHP
+#### PHP
 
 To compile the parser to a [PHP extension][PHP], run:
 
 ```sh
 $ just build-php
-$ ./bindings/php/gutenberg-post-parser --emit-debug <( echo -n '<!-- wp:foo {"bar": "qux"} /-->' )
+$ ./bindings/php/bin/gutenberg-post-parser --emit-debug tests/fixtures/gutenberg-demo.html
 ```
 
 To load the extension, add `extension=gutenberg_post_parser` in the
@@ -120,10 +133,14 @@ To load the extension, add `extension=gutenberg_post_parser` in the
 file), or run PHP such as `php -d extension=gutenberg_post_parser
 file.php`.
 
-## Performance and guarantee
+Learn more about the [PHP binding](./bindings/php/).
+
+### Performance and guarantee
 
 The parser guarantees to never copy the data in memory while
 analyzing, which makes it fast and memory efficient.
+
+#### WASM binary
 
 [A yet-to-be-official benchmark][gutenberg-parser-comparator] is used
 to compare the performance of the actual Javascript parser against the
@@ -140,8 +157,31 @@ browser. Here are the results:
 | [`pygmalian-raw-html.html`] | 311.416 | 2.894 | × 108 |
 | [`moby-dick-parsed.html`] | 2,466.533 | 23.62 | × 104 |
 
-The WASM binary of the Rust parser is in average 67 times faster than
-the Javascript implementation.
+The WASM binary of the Rust parser is in average 67 times faster than
+the actual Javascript implementation. The median of the speedup is 63.
+
+#### PHP native extension
+
+Another benchmark has been used to compare the performance of the
+actual PHP parser against the Rust parser compiled as a PHP native
+extension. Here are the results:
+
+| file | PHP parser (ms) | Rust parser as a PHP extension (ms) | speedup |
+|-|-|-|-|
+| [`demo-post.html`] | 30.409 | 0.127 | × 239 |
+| [`shortcode-shortcomings.html`] | 76.39 | 0.220 | × 347 |
+| [`redesigning-chrome-desktop.html`] | 225.824 | 0.911 | × 248 |
+| [`web-at-maximum-fps.html`] | 173.495 | 0.647 | × 268 |
+| [`early-adopting-the-future.html`] | 280.433 | 0.707 | × 397 |
+| [`pygmalian-raw-html.html`] | 377.392 | 0.051 | × 7400 |
+| [`moby-dick-parsed.html`] | 5,437.630 | 11.113 | × 489 |
+
+The PHP extension of the Rust parser is in average 1341 times faster
+than the actual PHP implementation. The median of the speedup is 347.
+
+Note that memory limit has been hit very quickly with the PHP parser,
+while the Rust parser as a PHP native extension has a small memory
+footprint.
 
 ## License
 
@@ -198,49 +238,18 @@ The license is a classic `BSD-3-Clause`:
 */
 
 
-#![cfg_attr(feature = "wasm", no_std)]
-#![
-    cfg_attr(
-        feature = "wasm",
-        feature(
-            alloc,
-            core_intrinsics,
-            lang_items,
-            panic_implementation,
-            proc_macro,
-            wasm_custom_section,
-            wasm_import_module
-        )
-    )
-]
+#![cfg_attr(feature = "no_std", no_std)]
+#![cfg_attr(feature = "no_std", feature(alloc))]
 
-
-#[cfg(feature = "wasm")] #[macro_use] extern crate alloc;
+#[cfg(feature = "no_std")] #[macro_use] extern crate alloc as std;
 #[macro_use] extern crate nom;
-#[cfg(feature = "wasm")] extern crate wee_alloc;
-#[cfg(feature = "nodejs")] #[macro_use] extern crate neon;
-#[cfg(feature = "nodejs")] extern crate serde_json;
-#[cfg(feature = "nodejs")] extern crate neon_serde;
 
-
-#[cfg(feature = "wasm")]
-use alloc::Vec;
-
+use std::vec::Vec;
 
 // Export modules.
 pub mod ast;
 #[macro_use] pub mod combinators;
 pub mod parser;
-#[cfg(feature = "c")] pub mod c;
-#[cfg(feature = "java")] pub mod java;
-#[cfg(feature = "nodejs")] pub mod nodejs;
-#[cfg(feature = "wasm")] pub mod wasm;
-
-
-// Configure `wee_alloc`.
-#[cfg(feature = "wasm")]
-#[global_allocator]
-static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 
 /// Represent the type of a parser input element. See

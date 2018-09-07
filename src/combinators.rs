@@ -9,7 +9,7 @@ thus can be absent from the public documentation.
 
 use super::Input;
 use nom::IResult;
-#[cfg(feature = "wasm")] use alloc::Vec;
+use std::vec::Vec;
 
 /// `take_until_terminated(S, C)` is like `take_until` but with a
 /// lookahead combinator `C`. It's not similar to
@@ -143,10 +143,20 @@ pub fn fold_into_vector<I>(mut accumulator: Vec<I>, item: I) -> Vec<I> {
     accumulator
 }
 
+/// Check whether a character is in the set of alpha characters, i.e. `[a-z]`.
+pub(crate) fn is_alpha(chr: u8) -> bool {
+    chr >= 0x61 && chr <= 0x7a
+}
+
 /// Check whether a character is in the set of alphanumeric extended
 /// characters, i.e. `[a-z0-9_-]`.
 pub(crate) fn is_alphanumeric_extended(chr: u8) -> bool {
     (chr >= 0x61 && chr <= 0x7a) || (chr >= 0x30 && chr <= 0x39) || chr == b'_' || chr == b'-'
+}
+
+/// Check whether a character is a whitespace, i.e. `[ \n\r\t]`.
+pub(crate) fn is_whitespace(chr: u8) -> bool {
+    chr == b' ' || chr == b'\n' || chr == b'\r' || chr == b'\t'
 }
 
 /// The `id` combinator consumes the entire given input as the output.

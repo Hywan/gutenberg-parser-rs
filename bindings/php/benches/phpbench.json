@@ -1,0 +1,5 @@
+{
+    "php_config": {
+        "extension": [ "gutenberg_post_parser" ]
+    }
+}

@@ -121,14 +121,14 @@ ws =
 use super::Input;
 use super::ast::Node;
 use super::combinators;
-#[cfg(feature = "wasm")] use alloc::Vec;
 use nom::ErrorKind;
+use std::vec::Vec;
 
-const COMMENT_OPENING: &'static [u8] = b"<!--";
-const COMMENT_CLOSING: &'static [u8] = b"-->";
-const COMMENT_AUTO_CLOSING: &'static [u8] = b"/-->";
-const WP_OPENING: &'static [u8] = b"wp:";
-const WP_CLOSING: &'static [u8] = b"/wp:";
+const COMMENT_OPENING: &[u8] = b"<!--";
+const COMMENT_CLOSING: &[u8] = b"-->";
+const COMMENT_AUTO_CLOSING: &[u8] = b"/-->";
+const WP_OPENING: &[u8] = b"wp:";
+const WP_CLOSING: &[u8] = b"/wp:";
 
 named_attr!(
     #[doc="
@@ -189,7 +189,7 @@ named_attr!(
 );
 
 #[inline(always)]
-fn phrase_mapper<'a>(input: Input<'a>) -> Result<Node<'a>, ErrorKind> {
+fn phrase_mapper(input: Input) -> Result<Node, ErrorKind> {
     if input.is_empty() {
         Err(ErrorKind::Custom(42u32))
     } else {
@@ -259,9 +259,9 @@ named_attr!(
                 tag!(COMMENT_CLOSING) >>
                 (
                     Node::Block {
-                        name: name,
-                        attributes: attributes,
-                        children: children
+                        name,
+                        attributes,
+                        children
                     }
                 )
             )
@@ -270,8 +270,8 @@ named_attr!(
                 tag!(COMMENT_AUTO_CLOSING) >>
                 (
                     Node::Block {
-                        name: name,
-                        attributes: attributes,
+                        name,
+                        attributes,
                         children: vec![]
                     }
                 )
@@ -308,8 +308,8 @@ named_attr!(
     "],
     pub block_name<Input, (Input, Input)>,
     alt!(
-        namespaced_block_name |
-        core_block_name
+        namespaced_block_name
+      | core_block_name
     )
 );
 
@@ -342,7 +342,7 @@ named_attr!(
     tuple!(
         block_name_part,
         preceded!(
-            tag!("/"),
+            tag!(b"/"),
             block_name_part
         )
     )
@@ -410,7 +410,7 @@ named_attr!(
     pub block_name_part,
     recognize!(
         pair!(
-            is_a!("abcdefghijklmnopqrstuvwxyz"),
+            take_while!(combinators::is_alpha),
             take_while!(combinators::is_alphanumeric_extended)
         )
     )
@@ -483,7 +483,7 @@ named_attr!(
         ```
     "],
     pub whitespaces,
-    is_a!(" \n\r\t")
+    take_while!(combinators::is_whitespace)
 );
 
 
