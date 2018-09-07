@@ -106,19 +106,16 @@ export class Gutenberg_Post_Parser {
             offset += 8;
             const number_of_children = buffer[offset];
             payload_offset = offset + 1;
-            let end_offset = payload_offset;
 
             const children = [];
 
             for (let i = 0; i < number_of_children; ++i) {
-                const last_offset = this._readNode(buffer, payload_offset, children);
-
-                payload_offset = end_offset = last_offset;
+                payload_offset = this._readNode(buffer, payload_offset, children);
             }
 
             nodes.push(new this.Block(name, attributes, children));
 
-            return end_offset;
+            return payload_offset;
         }
         // Phrase.
         else if (2 === node_type) {
