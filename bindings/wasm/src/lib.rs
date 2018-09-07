@@ -77,12 +77,12 @@ pub extern "C" fn dealloc(pointer: *mut c_void, capacity: usize) {
     }
 }
 
-macro_rules! push_u8s {
-    ($u8s:ident in $output:ident) => (
-        $output.push($u8s.0);
-        $output.push($u8s.1);
-        $output.push($u8s.2);
-        $output.push($u8s.3);
+macro_rules! push_u32_as_u8s {
+    ($u32:ident in $output:ident) => (
+        $output.push((($u32 >> 24) & 0xff) as u8);
+        $output.push((($u32 >> 16) & 0xff) as u8);
+        $output.push((($u32 >>  8) & 0xff) as u8);
+        $output.push((($u32      ) & 0xff) as u8);
     )
 }
 
@@ -94,23 +94,24 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     output.reserve(length - (length / 4));
 
     if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
-        let nodes_length = u32_to_u8s(nodes.len() as u32);
+        let nodes_length = nodes.len() as u32;
 
-        push_u8s!(nodes_length in output);
+        push_u32_as_u8s!(nodes_length in output);
 
         for node in nodes {
             into_bytes(&input, &node, &mut output);
         }
     }
 
-    let output_length = u32_to_u8s(output.len() as u32);
+    let output_length = output.len() as u32;
 
-    output[0] = output_length.0;
-    output[1] = output_length.1;
-    output[2] = output_length.2;
-    output[3] = output_length.3;
+    output[0] = ((output_length >> 24) & 0xff) as u8;
+    output[1] = ((output_length >> 16) & 0xff) as u8;
+    output[2] = ((output_length >>  8) & 0xff) as u8;
+    output[3] = ((output_length      ) & 0xff) as u8;
 
     let pointer = output.as_mut_ptr();
+
     mem::forget(output);
 
     pointer
@@ -130,21 +131,17 @@ fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
             output.push(b'/');
             output.extend(name.1);
 
-            let attributes_offset_as_u8s = u32_to_u8s(
-                match attributes {
-                    Some(attributes) => input.offset(&attributes) as u32,
-                    None             => 0u32
-                }
-            );
-            let attributes_length_as_u8s = u32_to_u8s(
-                match attributes {
-                    Some(attributes) => attributes.len() as u32,
-                    None             => 0u32
-                }
-            );
+            let attributes_offset = match attributes {
+                Some(attributes) => input.offset(&attributes) as u32,
+                None             => 0
+            };
+            let attributes_length = match attributes {
+                Some(attributes) => attributes.len() as u32,
+                None             => 0
+            };
 
-            push_u8s!(attributes_offset_as_u8s in output);
-            push_u8s!(attributes_length_as_u8s in output);
+            push_u32_as_u8s!(attributes_offset in output);
+            push_u32_as_u8s!(attributes_length in output);
 
             let number_of_children = children.len();
 
@@ -157,23 +154,14 @@ fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
 
         Node::Phrase(phrase) => {
             let node_type = 2u8;
-            let phrase_offset_as_u8s = u32_to_u8s(input.offset(&phrase) as u32);
-            let phrase_length_as_u8s = u32_to_u8s(phrase.len() as u32);
+            let phrase_offset = input.offset(&phrase) as u32;
+            let phrase_length = phrase.len() as u32;
 
             output.push(node_type);
-            push_u8s!(phrase_offset_as_u8s in output);
-            push_u8s!(phrase_length_as_u8s in output);
+            push_u32_as_u8s!(phrase_offset in output);
+            push_u32_as_u8s!(phrase_length in output);
         }
     }
-}
-
-fn u32_to_u8s(x: u32) -> (u8, u8, u8, u8) {
-    (
-        ((x >> 24) & 0xff) as u8,
-        ((x >> 16) & 0xff) as u8,
-        ((x >>  8) & 0xff) as u8,
-        ( x        & 0xff) as u8
-    )
 }
 
 trait Offset {
