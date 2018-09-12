@@ -18,8 +18,7 @@ stack).
 
 extern crate gutenberg_post_parser;
 
-use gutenberg_post_parser::root;
-use gutenberg_post_parser::ast;
+use gutenberg_post_parser::{ast, root};
 use std::ffi::CStr;
 use std::mem;
 use std::os::raw::{c_char, c_void};
