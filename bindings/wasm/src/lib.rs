@@ -21,8 +21,7 @@ and deallocations, to panic, and to manage an out-of-memory situation.
     alloc,
     alloc_error_handler,
     core_intrinsics,
-    lang_items,
-    panic_handler
+    lang_items
 )]
 
 extern crate gutenberg_post_parser;
