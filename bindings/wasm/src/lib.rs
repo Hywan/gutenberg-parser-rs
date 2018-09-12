@@ -22,7 +22,7 @@ and deallocations, to panic, and to manage an out-of-memory situation.
     alloc_error_handler,
     core_intrinsics,
     lang_items,
-    panic_implementation
+    panic_handler
 )]
 
 extern crate gutenberg_post_parser;
@@ -36,7 +36,7 @@ use core::{mem, slice};
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[panic_implementation]
+#[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe {
         core::intrinsics::abort();
@@ -77,6 +77,15 @@ pub extern "C" fn dealloc(pointer: *mut c_void, capacity: usize) {
     }
 }
 
+macro_rules! push_u32_as_u8s {
+    ($u32:ident in $output:ident) => (
+        $output.push((($u32 >> 24) & 0xff) as u8);
+        $output.push((($u32 >> 16) & 0xff) as u8);
+        $output.push((($u32 >>  8) & 0xff) as u8);
+        $output.push((($u32      ) & 0xff) as u8);
+    )
+}
+
 #[no_mangle]
 pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     let input = unsafe { slice::from_raw_parts(pointer, length) };
@@ -85,90 +94,82 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     output.reserve(length - (length / 4));
 
     if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
-        let nodes_length = u32_to_u8s(nodes.len() as u32);
+        let nodes_length = nodes.len() as u32;
 
-        output.push(nodes_length.0);
-        output.push(nodes_length.1);
-        output.push(nodes_length.2);
-        output.push(nodes_length.3);
+        push_u32_as_u8s!(nodes_length in output);
 
         for node in nodes {
-            into_bytes(&node, &mut output);
+            into_bytes(&input, &node, &mut output);
         }
     }
 
-    let output_length = u32_to_u8s(output.len() as u32);
+    let output_length = output.len() as u32;
 
-    output[0] = output_length.0;
-    output[1] = output_length.1;
-    output[2] = output_length.2;
-    output[3] = output_length.3;
+    output[0] = ((output_length >> 24) & 0xff) as u8;
+    output[1] = ((output_length >> 16) & 0xff) as u8;
+    output[2] = ((output_length >>  8) & 0xff) as u8;
+    output[3] = ((output_length      ) & 0xff) as u8;
 
     let pointer = output.as_mut_ptr();
+
     mem::forget(output);
 
     pointer
 }
 
-fn into_bytes<'a>(node: &Node<'a>, output: &mut Vec<u8>) {
+fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
     match *node {
         Node::Block { name, attributes, ref children } => {
             let node_type = 1u8;
-            let name_length = name.0.len() + name.1.len() + 1;
-            let attributes_length = match attributes {
-                Some(attributes) => attributes.len(),
-                None             => 0
-            };
-            let attributes_length_as_u8s = u32_to_u8s(attributes_length as u32);
-
-            let number_of_children = children.len();
 
             output.push(node_type);
-            output.push(name_length as u8);
-            output.push(attributes_length_as_u8s.0);
-            output.push(attributes_length_as_u8s.1);
-            output.push(attributes_length_as_u8s.2);
-            output.push(attributes_length_as_u8s.3);
-            output.push(number_of_children as u8);
 
+            let name_length = name.0.len() + name.1.len() + 1;
+
+            output.push(name_length as u8);
             output.extend(name.0);
             output.push(b'/');
             output.extend(name.1);
 
-            if let Some(attributes) = attributes {
-                output.extend(attributes);
-            } else {
-                output.extend(&b""[..]);
-            }
+            let attributes_offset = match attributes {
+                Some(attributes) => input.offset(&attributes) as u32,
+                None             => 0
+            };
+            let attributes_length = match attributes {
+                Some(attributes) => attributes.len() as u32,
+                None             => 0
+            };
+
+            push_u32_as_u8s!(attributes_offset in output);
+            push_u32_as_u8s!(attributes_length in output);
+
+            let number_of_children = children.len();
+
+            output.push(number_of_children as u8);
 
             for child in children {
-                into_bytes(&child, output);
+                into_bytes(input, &child, output);
             }
         },
 
         Node::Phrase(phrase) => {
             let node_type = 2u8;
-            let phrase_length = phrase.len();
+            let phrase_offset = input.offset(&phrase) as u32;
+            let phrase_length = phrase.len() as u32;
 
             output.push(node_type);
-
-            let phrase_length_as_u8s = u32_to_u8s(phrase_length as u32);
-
-            output.push(phrase_length_as_u8s.0);
-            output.push(phrase_length_as_u8s.1);
-            output.push(phrase_length_as_u8s.2);
-            output.push(phrase_length_as_u8s.3);
-
-            output.extend(phrase);
+            push_u32_as_u8s!(phrase_offset in output);
+            push_u32_as_u8s!(phrase_length in output);
         }
     }
 }
 
-fn u32_to_u8s(x: u32) -> (u8, u8, u8, u8) {
-    (
-        ((x >> 24) & 0xff) as u8,
-        ((x >> 16) & 0xff) as u8,
-        ((x >>  8) & 0xff) as u8,
-        ( x        & 0xff) as u8
-    )
+trait Offset {
+    fn offset(&self, second: &Self) -> usize;
+}
+
+impl<'a> Offset for &'a [u8] {
+    fn offset(&self, second: &Self) -> usize {
+        second.as_ptr() as usize - self.as_ptr() as usize
+    }
 }

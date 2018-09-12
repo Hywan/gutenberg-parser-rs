@@ -16,6 +16,9 @@ export class Gutenberg_Post_Parser {
         this._Parser = {
             root: function(datum) {
                 const buffer = self.text_encoder(datum);
+
+                self._input = buffer;
+
                 const buffer_pointer = self._writeString(self._Module, buffer);
                 const output_pointer = self._Module.root(buffer_pointer, buffer.length);
                 const result = self._readNodes(self._Module, output_pointer);
@@ -47,7 +50,7 @@ export class Gutenberg_Post_Parser {
         const string_length = string_buffer.length;
         const pointer = module.alloc(string_length);
 
-        const buffer = new Uint8Array(module.memory.buffer);
+        const buffer = new Uint8ClampedArray(module.memory.buffer);
 
         for (let i = 0; i < string_length; i++) {
             buffer[pointer + i] = string_buffer[i]
@@ -57,11 +60,11 @@ export class Gutenberg_Post_Parser {
     }
 
     _readNodes(module, start_pointer) {
-        const buffer_length = this.u8s_to_u32(...new Uint8Array(module.memory.buffer.slice(start_pointer, start_pointer + 4)));
+        const buffer_length = this.u8s_to_u32(...new Uint8ClampedArray(module.memory.buffer.slice(start_pointer, start_pointer + 4)));
 
         const payload_pointer = start_pointer + 4;
 
-        const buffer = new Uint8Array(module.memory.buffer.slice(payload_pointer, payload_pointer + buffer_length));
+        const buffer = new Uint8ClampedArray(module.memory.buffer.slice(payload_pointer, payload_pointer + buffer_length));
         const number_of_nodes = this.u8s_to_u32(buffer[0], buffer[1], buffer[2], buffer[3]);
 
         if (0 >= number_of_nodes) {
@@ -86,47 +89,43 @@ export class Gutenberg_Post_Parser {
         // Block.
         if (1 === node_type) {
             const name_length = buffer[offset + 1];
-            const attributes_length = this.u8s_to_u32(buffer[offset + 2], buffer[offset + 3], buffer[offset + 4], buffer[offset + 5]);
-            const number_of_children = buffer[offset + 6];
+            offset += 2;
 
-            let payload_offset = offset + 7;
-            let next_payload_offset = payload_offset + name_length + attributes_length;
+            const name = this.text_decoder(buffer.subarray(offset, offset + name_length));
 
-            const name_and_attributes = this.text_decoder(buffer.slice(payload_offset, next_payload_offset));
+            offset += name_length;
+            const attributes_offset = this.u8s_to_u32(buffer[offset    ], buffer[offset + 1], buffer[offset + 2], buffer[offset + 3]);
+            const attributes_length = this.u8s_to_u32(buffer[offset + 4], buffer[offset + 5], buffer[offset + 6], buffer[offset + 7]);
 
-            const name =
-                0 === attributes_length
-                    ? name_and_attributes
-                    : name_and_attributes.substring(0, name_length);
             const attributes =
                 0 === attributes_length
                     ? null
-                    : JSON.parse(name_and_attributes.substring(name_length));
+                    : JSON.parse(this.text_decoder(this._input.subarray(attributes_offset, attributes_offset + attributes_length)));
 
-            payload_offset = next_payload_offset;
-            let end_offset = payload_offset;
+            offset += 8;
+            const number_of_children = buffer[offset];
+            offset += 1;
 
             const children = [];
 
             for (let i = 0; i < number_of_children; ++i) {
-                const last_offset = this._readNode(buffer, payload_offset, children);
-
-                payload_offset = end_offset = last_offset;
+                offset = this._readNode(buffer, offset, children);
             }
 
             nodes.push(new this.Block(name, attributes, children));
 
-            return end_offset;
+            return offset;
         }
         // Phrase.
         else if (2 === node_type) {
-            const phrase_length = this.u8s_to_u32(buffer[offset + 1], buffer[offset + 2], buffer[offset + 3], buffer[offset + 4]);
-            const phrase_offset = offset + 5;
-            const phrase = this.text_decoder(buffer.slice(phrase_offset, phrase_offset + phrase_length));
+            const phrase_offset = this.u8s_to_u32(buffer[offset + 1], buffer[offset + 2], buffer[offset + 3], buffer[offset + 4]);
+            const phrase_length = this.u8s_to_u32(buffer[offset + 5], buffer[offset + 6], buffer[offset + 7], buffer[offset + 8]);
+
+            const phrase = this.text_decoder(this._input.subarray(phrase_offset, phrase_offset + phrase_length));
 
             nodes.push(new this.Phrase(phrase));
 
-            return phrase_offset + phrase_length;
+            return offset + 9;
         } else {
             console.error('unknown node type', node_type);
         }

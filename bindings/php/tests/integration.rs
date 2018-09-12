@@ -1,3 +1,6 @@
+extern crate rayon;
+
+use rayon::prelude::*;
 use std::fs;
 use std::env;
 use std::path::PathBuf;
@@ -17,23 +20,25 @@ fn run_all_fixtures() {
 
         if let Some(extension) = input_path.extension() {
             if extension == html {
-                for _ in 0..255 {
-                    let output =
-                        Command::new("./bin/gutenberg-post-parser")
+                (0..255).into_par_iter().for_each(
+                    |_| {
+                        let output =
+                            Command::new("./bin/gutenberg-post-parser")
                             .arg(&input_path)
                             .output()
                             .expect("Failed to execute `gutenberg-post-parser`.");
 
-                    assert!(
-                        output.status.success(),
-                        format!(
-                            "Failed to parse {:?}\nStatus: {}\nOutput: {}",
-                            input_path,
-                            output.status,
-                            String::from_utf8_lossy(&output.stdout.as_slice())
-                        )
-                    );
-                }
+                        assert!(
+                            output.status.success(),
+                            format!(
+                                "Failed to parse {:?}\nStatus: {}\nOutput: {}",
+                                input_path,
+                                output.status,
+                                String::from_utf8_lossy(&output.stdout.as_slice())
+                            )
+                        );
+                    }
+                );
             }
         }
     }

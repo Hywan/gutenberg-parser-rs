@@ -153,16 +153,16 @@ browser. Here are the results:
 
 | file | Javascript parser (ms) | Rust parser as a WASM binary (ms) | speedup |
 |-|-|-|-|
-| [`demo-post.html`] | 13.167 | 0.252 | × 52 |
-| [`shortcode-shortcomings.html`] | 26.784 | 0.271 | × 98 |
-| [`redesigning-chrome-desktop.html`] | 75.500 | 0.918 | × 82 |
-| [`web-at-maximum-fps.html`] | 88.118 | 0.901 | × 98 |
-| [`early-adopting-the-future.html`] | 201.011 | 3.329 | × 60 |
-| [`pygmalian-raw-html.html`] | 311.416 | 2.692 | × 116 |
-| [`moby-dick-parsed.html`] | 2,466.533 | 25.14 | × 98 |
+| [`demo-post.html`] | 13.167 | 0.137 | × 96 |
+| [`shortcode-shortcomings.html`] | 26.784 | 0.225 | × 119 |
+| [`redesigning-chrome-desktop.html`] | 75.500 | 0.905 | × 83 |
+| [`web-at-maximum-fps.html`] | 88.118 | 0.698 | × 126 |
+| [`early-adopting-the-future.html`] | 201.011 | 0.927 | × 217 |
+| [`pygmalian-raw-html.html`] | 311.416 | 1.016 | × 307 |
+| [`moby-dick-parsed.html`] | 2,466.533 | 14.673 | × 168 |
 
-The WASM binary of the Rust parser is in average 86 times faster than
-the actual Javascript implementation. The median of the speedup is 98.
+The WASM binary of the Rust parser is in average 159 times faster than
+the actual Javascript implementation. The median of the speedup is 126.
 
 ### ASM.js module
 

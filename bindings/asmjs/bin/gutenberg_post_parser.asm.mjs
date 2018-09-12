@@ -17,6 +17,7 @@ export class Gutenberg_Post_Parser_ASM extends Gutenberg_Post_Parser {
         this._Parser = {
             root: function(datum) {
                 const buffer = self.text_encoder(datum);
+                self._input = buffer;
                 const buffer_pointer = self._writeString(self._Module, buffer);
                 const output_pointer = self._Module.root(buffer_pointer, buffer.length);
                 const result = self._readNodes(self._Module, output_pointer);

@@ -39,7 +39,7 @@ fn run_all_fixtures() {
 
                 let mut output_content = String::from_utf8(output.stdout).unwrap();
 
-                assert!(expected_content == output_content);
+                assert!(expected_content == output_content, format!("file = {:?}", input_path));
             }
         }
     }
