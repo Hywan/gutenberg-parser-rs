@@ -30,7 +30,7 @@ extern crate wee_alloc;
 
 use gutenberg_post_parser::ast::Node;
 use alloc::vec::Vec;
-use core::{mem, slice};
+use core::{mem, slice, str::from_utf8_unchecked};
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -90,15 +90,17 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     let input = unsafe { slice::from_raw_parts(pointer, length) };
     let mut output = vec![0; 4];
 
-    output.reserve(length - (length / 4));
+    output.reserve(length);
 
     if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
         let nodes_length = nodes.len() as u32;
+        let mut utf16_offset = 0;
+        let mut remaining_input = input;
 
         push_u32_as_u8s!(nodes_length in output);
 
         for node in nodes {
-            into_bytes(&input, &node, &mut output);
+            remaining_input = into_bytes(&node, &remaining_input, &mut utf16_offset, &mut output);
         }
     }
 
@@ -116,12 +118,11 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     pointer
 }
 
-fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
+fn into_bytes<'a>(node: &Node<'a>, mut remaining_input: &'a [u8], utf16_offset: &mut u32, output: &mut Vec<u8>) -> &'a [u8] {
     match *node {
         Node::Block { name, attributes, ref children } => {
-            let node_type = 1u8;
-
-            output.push(node_type);
+            // Push node type.
+            output.push(1u8);
 
             let name_length = name.0.len() + name.1.len() + 1;
 
@@ -130,13 +131,30 @@ fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
             output.push(b'/');
             output.extend(name.1);
 
-            let attributes_offset = match attributes {
-                Some(attributes) => input.offset(&attributes) as u32,
-                None             => 0
-            };
-            let attributes_length = match attributes {
-                Some(attributes) => attributes.len() as u32,
-                None             => 0
+            let input_offset: usize = remaining_input.offset(&name.1) + name.1.len() + 1;
+            remaining_input = &remaining_input[input_offset..];
+            *utf16_offset += input_offset as u32;
+
+            let attributes_offset;
+            let attributes_length;
+
+            match attributes {
+                Some(attributes) => {
+                    let mut input_offset: usize = remaining_input.offset(&attributes);
+
+                    *utf16_offset += input_offset as u32;
+                    attributes_offset = *utf16_offset;
+                    attributes_length = unsafe { from_utf8_unchecked(attributes) }.encode_utf16().count() as u32;
+                    *utf16_offset += attributes_length;
+
+                    input_offset += attributes.len();
+                    remaining_input = &remaining_input[input_offset..];
+                },
+
+                None => {
+                    attributes_offset = 0;
+                    attributes_length = 0;
+                }
             };
 
             push_u32_as_u8s!(attributes_offset in output);
@@ -147,18 +165,31 @@ fn into_bytes<'a>(input: &'a [u8], node: &Node<'a>, output: &mut Vec<u8>) {
             output.push(number_of_children as u8);
 
             for child in children {
-                into_bytes(input, &child, output);
+                remaining_input = into_bytes(&child, remaining_input, utf16_offset, output);
             }
+
+            remaining_input
         },
 
         Node::Phrase(phrase) => {
-            let node_type = 2u8;
-            let phrase_offset = input.offset(&phrase) as u32;
-            let phrase_length = phrase.len() as u32;
+            // Push node type.
+            output.push(2u8);
 
-            output.push(node_type);
+            let mut input_offset: usize = remaining_input.offset(&phrase);
+
+            *utf16_offset += input_offset as u32;
+            let phrase_offset = *utf16_offset;
+            let phrase_length = unsafe { from_utf8_unchecked(phrase) }.encode_utf16().count() as u32;
+            *utf16_offset += phrase_length;
+
+            input_offset += phrase.len();
+            remaining_input = &remaining_input[input_offset..];
+
+            // Push phrase.
             push_u32_as_u8s!(phrase_offset in output);
             push_u32_as_u8s!(phrase_length in output);
+
+            remaining_input
         }
     }
 }
