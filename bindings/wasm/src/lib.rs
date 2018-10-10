@@ -90,12 +90,12 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     let input = unsafe { slice::from_raw_parts(pointer, length) };
     let mut output = vec![0; 4];
 
-    output.reserve(length);
-
     if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
         let nodes_length = nodes.len() as u32;
         let mut utf16_offset = 0;
         let mut remaining_input = input;
+
+        output.reserve(nodes_length as usize * 12);
 
         push_u32_as_u8s!(nodes_length in output);
 
@@ -144,7 +144,7 @@ fn into_bytes<'a>(node: &Node<'a>, mut remaining_input: &'a [u8], utf16_offset: 
 
                     *utf16_offset += input_offset as u32;
                     attributes_offset = *utf16_offset;
-                    attributes_length = unsafe { from_utf8_unchecked(attributes) }.encode_utf16().count() as u32;
+                    attributes_length = count_utf16(unsafe { from_utf8_unchecked(attributes) });
                     *utf16_offset += attributes_length;
 
                     input_offset += attributes.len();
@@ -179,7 +179,7 @@ fn into_bytes<'a>(node: &Node<'a>, mut remaining_input: &'a [u8], utf16_offset: 
 
             *utf16_offset += input_offset as u32;
             let phrase_offset = *utf16_offset;
-            let phrase_length = unsafe { from_utf8_unchecked(phrase) }.encode_utf16().count() as u32;
+            let phrase_length = count_utf16(unsafe { from_utf8_unchecked(phrase) });
             *utf16_offset += phrase_length;
 
             input_offset += phrase.len();
@@ -202,4 +202,19 @@ impl<'a> Offset for &'a [u8] {
     fn offset(&self, second: &Self) -> usize {
         second.as_ptr() as usize - self.as_ptr() as usize
     }
+}
+
+fn count_utf16(input: &str) -> u32 {
+    input.chars().fold(
+        0,
+        |acc, ch| {
+            let code = ch as u32;
+
+            if (code & 0xffff) == code {
+                acc + 1
+            } else {
+                acc + 2
+            }
+        }
+    )
 }
