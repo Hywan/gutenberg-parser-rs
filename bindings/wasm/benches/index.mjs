@@ -9,7 +9,7 @@ const __dirname = path.dirname(process.argv[1]);
 
 class Gutenberg_Post_Parser_NodeJS extends Gutenberg_Post_Parser {
     constructor(Block, Phrase, wasmURL) {
-        super(Block, Phrase, wasmURL, new util.TextEncoder(), new util.TextDecoder());
+        super(Block, Phrase, wasmURL, new util.TextEncoder());
     }
 
     instantiateWASM(url, importObject) {

@@ -1,5 +1,5 @@
 export class Gutenberg_Post_Parser {
-    constructor(Block, Phrase, wasmURL, textEncoder, textDecoder) {
+    constructor(Block, Phrase, wasmURL, textEncoder) {
         this.Block = Block;
         this.Phrase = Phrase;
 
@@ -8,13 +8,12 @@ export class Gutenberg_Post_Parser {
         }
 
         this._encoder = textEncoder || new TextEncoder();
-        this._decoder = textDecoder || new TextDecoder('utf-8');
 
         const self = this;
 
         this._Module = {};
         this._Parser = {
-            root: function(datum) {
+            root: datum => {
                 const buffer = self.text_encoder(datum);
 
                 self._input = datum;
@@ -36,10 +35,6 @@ export class Gutenberg_Post_Parser {
 
     text_encoder(string) {
         return this._encoder.encode(string);
-    }
-
-    text_decoder(array_buffer) {
-        return this._decoder.decode(array_buffer);
     }
 
     u8s_to_u32(o, p, q, r) {
@@ -91,7 +86,15 @@ export class Gutenberg_Post_Parser {
             const name_length = buffer[offset + 1];
             offset += 2;
 
-            const name = this.text_decoder(buffer.subarray(offset, offset + name_length));
+            const name =
+                buffer
+                    .subarray(offset, offset + name_length)
+                    .reduce(
+                        (accumulator, value) => {
+                            return accumulator + String.fromCharCode(value);
+                        },
+                        ''
+                    );
 
             offset += name_length;
             const attributes_offset = this.u8s_to_u32(buffer[offset    ], buffer[offset + 1], buffer[offset + 2], buffer[offset + 3]);
