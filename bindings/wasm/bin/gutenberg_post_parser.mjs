@@ -17,7 +17,7 @@ export class Gutenberg_Post_Parser {
             root: function(datum) {
                 const buffer = self.text_encoder(datum);
 
-                self._input = buffer;
+                self._input = datum;
 
                 const buffer_pointer = self._writeString(self._Module, buffer);
                 const output_pointer = self._Module.root(buffer_pointer, buffer.length);
@@ -100,7 +100,7 @@ export class Gutenberg_Post_Parser {
             const attributes =
                 0 === attributes_length
                     ? null
-                    : JSON.parse(this.text_decoder(this._input.subarray(attributes_offset, attributes_offset + attributes_length)));
+                    : JSON.parse(this._input.substr(attributes_offset, attributes_length));
 
             offset += 8;
             const number_of_children = buffer[offset];
@@ -121,7 +121,7 @@ export class Gutenberg_Post_Parser {
             const phrase_offset = this.u8s_to_u32(buffer[offset + 1], buffer[offset + 2], buffer[offset + 3], buffer[offset + 4]);
             const phrase_length = this.u8s_to_u32(buffer[offset + 5], buffer[offset + 6], buffer[offset + 7], buffer[offset + 8]);
 
-            const phrase = this.text_decoder(this._input.subarray(phrase_offset, phrase_offset + phrase_length));
+            const phrase = this._input.substr(phrase_offset, phrase_length);
 
             nodes.push(new this.Phrase(phrase));
 
