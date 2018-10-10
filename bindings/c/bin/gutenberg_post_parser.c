@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
     long file_size = ftell(file);
     rewind(file);
 
-    char* file_content = (char*) malloc(file_size * sizeof(char*));
+    char* file_content = (char*) malloc(file_size * sizeof(char));
     size_t result = fread(file_content, 1, file_size, file);
 
     if (((long) result) != file_size) {
