@@ -1,3 +1,93 @@
+function writeString(module, string_buffer) {
+    const string_length = string_buffer.length;
+    const pointer = module.alloc(string_length);
+
+    const buffer = new Uint8ClampedArray(module.memory.buffer, pointer);
+
+    for (let i = 0; i < string_length; i++) {
+        buffer[i] = string_buffer[i]
+    }
+
+    return pointer;
+}
+
+function readNodes(module, start_pointer) {
+    const buffer_length = new Uint32Array(module.memory.buffer, start_pointer, 1)[0];
+    const payload_pointer = start_pointer + 4;
+
+    const buffer = new Uint32Array(module.memory.buffer, payload_pointer, buffer_length);
+    const number_of_nodes = buffer[0];
+
+    if (0 >= number_of_nodes) {
+        return null;
+    }
+
+    const nodes = [];
+    let offset = 1;
+
+    for (let i = 0; i < number_of_nodes; ++i) {
+        offset = readNode(module, buffer, offset, nodes);
+    }
+
+    module.dealloc_u32(start_pointer, buffer_length);
+
+    return nodes;
+}
+
+function readNode(module, buffer, offset, nodes) {
+    const node_type = buffer[offset];
+    offset += 1;
+
+    switch (node_type) {
+        case 1: // Block.
+            const name_length = buffer[offset];
+            offset += 1;
+
+            const name =
+                buffer
+                    .subarray(offset, offset + name_length)
+                    .reduce(
+                        (accumulator, value) => accumulator + String.fromCharCode(value),
+                        ''
+                    );
+
+            offset += name_length;
+
+            const attributes_offset = buffer[offset    ];
+            const attributes_length = buffer[offset + 1];
+            const attributes =
+                0 === attributes_length
+                    ? null
+                    : JSON.parse(module.input.substr(attributes_offset, attributes_length));
+
+            const number_of_children = buffer[offset + 2];
+            const children = [];
+
+            offset += 3;
+
+            for (let i = 0; i < number_of_children; ++i) {
+                offset = readNode(module, buffer, offset, children);
+            }
+
+            nodes.push(new module.Block(name, attributes, children));
+
+            return offset;
+
+        case 2: // Phrase.
+            const phrase_offset = buffer[offset    ];
+            const phrase_length = buffer[offset + 1];
+
+            const phrase = module.input.substr(phrase_offset, phrase_length);
+
+            nodes.push(new module.Phrase(phrase));
+
+            return offset + 2;
+
+        default:
+            console.error('unknown node type', node_type);
+    }
+}
+
 export class Gutenberg_Post_Parser {
     constructor(Block, Phrase, wasmURL, textEncoder) {
         this.Block = Block;
@@ -8,143 +98,50 @@ export class Gutenberg_Post_Parser {
         }
 
         this._encoder = textEncoder || new TextEncoder();
+    }
 
-        const self = this;
+    _parse(module) {
+        const buffer = this._encoder.encode(module.input);
+        const buffer_pointer = writeString(module, buffer);
+        const output_pointer = module.root(buffer_pointer, buffer.length);
+        const result = readNodes(module, output_pointer);
 
-        this._Module = {};
-        this._Parser = {
-            root: datum => {
-                const buffer = self.text_encoder(datum);
+        module.input = null;
 
-                self._input = datum;
+        console.log(buffer_pointer);
+        console.log(buffer.length);
 
-                const buffer_pointer = self._writeString(self._Module, buffer);
-                const output_pointer = self._Module.root(buffer_pointer, buffer.length);
-                const result = self._readNodes(self._Module, output_pointer);
+        console.log(new Uint8Array(module.memory.buffer, buffer_pointer, buffer.length));
 
-                self._Module.dealloc(buffer_pointer, buffer.length);
+        module.dealloc_u8(buffer_pointer, buffer.length);
 
-                return result;
-            }
-        };
+        console.log(new Uint8Array(module.memory.buffer, buffer_pointer, buffer.length));
+
+        return result;
     }
 
     instantiateWASM(url, importObject) {
         return this._wasm = WebAssembly.instantiateStreaming(fetch(url), importObject).then(obj => obj.instance);
     }
 
-    text_encoder(string) {
-        return this._encoder.encode(string);
-    }
-
-    u8s_to_u32(o, p, q, r) {
-        return (o << 24) | (p << 16) | (q << 8) | r;
-    }
-
-    _writeString(module, string_buffer) {
-        const string_length = string_buffer.length;
-        const pointer = module.alloc(string_length);
-
-        const buffer = new Uint8ClampedArray(module.memory.buffer);
-
-        for (let i = 0; i < string_length; i++) {
-            buffer[pointer + i] = string_buffer[i]
-        }
-
-        return pointer;
-    }
-
-    _readNodes(module, start_pointer) {
-        const buffer_length = this.u8s_to_u32(...new Uint8ClampedArray(module.memory.buffer.slice(start_pointer, start_pointer + 4)));
-
-        const payload_pointer = start_pointer + 4;
-
-        const buffer = new Uint8ClampedArray(module.memory.buffer.slice(payload_pointer, payload_pointer + buffer_length));
-        const number_of_nodes = this.u8s_to_u32(buffer[0], buffer[1], buffer[2], buffer[3]);
-
-        if (0 >= number_of_nodes) {
-            return null;
-        }
-
-        const nodes = [];
-        let offset = 4;
-
-        for (let i = 0; i < number_of_nodes; ++i) {
-            offset = this._readNode(buffer, offset, nodes);
-        }
-
-        module.dealloc(start_pointer, start_pointer + offset);
-
-        return nodes;
-    }
-
-    _readNode(buffer, offset, nodes) {
-        const node_type = buffer[offset];
-
-        // Block.
-        if (1 === node_type) {
-            const name_length = buffer[offset + 1];
-            offset += 2;
-
-            const name =
-                buffer
-                    .subarray(offset, offset + name_length)
-                    .reduce(
-                        (accumulator, value) => {
-                            return accumulator + String.fromCharCode(value);
-                        },
-                        ''
-                    );
-
-            offset += name_length;
-            const attributes_offset = this.u8s_to_u32(buffer[offset    ], buffer[offset + 1], buffer[offset + 2], buffer[offset + 3]);
-            const attributes_length = this.u8s_to_u32(buffer[offset + 4], buffer[offset + 5], buffer[offset + 6], buffer[offset + 7]);
-
-            const attributes =
-                0 === attributes_length
-                    ? null
-                    : JSON.parse(this._input.substr(attributes_offset, attributes_length));
-
-            offset += 8;
-            const number_of_children = buffer[offset];
-            offset += 1;
-
-            const children = [];
-
-            for (let i = 0; i < number_of_children; ++i) {
-                offset = this._readNode(buffer, offset, children);
-            }
-
-            nodes.push(new this.Block(name, attributes, children));
-
-            return offset;
-        }
-        // Phrase.
-        else if (2 === node_type) {
-            const phrase_offset = this.u8s_to_u32(buffer[offset + 1], buffer[offset + 2], buffer[offset + 3], buffer[offset + 4]);
-            const phrase_length = this.u8s_to_u32(buffer[offset + 5], buffer[offset + 6], buffer[offset + 7], buffer[offset + 8]);
-
-            const phrase = this._input.substr(phrase_offset, phrase_length);
-
-            nodes.push(new this.Phrase(phrase));
-
-            return offset + 9;
-        } else {
-            console.error('unknown node type', node_type);
-        }
-    }
-
     root(input) {
+        const _module = {};
+
         return this._wasm.then(
             (module) => {
-                if (undefined === this._Module.alloc) {
-                    this._Module.alloc = module.exports.alloc;
-                    this._Module.dealloc = module.exports.dealloc;
-                    this._Module.root = module.exports.root;
-                    this._Module.memory = module.exports.memory;
+                if (undefined === _module.alloc) {
+                    _module.alloc = module.exports.alloc;
+                    _module.dealloc_u8 = module.exports.dealloc_u8;
+                    _module.dealloc_u32 = module.exports.dealloc_u32;
+                    _module.root = module.exports.root;
+                    _module.memory = module.exports.memory;
+                    _module.Block = this.Block;
+                    _module.Phrase = this.Phrase;
                 }
 
-                return this._Parser.root(input);
+                _module.input = input;
+
+                return this._parse(_module);
             }
         );
     }
