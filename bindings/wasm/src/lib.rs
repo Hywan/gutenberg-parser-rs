@@ -62,7 +62,7 @@ pub enum c_void {
 
 #[no_mangle]
 pub extern "C" fn alloc(capacity: usize) -> *mut u8 {
-    let mut buffer: Vec<u8> = Vec::with_capacity(capacity);
+    let mut buffer = Vec::with_capacity(capacity);
     let pointer = buffer.as_mut_ptr();
     mem::forget(buffer);
 
@@ -72,7 +72,7 @@ pub extern "C" fn alloc(capacity: usize) -> *mut u8 {
 #[no_mangle]
 pub extern "C" fn dealloc(pointer: *mut u8, capacity: usize) {
     unsafe {
-        let _: Vec<u8> = Vec::from_raw_parts(pointer, 0, capacity);
+        let _ = Vec::from_raw_parts(pointer, 0, capacity);
     }
 }
 
@@ -93,9 +93,9 @@ macro_rules! push_u32_as_u8s {
 }
 
 #[no_mangle]
-pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
+pub extern "C" fn root(pointer: *mut u8, length: usize) -> *const u8 {
     let input = unsafe { slice::from_raw_parts(pointer, length) };
-    let mut output = vec![0; 8];
+    let mut output: Vec<u8> = vec![0; 8];
 
     if let Ok((_remaining, nodes)) = gutenberg_post_parser::root(input) {
         let nodes_length = nodes.len() as u32;
@@ -123,7 +123,7 @@ pub extern "C" fn root(pointer: *mut u8, length: usize) -> *mut u8 {
     output[6] = ((output_length >> 16) & 0xff) as u8;
     output[7] = ((output_length >> 24) & 0xff) as u8;
 
-    let pointer = output.as_mut_ptr();
+    let pointer = output.as_ptr();
 
     mem::forget(output);
 

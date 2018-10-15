@@ -1,6 +1,5 @@
 function writeString(module, string_buffer, string_buffer_capacity) {
     const pointer = module.alloc(string_buffer_capacity);
-
     const buffer = new Uint8ClampedArray(module.memory.buffer, pointer);
 
     for (let i = 0; i < string_buffer_capacity; i++) {
@@ -11,10 +10,8 @@ function writeString(module, string_buffer, string_buffer_capacity) {
 }
 
 function readNodes(module, start_pointer) {
-    console.log('read nodes', start_pointer);
-
     const buffer_properties = new Uint32Array(module.memory.buffer, start_pointer, 2);
-    const buffer_capacity = buffer_properties[0];
+    const buffer_capacity = buffer_properties[0] / 4;
     const buffer_length = buffer_properties[1] / 4;
     const payload_pointer = start_pointer + 8;
 
