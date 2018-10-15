@@ -16,4 +16,4 @@ debug = true
 
 [dependencies]
 gutenberg_post_parser = { path = "../../cargo/no_std/", version = "=0.14.0" }
-wee_alloc = { version = "0.4.2" }
+wee_alloc = "0.4.2"

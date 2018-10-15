@@ -1,10 +1,9 @@
-function writeString(module, string_buffer) {
-    const string_length = string_buffer.length;
-    const pointer = module.alloc(string_length);
+function writeString(module, string_buffer, string_buffer_capacity) {
+    const pointer = module.alloc(string_buffer_capacity);
 
     const buffer = new Uint8ClampedArray(module.memory.buffer, pointer);
 
-    for (let i = 0; i < string_length; i++) {
+    for (let i = 0; i < string_buffer_capacity; i++) {
         buffer[i] = string_buffer[i]
     }
 
@@ -12,8 +11,12 @@ function writeString(module, string_buffer) {
 }
 
 function readNodes(module, start_pointer) {
-    const buffer_length = new Uint32Array(module.memory.buffer, start_pointer, 1)[0];
-    const payload_pointer = start_pointer + 4;
+    console.log('read nodes', start_pointer);
+
+    const buffer_properties = new Uint32Array(module.memory.buffer, start_pointer, 2);
+    const buffer_capacity = buffer_properties[0];
+    const buffer_length = buffer_properties[1] / 4;
+    const payload_pointer = start_pointer + 8;
 
     const buffer = new Uint32Array(module.memory.buffer, payload_pointer, buffer_length);
     const number_of_nodes = buffer[0];
@@ -29,7 +32,7 @@ function readNodes(module, start_pointer) {
         offset = readNode(module, buffer, offset, nodes);
     }
 
-    module.dealloc_u32(start_pointer, buffer_length);
+    module.dealloc(start_pointer, buffer_capacity);
 
     return nodes;
 }
@@ -55,6 +58,7 @@ function readNode(module, buffer, offset, nodes) {
 
             const attributes_offset = buffer[offset    ];
             const attributes_length = buffer[offset + 1];
+
             const attributes =
                 0 === attributes_length
                     ? null
@@ -102,20 +106,15 @@ export class Gutenberg_Post_Parser {
 
     _parse(module) {
         const buffer = this._encoder.encode(module.input);
-        const buffer_pointer = writeString(module, buffer);
-        const output_pointer = module.root(buffer_pointer, buffer.length);
+        const buffer_length = buffer.length;
+        const buffer_pointer = writeString(module, buffer, buffer_length);
+
+        const output_pointer = module.root(buffer_pointer, buffer_length);
         const result = readNodes(module, output_pointer);
 
         module.input = null;
 
-        console.log(buffer_pointer);
-        console.log(buffer.length);
-
-        console.log(new Uint8Array(module.memory.buffer, buffer_pointer, buffer.length));
-
-        module.dealloc_u8(buffer_pointer, buffer.length);
-
-        console.log(new Uint8Array(module.memory.buffer, buffer_pointer, buffer.length));
+        module.dealloc(buffer_pointer, buffer_length);
 
         return result;
     }
@@ -131,8 +130,7 @@ export class Gutenberg_Post_Parser {
             (module) => {
                 if (undefined === _module.alloc) {
                     _module.alloc = module.exports.alloc;
-                    _module.dealloc_u8 = module.exports.dealloc_u8;
-                    _module.dealloc_u32 = module.exports.dealloc_u32;
+                    _module.dealloc = module.exports.dealloc;
                     _module.root = module.exports.root;
                     _module.memory = module.exports.memory;
                     _module.Block = this.Block;
