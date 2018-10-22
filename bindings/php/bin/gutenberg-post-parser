@@ -2,7 +2,9 @@
 <?php
 
 if (false === extension_loaded('gutenberg_post_parser')) {
-    exit('The `gutenberg_post_parser` extension is not loaded.');
+    echo 'The `gutenberg_post_parser` extension is not loaded.';
+
+    exit(1);
 }
 
 function stderr(string $output)
