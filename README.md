@@ -164,6 +164,9 @@ browser. Here are the results:
 The WASM binary of the Rust parser is in average 159 times faster than
 the actual Javascript implementation. The median of the speedup is 126.
 
+Learn more with this blog post: [From Rust to beyond: The WebAssembly
+galaxy][from-rust-to-beyond-wasm].
+
 ### ASM.js module
 
 ASM.js is a fallback for environments that do not support WebAssembly,
@@ -185,6 +188,9 @@ in the browser. Here are the results:
 The ASM.js module version of the Rust parser is in average 6 times
 faster than the actual Javascript implementation. The median of the
 speedup is 6.
+
+Learn more with this blog post: [From Rust to beyond: The ASM.js
+galaxy][from-rust-to-beyond-asmjs].
 
 ### PHP native extension
 
@@ -208,6 +214,9 @@ than the actual PHP implementation. The median of the speedup is 941.
 Note that memory limit has been hit very quickly with the PHP parser,
 while the Rust parser as a PHP native extension has a small memory
 footprint.
+
+Learn more with this blog post: [From Rust to beyond: The C
+galaxy][from-rust-to-beyond-c].
 
 ## License
 
@@ -253,6 +262,9 @@ The license is a classic `BSD-3-Clause`:
 [C]: https://en.wikipedia.org/wiki/C_(programming_language)
 [PHP]: https://php.net/
 [gutenberg-parser-comparator]: https://github.com/dmsnell/gutenberg-parser-comparator
+[from-rust-to-beyond-wasm]: https://mnt.io/2018/08/22/from-rust-to-beyond-the-webassembly-galaxy/
+[from-rust-to-beyond-asmjs]: https://mnt.io/2018/08/28/from-rust-to-beyond-the-asm-js-galaxy/
+[from-rust-to-beyond-c]: https://mnt.io/2018/09/11/from-rust-to-beyond-the-c-galaxy/
 [`demo-post.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html
 [`shortcode-shortcomings.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html
 [`redesigning-chrome-desktop.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/redesigning-chrome-desktop.html
@@ -260,4 +272,3 @@ The license is a classic `BSD-3-Clause`:
 [`early-adopting-the-future.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/early-adopting-the-future.html
 [`pygmalian-raw-html.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/pygmalian-raw-html.html
 [`moby-dick-parsed.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/moby-dick-parsed.html
-
