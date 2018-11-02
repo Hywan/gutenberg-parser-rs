@@ -30,6 +30,8 @@ function read(module, start_pointer) {
     return nodes;
 }
 
+const name_cache = {};
+
 function readNodes(number_of_nodes, module, buffer, offset, nodes) {
     for (let i = 0; i < number_of_nodes; ++i) {
         const node_type = buffer[offset];
@@ -40,13 +42,16 @@ function readNodes(number_of_nodes, module, buffer, offset, nodes) {
                 const name_length = buffer[offset];
                 offset += 1;
 
-                const name =
-                    buffer
-                        .subarray(offset, offset + name_length)
-                        .reduce(
-                            (accumulator, value) => accumulator + String.fromCharCode(value),
-                            ''
-                        );
+                const name_buffer = buffer.subarray(offset, offset + name_length);
+                const name_cache_key = name_buffer.join(',');
+
+                let name = name_cache[name_cache_key];
+
+                if (!name) {
+                    name =
+                        name_cache[name_cache_key] =
+                        name_buffer.reduce((accumulator, value) => accumulator + String.fromCharCode(value), '');
+                }
 
                 offset += name_length;
 
