@@ -9,7 +9,7 @@ function writeString(module, string_buffer, string_buffer_capacity) {
     return pointer;
 }
 
-function readNodes(module, start_pointer) {
+function read(module, start_pointer) {
     const buffer_properties = new Uint32Array(module.memory.buffer, start_pointer, 2);
     const buffer_capacity = buffer_properties[0] / 4;
     const buffer_length = buffer_properties[1] / 4;
@@ -23,70 +23,69 @@ function readNodes(module, start_pointer) {
     }
 
     const nodes = [];
-    let offset = 1;
 
-    for (let i = 0; i < number_of_nodes; ++i) {
-        offset = readNode(module, buffer, offset, nodes);
-    }
-
+    readNodes(number_of_nodes, module, buffer, 1, nodes);
     module.dealloc(start_pointer, buffer_capacity);
 
     return nodes;
 }
 
-function readNode(module, buffer, offset, nodes) {
-    const node_type = buffer[offset];
-    offset += 1;
+function readNodes(number_of_nodes, module, buffer, offset, nodes) {
+    for (let i = 0; i < number_of_nodes; ++i) {
+        const node_type = buffer[offset];
+        offset += 1;
 
-    switch (node_type) {
-        case 1: // Block.
-            const name_length = buffer[offset];
-            offset += 1;
+        switch (node_type) {
+            case 1: // Block.
+                const name_length = buffer[offset];
+                offset += 1;
 
-            const name =
-                buffer
-                    .subarray(offset, offset + name_length)
-                    .reduce(
-                        (accumulator, value) => accumulator + String.fromCharCode(value),
-                        ''
-                    );
+                const name =
+                    buffer
+                        .subarray(offset, offset + name_length)
+                        .reduce(
+                            (accumulator, value) => accumulator + String.fromCharCode(value),
+                            ''
+                        );
 
-            offset += name_length;
+                offset += name_length;
 
-            const attributes_offset = buffer[offset    ];
-            const attributes_length = buffer[offset + 1];
+                const attributes_offset = buffer[offset    ];
+                const attributes_length = buffer[offset + 1];
 
-            const attributes =
-                0 === attributes_length
-                    ? null
-                    : JSON.parse(module.input.substr(attributes_offset, attributes_length));
+                const attributes =
+                    0 === attributes_length
+                        ? null
+                        : JSON.parse(module.input.substr(attributes_offset, attributes_length));
 
-            const number_of_children = buffer[offset + 2];
-            const children = [];
+                const number_of_children = buffer[offset + 2];
+                const children = [];
 
-            offset += 3;
+                offset += 3;
+                offset = readNodes(number_of_children, module, buffer, offset, children);
 
-            for (let i = 0; i < number_of_children; ++i) {
-                offset = readNode(module, buffer, offset, children);
-            }
+                nodes.push(new module.Block(name, attributes, children));
 
-            nodes.push(new module.Block(name, attributes, children));
+                break;
 
-            return offset;
+            case 2: // Phrase.
+                const phrase_offset = buffer[offset    ];
+                const phrase_length = buffer[offset + 1];
 
-        case 2: // Phrase.
-            const phrase_offset = buffer[offset    ];
-            const phrase_length = buffer[offset + 1];
+                const phrase = module.input.substr(phrase_offset, phrase_length);
 
-            const phrase = module.input.substr(phrase_offset, phrase_length);
+                nodes.push(new module.Phrase(phrase));
 
-            nodes.push(new module.Phrase(phrase));
+                offset += 2;
 
-            return offset + 2;
+                break;
 
-        default:
-            console.error('unknown node type', node_type);
+            default:
+                console.error('unknown node type', node_type);
+        }
     }
+
+    return offset;
 }
 
 export class Gutenberg_Post_Parser {
@@ -107,7 +106,7 @@ export class Gutenberg_Post_Parser {
         const buffer_pointer = writeString(module, buffer, buffer_length);
 
         const output_pointer = module.root(buffer_pointer, buffer_length);
-        const result = readNodes(module, output_pointer);
+        const result = read(module, output_pointer);
 
         module.input = null;
 
