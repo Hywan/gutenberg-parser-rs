@@ -215,8 +215,10 @@ Note that memory limit has been hit very quickly with the PHP parser,
 while the Rust parser as a PHP native extension has a small memory
 footprint.
 
-Learn more with this blog post: [From Rust to beyond: The C
-galaxy][from-rust-to-beyond-c].
+Learn more with these blog posts:
+
+  * [From Rust to beyond: The PHP galaxy][from-rust-to-beyond-php],
+  * [From Rust to beyond: The C galaxy][from-rust-to-beyond-c].
 
 ## License
 
@@ -264,6 +266,7 @@ The license is a classic `BSD-3-Clause`:
 [gutenberg-parser-comparator]: https://github.com/dmsnell/gutenberg-parser-comparator
 [from-rust-to-beyond-wasm]: https://mnt.io/2018/08/22/from-rust-to-beyond-the-webassembly-galaxy/
 [from-rust-to-beyond-asmjs]: https://mnt.io/2018/08/28/from-rust-to-beyond-the-asm-js-galaxy/
+[from-rust-to-beyond-php]: https://mnt.io/2018/10/29/from-rust-to-beyond-the-php-galaxy/
 [from-rust-to-beyond-c]: https://mnt.io/2018/09/11/from-rust-to-beyond-the-c-galaxy/
 [`demo-post.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/demo-post.html
 [`shortcode-shortcomings.html`]: https://raw.githubusercontent.com/dmsnell/gutenberg-document-library/master/library/shortcode-shortcomings.html
