@@ -3,7 +3,6 @@ Cargo.lock
 /bindings/asmjs/bin/gutenberg_post_parser.asm.js.br
 /bindings/asmjs/bin/gutenberg_post_parser.asm.js.gz
 /bindings/c/bin/gutenberg-post-parser
-/bindings/c/bin/gutenberg_post_parser.h
 /bindings/nodejs/native/artifacts.json
 /bindings/nodejs/native/index.node
 /bindings/php/benches/composer.lock
