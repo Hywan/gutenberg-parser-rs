@@ -17,7 +17,7 @@ void print(const Vector_Node* nodes, int depth) {
 
         if (node.tag == Block) {
             const Block_Body block = node.block;
-            const Slice_c_char namespace = block.namespace;
+            const Slice_c_char namespace = block.namespace_;
             const Slice_c_char name = block.name;
 
             printf("%*.*sblock\n", depth, depth, " ");

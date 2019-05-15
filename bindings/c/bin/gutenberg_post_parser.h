@@ -8,9 +8,10 @@ Run `just build-c` to rebuild it.
 
 */
 
+#include <stdarg.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 typedef struct {
     const char *pointer;
@@ -39,7 +40,7 @@ typedef enum {
 } Node_Tag;
 
 typedef struct {
-    Slice_c_char namespace;
+    Slice_c_char namespace_;
     Slice_c_char name;
     Option_c_char attributes;
     const void *children;

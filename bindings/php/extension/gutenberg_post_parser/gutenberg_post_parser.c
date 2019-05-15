@@ -142,7 +142,7 @@ PHP_MINFO_FUNCTION(gutenberg_post_parser)
  * Map Rust AST to a PHP array of objects of kind
  * `Gutenberg_Parser_Block` and `Gutenberg_Parser_Phrase`.
  */
-void into_php_objects(zval *php_array, const Vector_Node* nodes)
+void into_php_objects(zval *php_array, const Vector_Node *nodes)
 {
 	const uintptr_t number_of_nodes = nodes->length;
 
@@ -160,7 +160,7 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 			zval php_block, php_block_namespace, php_block_name;
 
 			// Prepare the PHP strings.
-			ZVAL_STRINGL(&php_block_namespace, block.namespace.pointer, block.namespace.length);
+			ZVAL_STRINGL(&php_block_namespace, block.namespace_.pointer, block.namespace_.length);
 			ZVAL_STRINGL(&php_block_name, block.name.pointer, block.name.length);
 
 			// Create the `Gutenberg_Parser_Block` object.
@@ -192,7 +192,7 @@ void into_php_objects(zval *php_array, const Vector_Node* nodes)
 				zval_ptr_dtor(&php_block_attributes);
 			}
 
-			const Vector_Node* children = (const Vector_Node*) (block.children);
+			const Vector_Node *children = (const Vector_Node*) (block.children);
 
 			// Default value for `Gutenberg_Parser_Block->children` is `NULL`.
 			// Allocate an array only if there is children.

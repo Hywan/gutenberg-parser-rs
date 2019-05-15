@@ -27,13 +27,13 @@ use std::ptr;
 #[repr(C)]
 pub struct Slice_c_char {
     pointer: *const c_char,
-    length: usize
+    length: usize,
 }
 
 #[repr(C)]
 pub enum Option_c_char {
     Some(Slice_c_char),
-    None
+    None,
 }
 
 #[repr(C)]
@@ -43,21 +43,21 @@ pub enum Node {
         name: Slice_c_char,
         attributes: Option_c_char,
         // Cannot type to `*const Vector_Node` here because of https://github.com/eqrion/cbindgen/issues/43.
-        children: *const c_void
+        children: *const c_void,
     },
-    Phrase(Slice_c_char)
+    Phrase(Slice_c_char),
 }
 
 #[repr(C)]
 pub struct Vector_Node {
     buffer: *const Node,
-    length: usize
+    length: usize,
 }
 
 #[repr(C)]
 pub enum Result {
     Ok(Vector_Node),
-    Err
+    Err,
 }
 
 #[no_mangle]
@@ -94,73 +94,54 @@ pub extern "C" fn parse(pointer: *const c_char) -> Result {
 
 fn into_c<'a>(node: &ast::Node<'a>) -> Node {
     match *node {
-        ast::Node::Block { name, attributes, ref children } => {
-            Node::Block {
-                namespace: Slice_c_char {
-                    pointer: name.0.as_ptr() as *const c_char,
-                    length: name.0.len()
-                },
-                name: Slice_c_char {
-                    pointer: name.1.as_ptr() as *const c_char,
-                    length: name.1.len()
-                },
-                attributes: match attributes {
-                    Some(attributes) => {
-                        Option_c_char::Some(
-                            Slice_c_char {
-                                pointer: attributes.as_ptr() as *const c_char,
-                                length: attributes.len()
-                            }
-                        )
-                    },
+        ast::Node::Block {
+            name,
+            attributes,
+            ref children,
+        } => Node::Block {
+            namespace: Slice_c_char {
+                pointer: name.0.as_ptr() as *const c_char,
+                length: name.0.len(),
+            },
+            name: Slice_c_char {
+                pointer: name.1.as_ptr() as *const c_char,
+                length: name.1.len(),
+            },
+            attributes: match attributes {
+                Some(attributes) => Option_c_char::Some(Slice_c_char {
+                    pointer: attributes.as_ptr() as *const c_char,
+                    length: attributes.len(),
+                }),
 
-                    None => {
-                        Option_c_char::None
-                    }
-                },
-                children: {
-                    let output: Vec<Node> =
-                        children
-                        .into_iter()
-                        .map(
-                            |node| {
-                                into_c(&node)
-                            }
-                        )
-                        .collect();
+                None => Option_c_char::None,
+            },
+            children: {
+                let output: Vec<Node> =
+                    children.into_par_iter().map(|node| into_c(&node)).collect();
 
-                    let vector_node = if output.is_empty() {
-                        Box::new(
-                            Vector_Node {
-                                buffer: ptr::null(),
-                                length: 0
-                            }
-                        )
-                    } else {
-                        Box::new(
-                            Vector_Node {
-                                buffer: output.as_slice().as_ptr(),
-                                length: output.len()
-                            }
-                        )
-                    };
-                    let vector_node_pointer = Box::into_raw(vector_node) as *const c_void;
+                let vector_node = if output.is_empty() {
+                    Box::new(Vector_Node {
+                        buffer: ptr::null(),
+                        length: 0,
+                    })
+                } else {
+                    Box::new(Vector_Node {
+                        buffer: output.as_slice().as_ptr(),
+                        length: output.len(),
+                    })
+                };
+                let vector_node_pointer = Box::into_raw(vector_node) as *const c_void;
 
-                    mem::forget(output);
+                mem::forget(output);
 
-                    vector_node_pointer
-                }
-            }
+                vector_node_pointer
+            },
         },
 
-        ast::Node::Phrase(input) => {
-            Node::Phrase(
-                Slice_c_char {
-                    pointer: input.as_ptr() as *const c_char,
-                    length: input.len()
-                }
-            )
-        }
+        ast::Node::Phrase(input) => Node::Phrase(Slice_c_char {
+            pointer: input.as_ptr() as *const c_char,
+            length: input.len(),
+        }),
     }
 }
 
@@ -169,21 +150,22 @@ mod tests {
     use super::*;
 
     macro_rules! str_to_c_char {
-        ($input:expr) => (
-            {
-                ::std::ffi::CString::new($input).unwrap()
-            }
-        )
+        ($input:expr) => {{
+            ::std::ffi::CString::new($input).unwrap()
+        }};
     }
 
     macro_rules! slice_c_char_to_str {
-        ($input:ident) => (
+        ($input:ident) => {
             unsafe {
-                ::std::ffi::CStr::from_bytes_with_nul_unchecked(
-                    ::std::slice::from_raw_parts($input.pointer as *const u8, $input.length + 1)
-                ).to_str().unwrap()
+                ::std::ffi::CStr::from_bytes_with_nul_unchecked(::std::slice::from_raw_parts(
+                    $input.pointer as *const u8,
+                    $input.length + 1,
+                ))
+                .to_str()
+                .unwrap()
             }
-        )
+        };
     }
 
     #[test]
@@ -196,15 +178,15 @@ mod tests {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
                     Node::Phrase(phrase) => {
                         assert_eq!(slice_c_char_to_str!(phrase), "foo");
-                    },
+                    }
 
-                    _ => assert!(false)
+                    _ => assert!(false),
                 },
 
-                _ => assert!(false)
+                _ => assert!(false),
             },
 
-            _ => assert!(false)
+            _ => assert!(false),
         }
     }
 
@@ -216,30 +198,35 @@ mod tests {
         match output {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
-                    Node::Block { namespace, name, attributes, children } => {
+                    Node::Block {
+                        namespace,
+                        name,
+                        attributes,
+                        children,
+                    } => {
                         assert_eq!(slice_c_char_to_str!(namespace), "core");
                         assert_eq!(slice_c_char_to_str!(name), "foo");
 
                         match attributes {
                             Option_c_char::Some(attributes) => {
                                 assert_eq!(slice_c_char_to_str!(attributes), "{bar}");
-                            },
+                            }
 
-                            _ => assert!(false)
+                            _ => assert!(false),
                         }
 
                         let children = unsafe { &*(children as *const _ as *const Vector_Node) };
 
                         assert_eq!(children.length, 0);
-                    },
+                    }
 
-                    _ => assert!(false)
+                    _ => assert!(false),
                 },
 
-                _ => assert!(false)
+                _ => assert!(false),
             },
 
-            _ => assert!(false)
+            _ => assert!(false),
         }
     }
 
@@ -251,27 +238,32 @@ mod tests {
         match output {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
-                    Node::Block { namespace, name, attributes, children } => {
+                    Node::Block {
+                        namespace,
+                        name,
+                        attributes,
+                        children,
+                    } => {
                         assert_eq!(slice_c_char_to_str!(namespace), "core");
                         assert_eq!(slice_c_char_to_str!(name), "foo");
 
                         match attributes {
                             Option_c_char::None => assert!(true),
-                            _ => assert!(false)
+                            _ => assert!(false),
                         }
 
                         let children = unsafe { &*(children as *const _ as *const Vector_Node) };
 
                         assert_eq!(children.length, 0);
-                    },
+                    }
 
-                    _ => assert!(false)
+                    _ => assert!(false),
                 },
 
-                _ => assert!(false)
+                _ => assert!(false),
             },
 
-            _ => assert!(false)
+            _ => assert!(false),
         }
     }
 
@@ -283,27 +275,32 @@ mod tests {
         match output {
             Result::Ok(result) => match result {
                 Vector_Node { buffer, length } if length == 1 => match unsafe { &*buffer } {
-                    Node::Block { namespace, name, attributes, children } => {
+                    Node::Block {
+                        namespace,
+                        name,
+                        attributes,
+                        children,
+                    } => {
                         assert_eq!(slice_c_char_to_str!(namespace), "foo");
                         assert_eq!(slice_c_char_to_str!(name), "bar");
 
                         match attributes {
                             Option_c_char::None => assert!(true),
-                            _ => assert!(false)
+                            _ => assert!(false),
                         }
 
                         let children = unsafe { &*(children as *const _ as *const Vector_Node) };
 
                         assert_eq!(children.length, 0);
-                    },
+                    }
 
-                    _ => assert!(false)
+                    _ => assert!(false),
                 },
 
-                _ => assert!(false)
+                _ => assert!(false),
             },
 
-            _ => assert!(false)
+            _ => assert!(false),
         }
     }
 }
