@@ -117,7 +117,7 @@ fn into_c<'a>(node: &ast::Node<'a>) -> Node {
             },
             children: {
                 let output: Vec<Node> =
-                    children.into_par_iter().map(|node| into_c(&node)).collect();
+                    children.into_iter().map(|node| into_c(&node)).collect();
 
                 let vector_node = if output.is_empty() {
                     Box::new(Vector_Node {
