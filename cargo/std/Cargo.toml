@@ -37,4 +37,4 @@ failure = { version = "0.1.1", optional = true }
 clap = { version = "^2.31.2", optional = true }
 
 [dev-dependencies]
-criterion = "0.2"
+criterion = "0.3"
