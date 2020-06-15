@@ -32,7 +32,7 @@ default = []
 bin = ["failure", "clap"]
 
 [dependencies]
-nom = "4.0.0"
+nom = "5.1.2"
 failure = { version = "0.1.1", optional = true }
 clap = { version = "^2.31.2", optional = true }
 
