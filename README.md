@@ -4,6 +4,8 @@
 
 ---
 
+**Note**: This project was experimental and hasn't been selected to integrate the official Gutenberg project. It's time to archive it :-).
+
 # The Gutenberg post parser
 
 [Gutenberg] is a new post editor for the [WordPress] ecosystem. A post
